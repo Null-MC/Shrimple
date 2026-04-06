@@ -35,7 +35,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 
 //#define WATER_WAVE_ENABLED
 #define WATER_TEXTURE_ENABLED
-//#define WATER_ABSORPTION
+#define WATER_ABSORPTION
 #define WATER_COLOR_OVERRIDE
 //#define WATER_FOG_FIX
 

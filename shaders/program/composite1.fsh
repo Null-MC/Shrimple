@@ -70,9 +70,9 @@ void main() {
     float depthOpaque = texelFetch(depthtex1, uv, 0).r;
     float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
 
-    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_FOG_FIX)
+//    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_FOG_FIX)
         vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
-    #endif
+//    #endif
 
     #ifdef REFRACT_ENABLED
 //        float depthOpaque = texelFetch(depthtex1, uv, 0).r;
@@ -157,20 +157,20 @@ void main() {
 
             if (matID == MAT_WATER && isEyeInWater != 1 && transViewPos.z > opaqueViewPos.z) {
                 float waterDepth = distance(opaqueViewPos, transViewPos);
+                vec3 fogColorL = RGBToLinear(tintData.rgb);
+
+                #ifdef WATER_ABSORPTION
+                    vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
+                    src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+                #endif
 
                 #ifdef WATER_FOG_FIX
                     float borderFogF = GetBorderFogStrength(waterDepth);
                     float envFogF = GetEnvFogStrength(waterDepth, true);
 
-                    vec3 fogColorL = RGBToLinear(tintData.rgb);
                     vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
 
                     src = mix(src, fogColorFinal, max(borderFogF, envFogF));
-                #endif
-
-                #ifdef WATER_ABSORPTION
-                    vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
-                    src *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
                 #endif
             }
         #endif
@@ -183,6 +183,11 @@ void main() {
         if (isEyeInWater == 1) {
             float waterDepth = length(transViewPos);
 
+            #ifdef WATER_ABSORPTION
+                vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
+                color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
+            #endif
+
             #ifdef WATER_FOG_FIX
                 // sky fog fix
                 if (depthTranslucent == 1.0) {
@@ -194,11 +199,6 @@ void main() {
 
                     color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));
                 }
-            #endif
-
-            #ifdef WATER_ABSORPTION
-                vec3 waterAbsorbColorL = 1.0 - normalize(RGBToLinear(fogColor));
-                color.rgb *= GetWaterAbsorption(waterDepth, waterAbsorbColorL);
             #endif
         }
     #endif

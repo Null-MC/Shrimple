@@ -8,6 +8,8 @@ colortex4		    RGBA16F 	1.0		deferred normal
 colortex5		    R16		    1.0		SSAO
 colortex6           RGB16F      1.0     velocity
 
+colortex8           R8UI        1.0     meta
+
 
 ### CUSTOM IMAGES
 imgVoxels           R16UI       *3D     voxel buffer

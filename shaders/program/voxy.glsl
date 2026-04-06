@@ -267,7 +267,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
         if (parameters.customId == BLOCK_WATER) {
             matID = MAT_WATER;
-            tint = parameters.tinting.rgb;
+            tint = parameters.tinting.rgb * 0.65;
         }
 
         if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)

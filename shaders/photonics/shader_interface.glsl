@@ -87,6 +87,7 @@ void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world
     uint albedoData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).r;
     albedo = RGBToLinear(unpackUnorm4x8(albedoData.r).rgb);
 
+    world_normal = clamp(world_normal, vec3(-1.0), vec3(1.0));
     world_pos = load_world_position() - 0.01 * world_normal;
 }
 

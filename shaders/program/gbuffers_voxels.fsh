@@ -186,7 +186,7 @@ void main() {
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
         vec3 blockLight = lmcoord.x * blockLightColor;
 
-        #ifdef LIGHTING_COLORED
+        #if defined(LIGHTING_COLORED) && !defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             vec3 lpvSample = SampleFloodFill(samplePos);
             blockLight = mix(blockLight, lpvSample, lpvFade);
@@ -236,7 +236,7 @@ void main() {
         vec3 lit = texture(lightmap, LightMapTex(lmcoord)).rgb;
         lit = RGBToLinear(lit);
 
-        #ifdef LIGHTING_COLORED
+        #if defined(LIGHTING_COLORED) && !defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
             vec3 lpvSample = SampleFloodFill(samplePos, pow(vIn.lmcoord.x, 2.2));
             lit += lpvFade * lpvSample;
@@ -280,6 +280,9 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
+
+//        hitLocalNormal = vec3(0.0);
+
         outNormal = vec4(OctEncode(hitLocalNormal), OctEncode(viewNormal));
     #endif
 

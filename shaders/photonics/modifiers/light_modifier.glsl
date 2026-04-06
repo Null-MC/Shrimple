@@ -7,12 +7,10 @@
 
 void modify_light(inout Light light, vec3 world_pos) {
     #ifdef PHOTONICS_SHRIMPLE_COLORS
-        vec3 lightColor;
-        float lightRange;
-        GetBlockColorRange(light.blockId, lightColor, lightRange);
-
-        light.color = (lightRange / 15.0) * lightColor;
-        light.block_radius = lightRange;
+        if (light.blockId > 0 && light.blockId < USHORT_MAX) {
+            GetBlockColorRange(light.blockId, light.color, light.block_radius);
+            light.color = (light.block_radius / 15.0) * light.color;
+        }
     #else
         light.color /= light.intensity;
 
