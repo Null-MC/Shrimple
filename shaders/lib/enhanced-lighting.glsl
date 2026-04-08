@@ -1,4 +1,4 @@
-const float SkyDayBrightness = 10.0;
+const float SkyDayBrightness = 12.0;
 
 #ifdef WORLD_NETHER
     const float MinAmbientF = NETHER_BRIGHTNESS * 0.01;
@@ -8,16 +8,12 @@ const float SkyDayBrightness = 10.0;
 
 
 vec3 GetSkyLightColor(const in vec3 localPos, const in float localSunLightDir_y, const in float localSkyLightDir_y) {
-    #ifdef WORLD_NETHER
-//        const float brightnessF = NETHER_BRIGHTNESS * 0.01;
-//        return vec3(brightnessF);
-        return vec3(0.0);
-    #else
+    #ifndef WORLD_NETHER
         const float nightBrightF = OVERWORLD_NIGHT_BRIGHTNESS * 0.01;
 
         float dayF = smoothstep(-0.15, 0.05, localSunLightDir_y);
         float skyLightBrightness = mix(nightBrightF, SkyDayBrightness, dayF);
-        skyLightBrightness *= abs(localSkyLightDir_y);// abs(localSunLightDir_y);
+        skyLightBrightness *= pow(abs(localSkyLightDir_y), 0.25);// abs(localSunLightDir_y);
 
 //        skyLightBrightness *= mix(1.0, 0.08, smoothstep(0.0, 1.0, weatherStrength));
         skyLightBrightness *= mix(1.0, 0.04, weatherStrength);
@@ -30,5 +26,9 @@ vec3 GetSkyLightColor(const in vec3 localPos, const in float localSunLightDir_y,
         #endif
 
         return transmit * skyLightBrightness;
+    #else
+//        const float brightnessF = NETHER_BRIGHTNESS * 0.01;
+//        return vec3(brightnessF);
+        return vec3(0.0);
     #endif
 }

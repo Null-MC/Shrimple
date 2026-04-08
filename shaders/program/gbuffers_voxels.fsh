@@ -127,6 +127,9 @@ void main() {
 
     if (!ray.result_hit) discard;
 
+    vec2 lmcoord = vIn.lmcoord;
+    lmcoord.y = get_result_sky_light(ray.result_normal) / 15.0;
+
     vec3 hitLocalNormal = ray.result_normal;
     vec3 hitLocalPos = ray.result_position - rt_camera_position;
     vec3 hitViewPos = mul3(gbufferModelView, hitLocalPos);
@@ -173,8 +176,6 @@ void main() {
         vec3 voxelPos = GetVoxelPosition(hitLocalPos);
         float lpvFade = GetVoxelFade(voxelPos);
     #endif
-
-    vec2 lmcoord = vIn.lmcoord;
 
     #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
         lmcoord.x = 0.0;
@@ -280,9 +281,6 @@ void main() {
 
     #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
-
-//        hitLocalNormal = vec3(0.0);
-
         outNormal = vec4(OctEncode(hitLocalNormal), OctEncode(viewNormal));
     #endif
 

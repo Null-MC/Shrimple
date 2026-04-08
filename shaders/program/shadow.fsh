@@ -38,9 +38,19 @@ void main() {
                 outColor *= color;
             #endif
 
+            #ifndef WATER_TEXTURE_ENABLED
+                if (blockId == BLOCK_WATER)
+                    outColor.rgb = vec3(1.0);
+            #endif
+
 //            if (blockId == BLOCK_WATER)
 //                outColor.a = outColor.a*0.2 + 0.8;
         #endif
+    #endif
+
+    #ifndef WATER_TEXTURE_ENABLED
+        if (blockId == BLOCK_WATER)
+            outColor.a = 0.2;
     #endif
 
     #ifndef RENDER_SOLID

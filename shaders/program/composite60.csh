@@ -17,7 +17,7 @@ uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
 #ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex0;
+    uniform sampler2D dhDepthTex1;
 #endif
 
 #ifdef VOXY
@@ -109,7 +109,7 @@ void main() {
 
         #ifdef DISTANT_HORIZONS
             if (depthNow == 1.0) {
-                depthNow = texelFetch(dhDepthTex0, uv, 0).r;
+                depthNow = texelFetch(dhDepthTex1, uv, 0).r;
                 isLod = true;
             }
         #elif defined(VOXY)
