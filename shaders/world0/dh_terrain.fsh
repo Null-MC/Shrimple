@@ -3,4 +3,4 @@
 #define RENDER_SOLID
 
 #include "overworld.glsl"
-#include "/program/dh_main.fsh"
+#include "/program/gbuffers_defer.fsh"

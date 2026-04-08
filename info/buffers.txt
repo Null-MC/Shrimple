@@ -1,5 +1,13 @@
 ### COLORTEX
 colortex0		    RGB16F		1.0		final
+
+colortex1		    RGBA8 	    1.0		deferred albedo
+colortex2		    RGBA16F 	1.0		deferred normals
+colortex3		    RG32UI 	    1.0		deferred specular, meta
+
+
+
+
 colortex1		    RGBA16F		1.0		translucent final
 colortex2		    RGB8		1.0		translucent tint
 
