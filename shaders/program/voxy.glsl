@@ -70,15 +70,14 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         if (isGrass) localNormal = vec3(0,1,0);
     #endif
 
-    vec3 albedo = RGBToLinear(color.rgb);
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
     vec3 localTexNormal = localNormal;
     #ifdef RENDER_TRANSLUCENT
         if (parameters.customId == BLOCK_WATER) {
             #ifndef WATER_TEXTURE_ENABLED
-                albedo = vec3(0.0);//RGBToLinear(parameters.tinting.rgb);
-                color.a = Water_f0;
+                //color = RGBToLinear(parameters.tinting.rgb);
+                color = vec4(vec3(0.0), Water_f0);
             #endif
 
             #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
@@ -100,6 +99,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     float viewDist = length(localPos);
     vec2 lmcoord_in = LightMapNorm(parameters.lightMap);
+    vec3 albedo = RGBToLinear(color.rgb);
 
     vec3 localSkyLightDir = normalize(mat3(vxModelViewInv) * shadowLightPosition);
     vec3 localViewDir = normalize(localPos);
@@ -282,7 +282,13 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
 
     #ifdef DEFERRED_ENABLED
         const float occlusion = 1.0;
-        const uint matId = 0;
+        uint matId = 0;
+        #ifdef RENDER_TRANSLUCENT
+            if (parameters.customId == BLOCK_WATER) matId = MAT_WATER;
+            else if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS) {
+                matId = MAT_STAINED_GLASS;
+            }
+        #endif
 
         vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
         outNormals = vec4(OctEncode(localNormal), OctEncode(viewNormal));

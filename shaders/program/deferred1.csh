@@ -51,7 +51,8 @@ void main() {
     vec3 ndcPos = vec3(texcoord, depth) * 2.0 - 1.0;
     vec3 viewPos = project(isLod ? LOD_PROJ_INV : gbufferProjectionInverse, ndcPos);
 
-    float depthFinal = -near / viewPos.z;
+    float depthFinal = 0.0;
+    if (depth < 1.0) depthFinal = -near / viewPos.z;
 
     imageStore(imgDepthLod_opaque, uv, vec4(depthFinal));
 }

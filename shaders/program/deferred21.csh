@@ -132,7 +132,6 @@ void main() {
     float lod_depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
 
     if (lod_depth > 0.0) {
-//        color *= vec3(1,0,0);
         float depth = texelFetch(TEX_DEPTH, uv, 0).r;
         if (depth >= 1.0) color *= BilateralGaussianBlur();
 

@@ -133,7 +133,7 @@ void main() {
 
         #ifdef MATERIAL_GLASS_TINT
             if (matID == MAT_STAINED_GLASS)
-                src *= vec3(1,0,0);//normalize(RGBToLinear(tintColor.rgb));
+                src *= normalize(RGBToLinear(tintColor.rgb));
         #endif
 
         #if defined(WATER_FOG_FIX) || defined(WATER_ABSORPTION)

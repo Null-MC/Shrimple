@@ -248,7 +248,7 @@ void main() {
         float smoothness = 1.0 - roughness;
 
         if (smoothness > (1.5/255.0)) {
-            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
+//            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
             vec3 localGeoNormal = OctDecode(normalData.xy);
             vec3 viewTexNormal = OctDecode(normalData.zw);
 

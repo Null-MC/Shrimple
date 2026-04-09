@@ -150,11 +150,11 @@ layout(location = 0) out vec3 outFinal;
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
     outFinal = texelFetch(TEX_FINAL, uv, 0).rgb;
-//    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
     vec4 src = texelFetch(TEX_GB_COLOR, uv, 0);
 
-    if (src.a > 0.0) {
-        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+    if (src.a > 0.0 && depth < 1.0) {
+//        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 //        vec4 color = texelFetch(TEX_GB_COLOR, uv, 0);
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
         uvec2 specularMetaData = texelFetch(TEX_GB_SPECULAR, uv, 0).rg;
