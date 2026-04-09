@@ -4,12 +4,15 @@ const int colortex1Format = RGBA16F;
 const vec4 colortex1ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex2Format = RGBA8;
 const vec4 colortex2ClearColor = vec4(1.0,1.0,1.0,0.0);
-const int colortex3Format = RG32UI;
-const int colortex4Format = RGBA16F;
-const int colortex5Format = R16;
-const int colortex6Format = RGB16F;
-const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
+const int colortex3Format = RGB16F;
+const vec4 colortex3ClearColor = vec4(0.0,0.0,0.0,0.0);
 
+const int colortex4Format = RGBA8;
+const vec4 colortex4ClearColor = vec4(0.0,0.0,0.0,0.0);
+const int colortex5Format = RGBA16F;
+const int colortex6Format = RG32UI;
+
+const int colortex7Format = R16F;
 const int colortex8Format = R8UI;
 const vec4 colortex8ClearColor = vec4(0.0,0.0,0.0,0.0);
 

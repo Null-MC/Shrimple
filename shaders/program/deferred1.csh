@@ -5,7 +5,7 @@ layout (local_size_x = 16, local_size_y = 16) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 
-layout(r32f) uniform writeonly image2D imgDepthLod_trans;
+layout(r32f) uniform writeonly image2D imgDepthLod_opaque;
 
 uniform sampler2D depthtex0;
 
@@ -53,5 +53,5 @@ void main() {
 
     float depthFinal = -near / viewPos.z;
 
-    imageStore(imgDepthLod_trans, uv, vec4(depthFinal));
+    imageStore(imgDepthLod_opaque, uv, vec4(depthFinal));
 }

@@ -5,21 +5,22 @@
   ",
   "version": 1,
   "excludeLodsFromVanillaDepth": true,
-  #ifdef TAA_ENABLED
-    #ifdef DEFERRED_ENABLED
-      "opaqueDrawBuffers": [0,8,6,4,3],
-      "translucentDrawBuffers": [1,8,2,6,4,3],
+  #ifdef VELOCITY_ENABLED
+    "opaqueDrawBuffers": [4,5,6,3],
+  #else
+    "opaqueDrawBuffers": [4,5,6],
+  #endif
+  #ifdef DEFERRED_ENABLED,
+    #ifdef VELOCITY_ENABLED
+      "translucentDrawBuffers": [1,2,9,9,3],
     #else
-      "opaqueDrawBuffers": [0,8,6],
-      "translucentDrawBuffers": [1,8,2,6],
+      "translucentDrawBuffers": [1,2,9,9],
     #endif
   #else
-    #ifdef DEFERRED_ENABLED
-      "opaqueDrawBuffers": [0,8,4,3],
-      "translucentDrawBuffers": [1,8,2,4,3],
+    #ifdef VELOCITY_ENABLED
+      "translucentDrawBuffers": [1,2,3],
     #else
-      "opaqueDrawBuffers": [0,8],
-      "translucentDrawBuffers": [1,8,2],
+      "translucentDrawBuffers": [1,2],
     #endif
   #endif
   "blending": {

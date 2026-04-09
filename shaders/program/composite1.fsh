@@ -5,7 +5,8 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_TRANSLUCENT_FINAL;
-uniform sampler2D TEX_TRANSLUCENT_TINT;
+uniform sampler2D TEX_GB_COLOR;
+uniform usampler2D TEX_GB_SPECULAR;
 
 uniform sampler2D depthtex0;
 uniform sampler2D depthtex1;
@@ -23,7 +24,7 @@ uniform sampler2D depthtex1;
 #ifdef REFRACT_ENABLED
 //    uniform sampler2D depthtex0;
 //    uniform sampler2D depthtex1;
-    uniform sampler2D TEX_NORMAL;
+    uniform sampler2D TEX_GB_NORMALS;
 #endif
 
 uniform float far;
@@ -71,13 +72,16 @@ void main() {
     float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
 
 //    #if defined(MATERIAL_GLASS_TINT) || defined(WATER_FOG_FIX)
-        vec4 tintData = texelFetch(TEX_TRANSLUCENT_TINT, uv, 0);
+        vec4 tintColor = texelFetch(TEX_GB_COLOR, uv, 0);
 //    #endif
+
+    vec4 meta = unpackUnorm4x8(texelFetch(TEX_GB_SPECULAR, uv, 0).g);
+
 
     #ifdef REFRACT_ENABLED
 //        float depthOpaque = texelFetch(depthtex1, uv, 0).r;
 //        float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
-        vec4 normalData = texelFetch(TEX_NORMAL, uv, 0);
+        vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
 
         vec2 coord = texcoord;
         if (depthTranslucent < depthOpaque) {
@@ -125,11 +129,11 @@ void main() {
     #endif
 
     #if defined(MATERIAL_GLASS_TINT) || defined(WATER_ABSORPTION) || defined(WATER_FOG_FIX)
-        uint matID = uint(tintData.a * 255.0 + 0.5);
+        uint matID = uint(meta.a * 255.0 + 0.5);
 
         #ifdef MATERIAL_GLASS_TINT
             if (matID == MAT_STAINED_GLASS)
-                src *= normalize(RGBToLinear(tintData.rgb));
+                src *= vec3(1,0,0);//normalize(RGBToLinear(tintColor.rgb));
         #endif
 
         #if defined(WATER_FOG_FIX) || defined(WATER_ABSORPTION)
@@ -157,7 +161,7 @@ void main() {
 
             if (matID == MAT_WATER && isEyeInWater != 1 && transViewPos.z > opaqueViewPos.z) {
                 float waterDepth = distance(opaqueViewPos, transViewPos);
-                vec3 fogColorL = RGBToLinear(tintData.rgb);
+                vec3 fogColorL = RGBToLinear(tintColor.rgb);
 
                 #ifdef WATER_ABSORPTION
                     vec3 waterAbsorbColorL = 1.0 - normalize(fogColorL);
@@ -194,7 +198,7 @@ void main() {
                     float borderFogF = GetBorderFogStrength(waterDepth);
                     float envFogF = GetEnvFogStrength(waterDepth, true);
 
-                    vec3 fogColorL = RGBToLinear(tintData.rgb);
+                    vec3 fogColorL = RGBToLinear(tintColor.rgb);
                     vec3 fogColorFinal = GetWaterFogColor(fogColorL, sunLocalDir, weatherStrength, skyDayF);
 
                     color.rgb = mix(color.rgb, fogColorFinal, max(borderFogF, envFogF));

@@ -7,6 +7,9 @@ shadowcomp		floodfill propagation
 
 prepare1		fog/sky color [nether only]
 
+deferred1       opaque LOD depth merge
+deferred2       opaque final
+
 deferred10      photonics Lighting
 deferred20      voxy/DH SSAO
 deferred21      voxy/DH SSAO apply

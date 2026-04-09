@@ -117,19 +117,17 @@ void main() {
     color.rgb = mix(color.rgb * color.a, fogColorFinal, fogF);
 
     outFinal = color;
-    outMeta = 0u;
+//    outMeta = 0u;
 
-    #ifdef TAA_ENABLED
+    #ifdef VELOCITY_ENABLED
         // TODO: can this be hard-coded?
         outVelocity = vec3(0.0);
     #endif
 
-    #ifdef DEFERRED_NORMAL_ENABLED
-//        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
-        outNormal = vec4(0.0);//vec4(OctEncode(localNormal), OctEncode(viewNormal));
-    #endif
+    #ifdef DEFERRED_ENABLED
+        //        vec3 viewNormal = mat3(gbufferModelView) * localNormal;
+        outNormals = vec4(0.0);//vec4(OctEncode(localNormal), OctEncode(viewNormal));
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(0u);
+        outSpecularMeta = uvec2(0u);
     #endif
 }

@@ -129,7 +129,6 @@ uniform float dhFarPlane;
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
 #include "/lib/oklab.glsl"
-#include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/tbn.glsl"
 #include "/lib/ign.glsl"
@@ -267,10 +266,18 @@ void main() {
         }
     #endif
 
+    #ifdef RENDER_TERRAIN
+        float occlusion = _pow2(vIn.color.a);
+    #else
+        float occlusion = 1.0;
+    #endif
+
     #ifdef MATERIAL_PBR_ENABLED
         vec4 normalData = textureLod(normals, texcoord, mip);
         vec3 tex_normal = mat_normal(normalData.xyz);
         float tex_occlusion = mat_occlusion(normalData.w);
+
+        occlusion *= tex_occlusion;
 
         #if defined(MATERIAL_PARALLAX_ENABLED) && MATERIAL_PARALLAX_TYPE == PARALLAX_SHARP
             float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
@@ -313,7 +320,6 @@ void main() {
         float sss = mat_sss(specularData.b);
     #else
         vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
-        const float tex_occlusion = 1.0;
         const float sss = 0.0;
 
         // TODO: if vanilla lighting, make foliage have "up" normals
@@ -522,11 +528,7 @@ void main() {
         #endif
     #endif
 
-    #ifdef RENDER_TERRAIN
-        diffuseFinal *= _pow2(vIn.color.a);
-    #endif
-
-    diffuseFinal *= tex_occlusion;
+    diffuseFinal *= occlusion;
 
     #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
         if (heldItemId >= 0) {
@@ -612,10 +614,11 @@ void main() {
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
+        outFinal.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
     #else
-        color.rgb = albedo * diffuseFinal * color.a + specularFinal;
+        outFinal.rgb = albedo * diffuseFinal * color.a + specularFinal;
     #endif
+    outFinal.a = color.a;
 
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);
@@ -631,8 +634,8 @@ void main() {
     vec3 skyColorL = RGBToLinear(skyColor);
     vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
-    color.rgb = mix(color.rgb, fogColorFinal, fogF);
-    color.a = max(color.a, fogF);
+    outFinal.rgb = mix(outFinal.rgb, fogColorFinal, fogF);
+    outFinal.a = max(outFinal.a, fogF);
 
 //    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
 //        if (isEyeInWater == 1) {
@@ -648,12 +651,6 @@ void main() {
 //        color.rgb = 0.5 * (color.rgb + vec3(0,0,1));
 //    #endif
 
-    outFinal = color;
-
-    outMeta = 0u;
-    #ifdef RENDER_HAND
-        outMeta = 1u;
-    #endif
 
     #if defined(VELOCITY_ENABLED)
         #if defined(RENDER_TERRAIN)
@@ -663,41 +660,52 @@ void main() {
         #endif
     #endif
 
-    #ifdef RENDER_TRANSLUCENT
-        vec3 tint = vec3(1.0);
-        uint matID = 0;
+//    #ifdef RENDER_TRANSLUCENT
+//        vec3 tint = vec3(1.0);
+//        uint matID = 0;
+//
+//        #ifdef RENDER_TERRAIN
+//            int blockId = vIn.blockId;
+//        #else
+//            int blockId = currentRenderedItemId;
+//        #endif
+//
+//        #ifdef RENDER_TERRAIN
+//            if (blockId == BLOCK_WATER) {
+//                matID = MAT_WATER;
+//                tint = vIn.color.rgb * 0.6;
+//            }
+//        #endif
+//
+//        #if defined(RENDER_TERRAIN) || defined(RENDER_HAND)
+//            if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS) {
+//                matID = MAT_STAINED_GLASS;
+//                tint = LinearToRGB(normalize(albedo) * color.a);
+//            }
+//        #endif
+//
+//        outTint = vec4(tint, (matID + 0.5) / 255.0);
+//    #endif
 
-        #ifdef RENDER_TERRAIN
-            int blockId = vIn.blockId;
-        #else
-            int blockId = currentRenderedItemId;
-        #endif
-
-        #ifdef RENDER_TERRAIN
-            if (blockId == BLOCK_WATER) {
-                matID = MAT_WATER;
-                tint = vIn.color.rgb * 0.6;
+    #ifdef DEFERRED_ENABLED
+        uint matId = MAT_NONE;
+        #ifdef RENDER_HAND
+            matId = MAT_HAND;
+        #elif defined(RENDER_TERRAIN) //&& defined(RENDER_TRANSLUCENT)
+            if (vIn.blockId == BLOCK_WATER) matId = MAT_WATER;
+            else if (vIn.blockId >= BLOCK_STAINED_GLASS_BLACK && vIn.blockId <= BLOCK_TINTED_GLASS) {
+                matId = MAT_STAINED_GLASS;
             }
         #endif
 
-        #if defined(RENDER_TERRAIN) || defined(RENDER_HAND)
-            if (blockId >= BLOCK_STAINED_GLASS_BLACK && blockId <= BLOCK_TINTED_GLASS) {
-                matID = MAT_STAINED_GLASS;
-                tint = LinearToRGB(normalize(albedo) * color.a);
-            }
-        #endif
+        outAlbedo = color;
 
-        outTint = vec4(tint, (matID + 0.5) / 255.0);
-    #endif
-
-    #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
-        outNormal = vec4(OctEncode(localGeoNormal), OctEncode(viewTexNormal));
-    #endif
+        outNormals = vec4(OctEncode(localGeoNormal), OctEncode(viewTexNormal));
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(
-            packUnorm4x8(vec4(LinearToRGB(albedo), vIn.lmcoord.y)),
-            packUnorm4x8(specularData));
+        outSpecularMeta = uvec2(
+            packUnorm4x8(specularData),
+            packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
+        );
     #endif
 }

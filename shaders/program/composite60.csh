@@ -12,7 +12,7 @@ layout(rgba16f) uniform writeonly image2D imgTAA;
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_VELOCITY;
-uniform usampler2D TEX_META;
+//uniform usampler2D TEX_META;
 uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
@@ -99,13 +99,14 @@ void main() {
         float depthNow = texelFetch(depthtex0, uv, 0).r;
         bool isLod = false;
 
-        uint meta = texelFetch(TEX_META, uv, 0).r;
-        bool isHand = meta != 0u;
-        if (isHand) {
-            depthNow = depthNow * 2.0 - 1.0;
-            depthNow /= MC_HAND_DEPTH;
-            depthNow = depthNow * 0.5 + 0.5;
-        }
+//        uint meta = texelFetch(TEX_META, uv, 0).r;
+//        bool isHand = meta != 0u;
+//        if (isHand) {
+//            depthNow = depthNow * 2.0 - 1.0;
+//            depthNow /= MC_HAND_DEPTH;
+//            depthNow = depthNow * 0.5 + 0.5;
+//        }
+        bool isHand = false; // TODO: move this to specular MAT
 
         #ifdef DISTANT_HORIZONS
             if (depthNow == 1.0) {

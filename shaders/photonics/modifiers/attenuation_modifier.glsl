@@ -39,11 +39,14 @@ vec3 modify_attenuation(
         vec3 localViewDir = normalize(localPos);
 
         ivec2 uv = ivec2(gl_FragCoord.xy);
-        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
-        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
-        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
+//        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
+//        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
+//        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
+        vec3 albedo = texelFetch(TEX_GB_COLOR, uv, 0).rgb;
+        uvec2 specularMeta = texelFetch(TEX_GB_SPECULAR, uv, 0).rg;
+        vec4 specularData = unpackUnorm4x8(specularMeta.r);
+        albedo = RGBToLinear(albedo);
 
-        vec3 albedo = RGBToLinear(albedoData.rgb);
         // TODO: force Lab metalness when no PBR RP?
         float roughness = mat_roughness(specularData.r);
         float metalness = mat_metalness(specularData.g);

@@ -65,21 +65,14 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
-    outMeta = 0u;
+    outAlbedo = vec4(1.0, 1.0, 1.0, 0.0);
 
-    #ifdef TAA_ENABLED
+    #ifdef VELOCITY_ENABLED
         outVelocity = vec3(0.0);
     #endif
 
-    #ifdef RENDER_TRANSLUCENT
-        outTint = vec4(1.0, 1.0, 1.0, 0.0);
-    #endif
-
-    #ifdef DEFERRED_NORMAL_ENABLED
-        outNormal = vec4(0.0);
-    #endif
-
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(0u);
+    #ifdef DEFERRED_ENABLED
+        outNormals = vec4(0.0);
+        outSpecularMeta = uvec2(0u);
     #endif
 }

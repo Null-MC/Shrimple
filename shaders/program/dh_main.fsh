@@ -73,7 +73,6 @@ uniform float dhNearPlane;
 uniform float dhFarPlane;
 
 #include "/lib/oklab.glsl"
-#include "/lib/hsv.glsl"
 #include "/lib/ign.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/sampling/depth.glsl"
@@ -375,7 +374,7 @@ void main() {
     #endif
 
     outFinal = color;
-    outMeta = 0u;
+//    outMeta = 0u;
 
     #ifdef RENDER_TRANSLUCENT
 //        outTint = vec4(1.0, 1.0, 1.0, 0.0);
@@ -390,7 +389,7 @@ void main() {
 //        if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)
 //            matID = MAT_STAINED_GLASS;
 
-        outTint = vec4(tint, (matID + 0.5) / 255.0);
+        outAlbedo = vec4(tint, (matID + 0.5) / 255.0);
     #endif
 
     #if defined(VELOCITY_ENABLED)

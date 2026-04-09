@@ -11,7 +11,7 @@
     #define SSAO_PROJ_INV vxProjInv
 #endif
 
-#define TEX_DEPTH depthtex0
+#define TEX_DEPTH depthtex1
 #define SSAO_RADIUS 4.0
 
 const float SSAO_StrengthF = 0.1;
@@ -23,7 +23,7 @@ in vec2 texcoord;
 
 uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_LOD_DEPTH;
-uniform sampler2D TEX_NORMAL;
+uniform sampler2D TEX_GB_NORMALS;
 
 uniform float far;
 uniform int frameCounter;
@@ -115,7 +115,7 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
 }
 
 
-/* RENDERTARGETS: 5 */
+/* RENDERTARGETS: 7 */
 layout(location = 0) out float outOcclusion;
 
 void main() {
@@ -144,8 +144,7 @@ void main() {
 
 
     if (depth < 1.0) {
-        vec2 normalData = texelFetch(TEX_NORMAL, uv, 0).zw;
-//        uint geoNormalData = texelFetch(TEX_GEO_NORMAL, uv, 0).r;
+        vec2 texNormalData = texelFetch(TEX_GB_NORMALS, uv, 0).zw;
 
         vec3 screenPos = vec3(texcoord, depth);
 
@@ -162,7 +161,7 @@ void main() {
 
         if (viewDist >= dh_clipDistF * far) {
 //            vec3 localGeoNormal = OctDecode(unpackUnorm2x16(geoNormalData));
-            vec3 viewTexNormal = OctDecode(normalData);
+            vec3 viewTexNormal = OctDecode(texNormalData);
 
             occlusion = GetSpiralOcclusion(texcoord, viewPos, viewTexNormal);
             occlusion = saturate(1.0 - occlusion);

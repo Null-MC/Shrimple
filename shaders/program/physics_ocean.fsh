@@ -87,7 +87,6 @@ uniform int vxRenderDistance;
 
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
-#include "/lib/hsv.glsl"
 #include "/lib/ign.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/octohedral.glsl"
@@ -356,25 +355,27 @@ void main() {
     color.rgb = mix(color.rgb, fogColorFinal, fogF);
 
     outFinal = color;
-    outMeta = 0u;
+    outAlbedo = vec4(vec3(0.0), 1.0);
 
-    outTint = vec4(
-        LinearToRGB(albedo),
-        (MAT_WATER + 0.5) / 255.0);
+//    outAlbedo = vec4(
+//        LinearToRGB(albedo),
+//        (MAT_WATER + 0.5) / 255.0);
 
-    #ifdef TAA_ENABLED
+    #ifdef VELOCITY_ENABLED
         // TODO: we could actually set this but useless for translucent rn
         outVelocity = vec3(0.0);
     #endif
 
-    #ifdef DEFERRED_NORMAL_ENABLED
-        vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
-        outNormal = vec4(OctEncode(localGeoNormal), OctEncode(viewTexNormal));
-    #endif
+    #ifdef DEFERRED_ENABLED
+        const float occlusion = 1.0;
+        const uint matId = 0u;
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(
-            packUnorm4x8(vec4(LinearToRGB(albedo), vIn.lmcoord.y)),
-            packUnorm4x8(specularData));
+        vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
+        outNormals = vec4(OctEncode(localGeoNormal), OctEncode(viewTexNormal));
+
+        outSpecularMeta = uvec2(
+            packUnorm4x8(specularData),
+            packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
+        );
     #endif
 }

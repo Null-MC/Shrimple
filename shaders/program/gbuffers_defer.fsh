@@ -34,7 +34,6 @@ in VertexData {
         flat uint atlasTileSize;
     #endif
 
-//    #if defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)
     #ifdef RENDER_TERRAIN
         flat int blockId;
     #endif
@@ -53,56 +52,27 @@ uniform sampler2D gtexture;
 #endif
 
 uniform float far;
-//uniform float fogDensity;
-//uniform float fogStart;
-//uniform float fogEnd;
-//uniform vec3 fogColor;
-//uniform vec3 skyColor;
-//uniform float skyDayF;
-//uniform float rainStrength;
-//uniform float weatherStrength;
-//uniform float weatherWetness;
-//uniform float weatherDensity;
-//uniform float cloudHeight;
-//uniform float cloudTime;
-//uniform vec3 eyePosition;
 uniform vec4 entityColor;
 uniform int entityId;
 uniform float alphaTestRef;
-//uniform vec3 sunLocalDir;
 uniform mat4 gbufferModelView;
-//uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-//uniform int frameCounter;
 uniform float frameTimeCounter;
-//uniform bool firstPersonCamera;
-//uniform vec3 relativeEyePosition;
-//uniform ivec2 eyeBrightnessSmooth;
 uniform ivec2 atlasSize;
 uniform vec2 viewSize;
 
-//uniform int textureFilteringMode;
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
-//#include "/lib/oklab.glsl"
-//#include "/lib/fog.glsl"
 #include "/lib/tbn.glsl"
 #include "/lib/ign.glsl"
-//#include "/lib/sampling/lightmap.glsl"
-//#include "/lib/sampling/linear.glsl"
-//#include "/lib/hash-noise.glsl"
+#include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
-//    #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
-
-//    #ifdef MATERIAL_PBR_ENABLED
-//        #include "/lib/material/lazanyi.glsl"
-//    #endif
 #endif
 
 #ifdef MATERIAL_PARALLAX_ENABLED
@@ -119,11 +89,11 @@ layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormals;
 layout(location = 2) out uvec2 outSpecularMeta;
 
-#ifdef TAA_ENABLED
-    /* RENDERTARGETS: 1,2,3,6 */
+#ifdef VELOCITY_ENABLED
+    /* RENDERTARGETS: 4,5,6,3 */
     layout(location = 3) out vec3 outVelocity;
 #else
-    /* RENDERTARGETS: 1,2,3 */
+    /* RENDERTARGETS: 4,5,6 */
 #endif
 
 void main() {
@@ -182,7 +152,7 @@ void main() {
         color.rgb *= vIn.color.rgb;
         float occlusion = vIn.color.a;
     #else
-        const float occlusion = 1.0;
+        float occlusion = 1.0;
         color *= vIn.color;
     #endif
 
@@ -199,6 +169,7 @@ void main() {
     #ifdef MATERIAL_PBR_ENABLED
         vec4 normalData = textureLod(normals, texcoord, mip);
         vec3 tex_normal = mat_normal(normalData.xyz);
+        occlusion *= mat_occlusion(normalData.a);
 
         #if defined(MATERIAL_PARALLAX_ENABLED) && MATERIAL_PARALLAX_TYPE == PARALLAX_SHARP
             float depthDiff = max(texDepth - traceCoordDepth.z, 0.0);
@@ -238,11 +209,8 @@ void main() {
 
     #ifdef MATERIAL_PBR_ENABLED
         vec4 specularData = textureLod(specular, texcoord, mip);
-//        float sss = mat_sss(specularData.b);
     #else
         vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
-//        const float tex_occlusion = 1.0;
-//        const float sss = 0.0;
 
         // TODO: if vanilla lighting, make foliage have "up" normals
 //        #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
@@ -267,6 +235,12 @@ void main() {
     #endif
 
 
+    uint matId = 0u;
+    #ifdef RENDER_HAND
+        matId = MAT_HAND;
+    #endif
+
+
     outAlbedo = color;
 
     vec3 viewTexNormal = mat3(gbufferModelView) * localTexNormal;
@@ -274,13 +248,8 @@ void main() {
 
     outSpecularMeta = uvec2(
         packUnorm4x8(specularData),
-        packUnorm4x8(vec4(lmcoord, occlusion, 0.0))
+        packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
     );
-
-    //    outMeta = 0u;
-//    #ifdef RENDER_HAND
-//        outMeta = 1u;
-//    #endif
 
     #ifdef VELOCITY_ENABLED
         #ifdef RENDER_TERRAIN

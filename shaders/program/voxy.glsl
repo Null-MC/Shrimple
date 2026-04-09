@@ -241,10 +241,11 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
+        outFinal.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
     #else
-        color.rgb = albedo * diffuseFinal + specularFinal;
+        outFinal.rgb = albedo * diffuseFinal + specularFinal;
     #endif
+    outFinal.a = color.a;
 
     #if !defined(SSAO_ENABLED) || defined(RENDER_TRANSLUCENT)
         float borderFogF = GetBorderFogStrength(viewDist);
@@ -255,39 +256,40 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         vec3 skyColorL = RGBToLinear(skyColor);
         vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
-        color.rgb = mix(color.rgb, fogColorFinal, fogF);
+        outFinal.rgb = mix(outFinal.rgb, fogColorFinal, fogF);
     #endif
 
-    outFinal = color;
-    outMeta = 0u;
+    outAlbedo = color;
 
-    #ifdef RENDER_TRANSLUCENT
-        vec3 tint = LinearToRGB(albedo * color.a);
-        uint matID = 0;
+//    #ifdef RENDER_TRANSLUCENT
+//        vec3 tint = LinearToRGB(albedo * color.a);
+//        uint matID = 0;
+//
+//        if (parameters.customId == BLOCK_WATER) {
+//            matID = MAT_WATER;
+//            tint = parameters.tinting.rgb * 0.65;
+//        }
+//
+//        if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)
+//            matID = MAT_STAINED_GLASS;
+//
+//        outAlbedo = vec4(tint, (matID + 0.5) / 255.0);
+//    #endif
 
-        if (parameters.customId == BLOCK_WATER) {
-            matID = MAT_WATER;
-            tint = parameters.tinting.rgb * 0.65;
-        }
-
-        if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)
-            matID = MAT_STAINED_GLASS;
-
-        outTint = vec4(tint, (matID + 0.5) / 255.0);
-    #endif
-
-    #if defined(VELOCITY_ENABLED)
+    #ifdef VELOCITY_ENABLED
         outVelocity = vec3(0.0);
     #endif
 
-    #ifdef DEFERRED_NORMAL_ENABLED
-        vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
-        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
-    #endif
+    #ifdef DEFERRED_ENABLED
+        const float occlusion = 1.0;
+        const uint matId = 0;
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(
-            packUnorm4x8(vec4(LinearToRGB(albedo), lmcoord_in.y)),
-            packUnorm4x8(specularData));
+        vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
+        outNormals = vec4(OctEncode(localNormal), OctEncode(viewNormal));
+
+        outSpecularMeta = uvec2(
+            packUnorm4x8(specularData),
+            packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
+        );
     #endif
 }

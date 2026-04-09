@@ -68,7 +68,6 @@ uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
 #include "/lib/oklab.glsl"
-#include "/lib/hsv.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/ign.glsl"
 #include "/lib/octohedral.glsl"
@@ -267,26 +266,16 @@ void main() {
 
 
     outFinal = color;
-    outMeta = 0u;
+    outAlbedo = vec4(LinearToRGB(albedo * color.a), 0.0);
 
-    #ifdef TAA_ENABLED
+    #ifdef VELOCITY_ENABLED
         outVelocity = vec3(0.0);
     #endif
 
-    #ifdef RENDER_TRANSLUCENT
-        outTint = vec4(
-            LinearToRGB(albedo * color.a),
-            0.0);
-    #endif
-
-    #ifdef DEFERRED_NORMAL_ENABLED
+    #ifdef DEFERRED_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * hitLocalNormal;
-        outNormal = vec4(OctEncode(hitLocalNormal), OctEncode(viewNormal));
-    #endif
+        outNormals = vec4(OctEncode(hitLocalNormal), OctEncode(viewNormal));
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(
-            packUnorm4x8(vec4(LinearToRGB(albedo.rgb), vIn.lmcoord.y)),
-            packUnorm4x8(specularData));
+        outSpecularMeta = uvec2(0u);
     #endif
 }

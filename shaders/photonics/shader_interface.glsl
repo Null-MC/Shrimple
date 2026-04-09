@@ -11,8 +11,12 @@
 //    return _pow2(shit);
 //}
 
-uniform sampler2D TEX_NORMAL;
-uniform usampler2D TEX_ALBEDO_SPECULAR;
+uniform sampler2D TEX_GB_COLOR;
+uniform sampler2D TEX_GB_NORMALS;
+
+#ifdef LIGHTING_SPECULAR
+    uniform usampler2D TEX_GB_SPECULAR;
+#endif
 
 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
     uniform sampler2D texLightmap;
@@ -78,14 +82,14 @@ vec3 load_world_position() {
 void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world_normal, out vec3 world_normal_mapped) {
     ivec2 uv = ivec2(gl_FragCoord.xy);
 
-    vec4 normalData = texelFetch(TEX_NORMAL, uv, 0);
+    vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
     world_normal = OctDecode(normalData.xy);
     vec3 texViewNormal = OctDecode(normalData.zw);
 
     world_normal_mapped = mat3(gbufferModelViewInverse) * texViewNormal;
 
-    uint albedoData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).r;
-    albedo = RGBToLinear(unpackUnorm4x8(albedoData.r).rgb);
+    albedo = texelFetch(TEX_GB_COLOR, uv, 0).rgb;
+    albedo = RGBToLinear(albedo);
 
     world_normal = clamp(world_normal, vec3(-1.0), vec3(1.0));
     world_pos = load_world_position() - 0.01 * world_normal;

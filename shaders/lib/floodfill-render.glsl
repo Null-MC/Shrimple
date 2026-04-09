@@ -24,11 +24,6 @@ vec3 SampleFloodFill(const in vec3 lpvPos) {
 vec3 SampleFloodFill(const in vec3 lpvPos, const in float brightness) {
     vec3 lpvSample = _SampleFloodFill(lpvPos, frameCounter);
 
-    vec3 hsv = RgbToHsv(lpvSample);
-    hsv.z = brightness;
-//    hsv.z = hsv.z*hsv.z*hsv.z * 3.0;
-
-    vec3 rgb = HsvToRgb(hsv);
-
-    return rgb;
+    float lum_now = luminance(lpvSample);
+    return lpvSample * (brightness / lum_now);
 }

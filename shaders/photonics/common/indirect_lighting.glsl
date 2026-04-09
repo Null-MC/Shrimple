@@ -19,7 +19,6 @@ uniform float cloudTime;
 #endif
 
 #if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
-    #include "/lib/hsv.glsl"
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
 #endif

@@ -1,6 +1,12 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#if defined(DISTANT_HORIZONS) || defined(VOXY)
+    #define TEX_DEPTH texDepthLod_trans
+#else
+    #define TEX_DEPTH depthtex0
+#endif
+
 #ifndef PHOTONICS_REFLECT_ENABLED
     const bool colortex0MipmapEnabled = true;
 #endif
@@ -8,18 +14,13 @@
 
 in vec2 texcoord;
 
-//uniform sampler2D depthtex0;
-#if defined(DISTANT_HORIZONS) || defined(VOXY)
-    uniform sampler2D texDepthLod;
-#else
-    uniform sampler2D depthtex0;
-#endif
-
-uniform usampler2D TEX_META;
-
+uniform sampler2D TEX_DEPTH;
+//uniform usampler2D TEX_META;
 uniform sampler2D TEX_FINAL;
-uniform sampler2D TEX_NORMAL;
-uniform usampler2D TEX_ALBEDO_SPECULAR;
+
+uniform sampler2D TEX_GB_COLOR;
+uniform sampler2D TEX_GB_NORMALS;
+uniform usampler2D TEX_GB_SPECULAR;
 
 #ifdef PHOTONICS_REFLECT_ENABLED
     uniform sampler2D texLightmap;
@@ -81,7 +82,6 @@ uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
 #include "/lib/ign.glsl"
-#include "/lib/hsv.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/sampling/bayer.glsl"
@@ -174,12 +174,6 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 //    }
 //#endif
 
-#if defined(DISTANT_HORIZONS) || defined(VOXY)
-    #define TEX_DEPTH texDepthLod
-#else
-    #define TEX_DEPTH depthtex0
-#endif
-
 vec3 toNdc(vec3 screenPos) {
     #if defined(DISTANT_HORIZONS) || defined(VOXY)
         screenPos.xy = screenPos.xy * 2.0 - 1.0;
@@ -195,16 +189,18 @@ layout(location = 0) out vec3 outFinal;
 
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
-
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
     vec3 reflectColor = vec3(0.0);
 
+    // TODO: (depth > 0.0) if LOD
     if (depth < 1.0) {
-        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
-        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
-        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
-//        uint meta = texelFetch(TEX_META, uv, 0).r;
+//        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
+//        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
+//        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
+        vec4 color = texelFetch(TEX_GB_COLOR, uv, 0);
+        vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
+        uvec2 specularMetaData = texelFetch(TEX_GB_SPECULAR, uv, 0).rg;
 
         vec3 screenPos = vec3(texcoord, depth);
         vec3 ndcPos = toNdc(screenPos);
@@ -239,7 +235,9 @@ void main() {
 
         float totalDist = viewDist;
 
-        vec3 albedo = RGBToLinear(albedoData.rgb);
+        vec3 albedo = RGBToLinear(color.rgb);
+        vec4 specularData = unpackUnorm4x8(specularMetaData.r);
+        vec4 meta = unpackUnorm4x8(specularMetaData.g);
 
         #ifdef MATERIAL_PBR_ENABLED
             float roughness = mat_roughness(specularData.r);
@@ -250,11 +248,11 @@ void main() {
         float smoothness = 1.0 - roughness;
 
         if (smoothness > (1.5/255.0)) {
-            vec4 normalData = texelFetch(TEX_NORMAL, uv, 0);
+            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
             vec3 localGeoNormal = OctDecode(normalData.xy);
             vec3 viewTexNormal = OctDecode(normalData.zw);
 
-            float lmcoord_y = albedoData.w;
+            float lmcoord_y = meta.y;
 
             vec3 reflectViewDir = normalize(reflect(viewDir, viewTexNormal));
 
@@ -394,8 +392,8 @@ void main() {
                     traceScreenPos = traceClipPos.xy * 0.5 + 0.5;
                     if (saturate(traceScreenPos) != traceScreenPos) break;
 
-                    uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
-                    if (meta != 0u) continue;
+//                    uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
+//                    if (meta != 0u) continue;
 
                     float sampleDepth = texture(TEX_DEPTH, traceScreenPos).r;
 
@@ -426,8 +424,8 @@ void main() {
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
                         if (saturate(testPos) != testPos) break;
 
-                        uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
-                        if (meta != 0u) continue;
+//                        uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
+//                        if (meta != 0u) continue;
 
                         float sampleDepth = texture(TEX_DEPTH, testPos).r;
 

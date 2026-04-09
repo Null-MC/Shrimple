@@ -14,7 +14,7 @@ uniform sampler2D TEX_FINAL;
     uniform sampler2D TEX_BLOOM_TILES;
 #endif
 
-//uniform sampler2D texDepthLod;
+//uniform sampler2D texDepthLod_opaque;
 
 uniform vec2 viewSize;
 uniform int frameCounter;
@@ -54,14 +54,15 @@ void main() {
         endText(color);
     #endif
 
+    vec2 tex;
     #if DEBUG_VIEW == DEBUG_VIEW_SSAO
-        vec2 tex = (gl_FragCoord.xy - 8) / (viewSize * 0.2);
+        tex = (gl_FragCoord.xy - 8) / (viewSize * 0.2);
         if (saturate(tex) == tex) {
             color = texture(TEX_SSAO, tex).rrr;
         }
     #elif DEBUG_VIEW == DEBUG_VIEW_IRRADIANCE
         const vec2 irradianceSize = vec2(24, 6);
-        vec2 tex = (gl_FragCoord.xy - 8) / (irradianceSize*8.0);
+        tex = (gl_FragCoord.xy - 8) / (irradianceSize*8.0);
         if (saturate(tex) == tex) {
             vec3 uv = vec3(
                 tex.x,
@@ -77,7 +78,7 @@ void main() {
             color = texture(texSkyTransmit, tex2).rgb;
         }
     #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
-        vec2 tex = (gl_FragCoord.xy - 8.0) / (viewSize * 0.2);
+        tex = (gl_FragCoord.xy - 8.0) / (viewSize * 0.2);
 //        vec2 tex = gl_FragCoord.xy / viewSize;
         if (saturate(tex) == tex) {
             color = texture(TEX_BLOOM_TILES, tex).rgb;
@@ -92,9 +93,9 @@ void main() {
         }
     #endif
 
-//    vec2 tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
+//    tex = (gl_FragCoord.xy - 8) / vec2(320, 240);
 //    if (saturate(tex) == tex) {
-//        color = texture(texDepthLod, tex).rrr;
+//        color = texture(texDepthLod_opaque, tex).rrr;
 //        color = pow(color, vec3(0.2));
 //    }
 

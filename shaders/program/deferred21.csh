@@ -1,17 +1,18 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#define TEX_DEPTH depthtex0
+#define TEX_DEPTH depthtex1
+#define TEX_LOD_DEPTH texDepthLod_opaque
 
-#ifdef DISTANT_HORIZONS
-    #define TEX_LOD_DEPTH dhDepthTex0
-    #define SSAO_PROJ dhProjection
-    #define SSAO_PROJ_INV dhProjectionInverse
-#elif defined(VOXY)
-    #define TEX_LOD_DEPTH vxDepthTexOpaque
-    #define SSAO_PROJ vxProj
-    #define SSAO_PROJ_INV vxProjInv
-#endif
+//#ifdef DISTANT_HORIZONS
+////    #define TEX_LOD_DEPTH dhDepthTex0
+//    #define SSAO_PROJ dhProjection
+//    #define SSAO_PROJ_INV dhProjectionInverse
+//#elif defined(VOXY)
+////    #define TEX_LOD_DEPTH vxDepthTexOpaque
+//    #define SSAO_PROJ vxProj
+//    #define SSAO_PROJ_INV vxProjInv
+//#endif
 
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
@@ -28,6 +29,7 @@ uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_LOD_DEPTH;
 uniform sampler2D TEX_SSAO;
 
+uniform float near;
 uniform float far;
 uniform vec2 viewSize;
 uniform float farPlane;
@@ -71,23 +73,7 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
 
     ivec2 uv = uv_base + ivec2(i_shared % 20, i_shared / 20);
     sharedOcclusion[i_shared] = texelFetch(TEX_SSAO, uv, 0).r;
-
-//    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-//    float _near = nearPlane;
-//    float _far = farPlane;
-
-    float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
-    #ifdef DISTANT_HORIZONS
-//        if (depth >= 1.0) {
-            float _near = dhNearPlane;
-            float _far = dhFarPlane;
-//        }
-    #elif defined(VOXY)
-        float _near = vxNearPlane;
-        float _far = vxFarPlane;
-    #endif
-
-    sharedDepthL[i_shared] = linearizeDepth(depth * 2.0 - 1.0, _near, _far);
+    sharedDepthL[i_shared] = near / texelFetch(TEX_LOD_DEPTH, uv, 0).r;
 }
 
 float Gaussian(const in float sigma, const in float x) {
@@ -143,33 +129,33 @@ void main() {
     if (any(greaterThanEqual(uv, viewSize))) return;
 
     vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
-    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-    float lodDepth = 1.0;
+    float lod_depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
 
-    if (depth >= 1.0) {
-        lodDepth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
-    }
+    if (lod_depth > 0.0) {
+//        color *= vec3(1,0,0);
+        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+        if (depth >= 1.0) color *= BilateralGaussianBlur();
 
-    if (lodDepth < 1.0) {
-        float occlusion = BilateralGaussianBlur();
-
-        //        occlusion = mix(1.0, occlusion, SSAO_GetFade(viewDist));
-        color *= occlusion;
-    }
-
-    if (depth < 1.0 || lodDepth < 1.0) {
         vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
-        vec3 screenPos = vec3(texcoord, lodDepth < 1.0 ? lodDepth : depth);
+        vec3 screenPos = vec3(texcoord, lod_depth);
 
         #ifdef TAA_ENABLED
             // screenPos.xy -= taa_offset;
         #endif
 
-        vec3 ndcPos = screenPos * 2.0 - 1.0;
+        vec3 ndcPos = screenPos;
+        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
+//        ndcPos.z = -ndcPos.z;
 
         // TODO: fix hand depth?
 
-        vec3 viewPos = project(lodDepth < 1.0 ? SSAO_PROJ_INV : gbufferProjectionInverse, ndcPos);
+        mat4 matProjInv = mat4(
+            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
+            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
+            0.0, 0.0, 0.0, 1.0/near,
+            0.0, 0.0, -1.0, 0.0);
+
+        vec3 viewPos = project(matProjInv, ndcPos);
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
         float viewDist = length(localPos);

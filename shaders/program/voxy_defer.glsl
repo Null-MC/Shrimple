@@ -3,7 +3,7 @@
 
 
 #include "/lib/blocks.glsl"
-//#include "/lib/sampling/lightmap.glsl"
+#include "/lib/sampling/lightmap.glsl"
 #include "/lib/octohedral.glsl"
 //#include "/lib/oklab.glsl"
 //#include "/lib/fog.glsl"
@@ -28,7 +28,7 @@ layout(location = 0) out vec4 outAlbedo;
 layout(location = 1) out vec4 outNormals;
 layout(location = 2) out uvec2 outSpecularMeta;
 
-#ifdef TAA_ENABLED
+#ifdef VELOCITY_ENABLED
     layout(location = 3) out vec3 outVelocity;
 #endif
 
@@ -87,14 +87,14 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     #endif
 
     float viewDist = length(localPos);
-    vec2 lmcoord_in = LightMapNorm(parameters.lightMap);
+    vec2 lmcoord = LightMapNorm(parameters.lightMap);
     const float occlusion = 1.0;
 
 
     outAlbedo = color;
 
     vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
-    outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
+    outNormals = vec4(OctEncode(localNormal), OctEncode(viewNormal));
 
     outSpecularMeta = uvec2(
         packUnorm4x8(specularData),

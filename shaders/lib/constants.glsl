@@ -7,8 +7,9 @@
 #define BLOCK_PHYMOD_SNOW 829925
 
 #define MAT_NONE 0
-#define MAT_WATER 1
-#define MAT_STAINED_GLASS 2
+#define MAT_HAND 1
+#define MAT_WATER 2
+#define MAT_STAINED_GLASS 3
 
 #define BLOCK_OUTLINE_NONE 0
 #define BLOCK_OUTLINE_SOLID 1
@@ -32,11 +33,16 @@
 #define IMG_FINAL colorimg0
 #define TEX_TRANSLUCENT_FINAL colortex1
 #define TEX_TRANSLUCENT_TINT colortex2
-#define TEX_ALBEDO_SPECULAR colortex3
-#define TEX_NORMAL colortex4
-#define TEX_SSAO colortex5
-#define TEX_VELOCITY colortex6
-#define TEX_META colortex8
+#define TEX_VELOCITY colortex3
+
+#define TEX_GB_COLOR colortex4
+#define TEX_GB_NORMALS colortex5
+#define TEX_GB_SPECULAR colortex6
+
+//#define TEX_ALBEDO_SPECULAR colortex3
+//#define TEX_NORMAL colortex4
+#define TEX_SSAO colortex7
+//#define TEX_META colortex8
 
 #define TEX_BLOOM_TILES texBloomTiles
 #define IMG_BLOOM_TILES imgBloomTiles

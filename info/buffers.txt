@@ -1,22 +1,15 @@
 ### COLORTEX
 colortex0		    RGB16F		1.0		final
-
-colortex1		    RGBA8 	    1.0		deferred albedo
-colortex2		    RGBA16F 	1.0		deferred normals
-colortex3		    RG32UI 	    1.0		deferred specular, meta
-
-
-
-
 colortex1		    RGBA16F		1.0		translucent final
-colortex2		    RGB8		1.0		translucent tint
+--colortex2		    RGB8		1.0		translucent tint
+colortex3           RGB16F      1.0     velocity
 
-colortex3		    RG32UI		1.0		deferred albedo, specular
-colortex4		    RGBA16F 	1.0		deferred normal
-colortex5		    R16		    1.0		SSAO
-colortex6           RGB16F      1.0     velocity
+colortex4		    RGBA8 	    1.0		deferred albedo
+colortex5		    RGBA16F 	1.0		deferred normals
+colortex6		    RG32UI 	    1.0		deferred specular, meta
 
-colortex8           R8UI        1.0     meta
+colortex7		    R16F		1.0		SSAO
+--colortex8           R8UI        1.0     meta
 
 
 ### CUSTOM IMAGES
@@ -26,6 +19,9 @@ imgFloodFillA       RGBA8       *3D     floodfill main
 imgFloodFillB       RGBA8       *3D     floodfill alt
 imgTAA              RGBA16F     1.0     TAA
 imgTAA_prev         RGBA16F     1.0     TAA history
+
+imgDepthLod_opaque  R32F        1.0     LOD merged depth [opaque]
+imgDepthLod_trans   R32F        1.0     LOD merged depth [translucent]
 
 
 ### CUSTOM TEXTURES

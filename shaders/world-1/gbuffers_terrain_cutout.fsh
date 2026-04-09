@@ -4,4 +4,4 @@
 #define RENDER_CUTOUT
 
 #include "nether.glsl"
-#include "/program/gbuffers_main.fsh"
+#include "/program/gbuffers_defer.fsh"
