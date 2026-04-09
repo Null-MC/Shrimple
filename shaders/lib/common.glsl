@@ -10,7 +10,9 @@ const vec4 colortex3ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex4Format = RGBA8;
 const vec4 colortex4ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex5Format = RGBA16F;
+const vec4 colortex5ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex6Format = RG32UI;
+const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
 
 const int colortex7Format = R16F;
 const int colortex8Format = R8UI;

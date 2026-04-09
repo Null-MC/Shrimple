@@ -47,6 +47,10 @@ vec3 modify_attenuation(
         vec4 specularData = unpackUnorm4x8(specularMeta.r);
         albedo = RGBToLinear(albedo);
 
+        #ifdef DEBUG_WHITEWORLD
+            albedo = vec3(0.86);
+        #endif
+
         // TODO: force Lab metalness when no PBR RP?
         float roughness = mat_roughness(specularData.r);
         float metalness = mat_metalness(specularData.g);

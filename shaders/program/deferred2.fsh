@@ -377,18 +377,7 @@ void main() {
         #endif
 
         #if defined(PHOTONICS_GI_ENABLED) && !(defined(PHOTONICS_RESTIR_ENABLED) && defined(PHOTONICS_RESTIR_GI_ENABLED))
-            vec3 gi = texture(texPhotonicsIndirect, texcoord).rgb;
-
-            // reduce GI [diffuse] for metals
-            #ifdef MATERIAL_PBR_ENABLED
-//                float metalness = mat_metalness(specularData.g);
-//                float roughness = mat_roughness(specularData.r);
-                float smoothL = 1.0 - _pow2(roughness);
-                gi *= 1.0 - metalness * smoothL;
-            #endif
-
-//            gi *= 1.0 - F * _pow2(smoothness);
-            diffuseFinal += gi;
+            diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
         #endif
 
         diffuseFinal *= _pow2(occlusion);

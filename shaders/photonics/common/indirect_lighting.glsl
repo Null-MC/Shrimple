@@ -179,7 +179,7 @@ vec3 ph_sample_indirect_impl() {
 
         sample_color += hitEmission;
 
-        indirect_color += hitAlbedo/PI * sample_color;
+        indirect_color += hitAlbedo * sample_color;
     }
 
     return trace_tangentDir.z * indirect_color * tint;
