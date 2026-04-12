@@ -109,67 +109,69 @@ vec3 ph_sample_indirect_impl() {
             // other lighting
 
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                vec3 hitTracePos = hitLocalPos + rt_camera_position
-                    + 0.08 * hitLocalNormal;
+                #if PHOTONICS_GI_BLOCK_SAMPLES > 0
+                    vec3 hitTracePos = hitLocalPos + rt_camera_position
+                        + 0.08 * hitLocalNormal;
 
-                // sample random block light
-                int binStart = load_light_offset(hitTracePos);
-                int binCount = light_registry_array[binStart];
+                    // sample random block light
+                    int binStart = load_light_offset(hitTracePos);
+                    int binCount = light_registry_array[binStart];
 
-                if (binCount > 0) {
-                    int sample_count = min(binCount, PHOTONICS_GI_BLOCK_SAMPLES);
-                    float sample_scale = float(binCount) / float(sample_count);
+                    if (binCount > 0) {
+                        int sample_count = min(binCount, PHOTONICS_GI_BLOCK_SAMPLES);
+                        float sample_scale = float(binCount) / float(sample_count);
 
-                    for (int i = 0; i < PHOTONICS_GI_BLOCK_SAMPLES; i++) {
-                        if (i > binCount) break;
+                        for (int i = 0; i < PHOTONICS_GI_BLOCK_SAMPLES; i++) {
+                            if (i > binCount) break;
 
-                        int k = ((frameCounter + i*8) % binCount) + (binStart+1);
-                        Light light = load_light(light_registry_array[k]);
+                            int k = ((frameCounter + i*8) % binCount) + (binStart+1);
+                            Light light = load_light(light_registry_array[k]);
 
-                        vec3 lightOffset = light.position - hitTracePos;
+                            vec3 lightOffset = light.position - hitTracePos;
 
-                        // TODO: can't use this because it includes specular now
-//                        vec3 shit = modify_attenuation(light, lightOffset, hitTracePos, hitTracePos, hitLocalNormal, hitLocalNormal) * sample_scale;
+                            // TODO: can't use this because it includes specular now
+    //                        vec3 shit = modify_attenuation(light, lightOffset, hitTracePos, hitTracePos, hitLocalNormal, hitLocalNormal) * sample_scale;
 
-                        float distSq = dot(lightOffset, lightOffset);
-                        float invDist = inversesqrt(distSq);
-                        vec3 lightDir = lightOffset * invDist;
-                        float lightDist = distSq * invDist;
+                            float distSq = dot(lightOffset, lightOffset);
+                            float invDist = inversesqrt(distSq);
+                            vec3 lightDir = lightOffset * invDist;
+                            float lightDist = distSq * invDist;
 
-                        float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
-                        if (NoLm < EPSILON) continue;
+                            float NoLm = max(dot(hitLocalNormal, lightDir), 0.0);
+                            if (NoLm < EPSILON) continue;
 
-                        vec3 lightColor = light.color * sample_scale;
+                            vec3 lightColor = light.color * sample_scale;
 
-                        #ifdef PHOTONICS_SHRIMPLE_COLORS
-                            const float lightRadius = 0.5;
-                            float att = GetLightAttenuation(lightDist, light.block_radius, lightRadius);
-                        #else
-                            float distance_squared = dot(lightOffset, lightOffset) * light.falloff;
-                            float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
-                        #endif
+                            #ifdef PHOTONICS_SHRIMPLE_COLORS
+                                const float lightRadius = 0.5;
+                                float att = GetLightAttenuation(lightDist, light.block_radius, lightRadius);
+                            #else
+                                float distance_squared = dot(lightOffset, lightOffset) * light.falloff;
+                                float att = 1.0 / dot(vec2(1.0, distance_squared), light.attenuation);
+                            #endif
 
-                        if (att < EPSILON) continue;
+                            if (att < EPSILON) continue;
 
-                        ray.origin = hitTracePos;
-                        ray.direction = lightDir;
+                            ray.origin = hitTracePos;
+                            ray.direction = lightDir;
 
-                        breakOnEmpty=true;
-                        trace_ray(ray, true);
-                        breakOnEmpty=false;
+                            breakOnEmpty=true;
+                            trace_ray(ray, true);
+                            breakOnEmpty=false;
 
-                        if (ray.result_hit) {
-                            lightColor *= result_tint_color;
+                            if (ray.result_hit) {
+                                lightColor *= result_tint_color;
 
-                            if (lengthSq(hitTracePos - ray.result_position) < distSq * 0.98 && floor(light.position) != floor(ray.result_position)) {
-                                att = 0.0;
+                                if (lengthSq(hitTracePos - ray.result_position) < distSq * 0.98 && floor(light.position) != floor(ray.result_position)) {
+                                    att = 0.0;
+                                }
                             }
-                        }
 
-                        sample_color += att * NoLm * lightColor;
-                        // TODO: apply NoV?
+                            sample_color += att * NoLm * lightColor;
+                            // TODO: apply NoV?
+                        }
                     }
-                }
+                #endif
             #elif defined(LIGHTING_COLORED)
                 vec3 voxelPos = GetVoxelPosition(hitLocalPos);
                 vec3 samplePos = GetFloodFillSamplePos(voxelPos, hitLocalNormal);
