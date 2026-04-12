@@ -10,8 +10,8 @@ struct ParallaxBounds {
 };
 
 float GetParallaxStepFactor(const in int step) {
-    float stepF = float(step) / float(MATERIAL_PARALLAX_SAMPLES);
-//    stepF = pow(stepF, 2.0);
+    const float invSamples = 1.0 / float(MATERIAL_PARALLAX_SAMPLES);
+    float stepF = float(step) * invSamples;
     stepF = _pow2(stepF);
     return stepF;
 }
@@ -57,13 +57,21 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
         float prevTexDepth;
     #endif
 
-//    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_MAX_DIST);
-//    float maxSampleCount = viewDistF * MATERIAL_PARALLAX_SAMPLES + 0.5;
+    vec2 atlasLocalTileSize = bounds.atlasTileSize * atlasSize;
 
-//    vec2 localSize = atlasSize * bounds.atlasTileSize;
-//    if (all(greaterThan(localSize, vec2(EPSILON))))
-//        stepCoord *= localSize / maxOf(localSize);
-//        stepCoord.y *= localSize.x / localSize.y;
+    if (all(greaterThan(atlasLocalTileSize, vec2(EPSILON)))) {
+        //stepCoord *= localSize / maxOf(localSize);
+        stepCoordMax.y *= atlasLocalTileSize.x / atlasLocalTileSize.y;
+    }
+
+    #ifdef MATERIAL_PARALLAX_CUTOUT
+        uint wmask = vIn.wrapMask;
+        bvec4 wrapMask = bvec4(
+            (wmask & 1u) != 0u,
+            (wmask & 2u) != 0u,
+            (wmask & 4u) != 0u,
+            (wmask & 8u) != 0u);
+    #endif
 
     int i;
     texDepth = 1.0;
@@ -77,17 +85,16 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
 
         #ifdef MATERIAL_PARALLAX_CUTOUT
             bool cutout = saturate(localTraceCoord) != localTraceCoord;
-            if (localTraceCoord.x < 0.0 && bitfieldExtract(vIn.wrapMask, 0, 1) == 1u) cutout = false;
-            if (localTraceCoord.y < 0.0 && bitfieldExtract(vIn.wrapMask, 1, 1) == 1u) cutout = false;
-            if (localTraceCoord.x > 1.0 && bitfieldExtract(vIn.wrapMask, 2, 1) == 1u) cutout = false;
-            if (localTraceCoord.y > 1.0 && bitfieldExtract(vIn.wrapMask, 3, 1) == 1u) cutout = false;
+            if (localTraceCoord.x < 0.0 && wrapMask[0]) cutout = false;
+            if (localTraceCoord.y < 0.0 && wrapMask[1]) cutout = false;
+            if (localTraceCoord.x > 1.0 && wrapMask[2]) cutout = false;
+            if (localTraceCoord.y > 1.0 && wrapMask[3]) cutout = false;
             if (cutout) discard;
         #endif
 
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
             vec2 uv[4];
-            vec2 atlasTileSize = bounds.atlasTileSize * atlasSize;
-            vec2 f = GetLinearCoords(localTraceCoord, atlasTileSize, uv);
+            vec2 f = GetLinearCoords(localTraceCoord, atlasLocalTileSize, uv);
 
             uv[0] = GetAtlasCoord(uv[0], bounds.atlasTilePos, bounds.atlasTileSize);
             uv[1] = GetAtlasCoord(uv[1], bounds.atlasTilePos, bounds.atlasTileSize);
@@ -131,50 +138,6 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
         return GetAtlasCoord(currentTraceOffset, bounds.atlasTilePos, bounds.atlasTileSize);
     #endif
 }
-
-//float GetParallaxShadow(const in vec3 traceTex, const in float mip, const in vec3 tanLightDir) {
-//    vec2 stepCoord = tanLightDir.xy * ParallaxDepthF * (1.0 / (1.0 + tanLightDir.z * MATERIAL_PARALLAX_SHADOW_SAMPLES));
-//    const float stepDepth = 1..0 / MATERIAL_PARALLAX_SHADOW_SAMPLES;
-//
-//    float skip = floor(traceTex.z * MATERIAL_PARALLAX_SHADOW_SAMPLES + 0.5) / MATERIAL_PARALLAX_SHADOW_SAMPLES;
-//
-//    float dither = InterleavedGradientNoise(gl_FragCoord.xy);
-//
-//    float shadow = 1.0;
-//    for (float i = 0.0; i < (MATERIAL_PARALLAX_SHADOW_SAMPLES+0.5); i += 1.0) {
-//        if (i + skip > (MATERIAL_PARALLAX_SHADOW_SAMPLES+0.5)) break;
-//        if (shadow < 0.001) break;
-//
-//        float stepF = i + dither;
-//        float traceDepth = stepF * stepDepth + traceTex.z;
-//        vec2 localCoord = stepF * stepCoord + traceTex.xy;
-//
-//        #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH && defined MATERIAL_PARALLAX_SHADOW_SMOOTH
-//            vec2 uv[4];
-//            vec2 atlasTileSize = vIn.atlasTileSize * atlasSize;
-//            vec2 f = GetLinearCoords(localCoord, atlasTileSize, uv);
-//
-//            uv[0] = GetAtlasCoord(uv[0], vIn.atlasTilePos, vIn.atlasTileSize);
-//            uv[1] = GetAtlasCoord(uv[1], vIn.atlasTilePos, vIn.atlasTileSize);
-//            uv[2] = GetAtlasCoord(uv[2], vIn.atlasTilePos, vIn.atlasTileSize);
-//            uv[3] = GetAtlasCoord(uv[3], vIn.atlasTilePos, vIn.atlasTileSize);
-//
-//            float texDepth = TextureLodLinear(normals, uv, mip, f, 3);
-//        #else
-//            vec2 atlasCoord = GetAtlasCoord(localCoord, vIn.atlasTilePos, vIn.atlasTileSize);
-//            float texDepth = textureLod(normals, atlasCoord, mip).a;
-//        #endif
-//
-//        #ifdef MATERIAL_PARALLAX_SOFTSHADOW
-//            float depthF = max(texDepth - traceDepth, 0.0) / stepDepth;
-//            shadow -= PARALLAX_SOFTSHADOW_FACTOR * depthF * stepDepth;
-//        #else
-//            shadow *= step(texDepth + EPSILON, traceDepth);
-//        #endif
-//    }
-//
-//    return max(shadow, 0.0);
-//}
 
 #if MATERIAL_PARALLAX_TYPE == PARALLAX_SHARP
     vec3 GetParallaxSlopeNormal(const in ParallaxBounds bounds, const in vec2 atlasCoord, const in float traceDepth) {
