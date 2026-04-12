@@ -364,12 +364,19 @@ void main() {
                 lmcoord.x *= 1.0 - lpvFade;
             #endif
 
-//            diffuseFinal = texture(texLightmap, LightMapTex(lmcoord)).rgb;
-            diffuseFinal = TextureLinearRGB(texLightmap, LightMapTex(lmcoord), vec2(16.0));
+            #if MC_VERSION >= 12111
+                // lightmap sampling has no interpolation in 1.21.11+
+                diffuseFinal = TexelFetchLinearRGB(texLightmap, LightMapTex(lmcoord) * 16.0, 0);
+            #else
+                diffuseFinal = texture(texLightmap, LightMapTex(lmcoord)).rgb;
+            #endif
+
             float oldLighting = GetOldLighting(localTexNormal);
+
             #ifdef MATERIAL_PBR_ENABLED
                 oldLighting = mix(oldLighting, 1.0, tex_sss);
             #endif
+
             diffuseFinal *= oldLighting;
             diffuseFinal = RGBToLinear(diffuseFinal);
 

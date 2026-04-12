@@ -9,15 +9,24 @@ struct ParallaxBounds {
     float mip;
 };
 
-vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+float GetParallaxStepFactor(const in int step) {
+    float stepF = float(step) / float(MATERIAL_PARALLAX_SAMPLES);
+//    stepF = pow(stepF, 2.0);
+    stepF = _pow2(stepF);
+    return stepF;
+}
+
+vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, const in float viewDist, out float texDepth, out vec3 traceDepthResult) {
     vec2 localCoord = GetLocalCoord(srcCoord, bounds.atlasTilePos, bounds.atlasTileSize);
 
-    float depth = textureLod(normals, srcCoord, bounds.mip).a;
-    if (depth > 0.999) {
-        texDepth = 1.0;
-        traceDepth = vec3(0.0, 0.0, 1.0);
-        return srcCoord;
-    }
+    #if MATERIAL_PARALLAX_TYPE != PARALLAX_SMOOTH
+        float depth = textureLod(normals, srcCoord, bounds.mip).a;
+        if (depth > 0.999) {
+            texDepth = 1.0;
+            traceDepthResult = vec3(0.0, 0.0, 1.0);
+            return srcCoord;
+        }
+    #endif
 
     #ifdef MATERIAL_PARALLAX_OPTIMIZE
         const int parallax_mip = 2;
@@ -42,37 +51,33 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
         const float maxTexDepth = 1.0;
     #endif
 
-    vec2 stepCoord = bounds.tanViewDir.xy * (ParallaxDepthF * maxTexDepth) / (bounds.tanViewDir.z * MATERIAL_PARALLAX_SAMPLES + 1.0);
-    float stepDepth = maxTexDepth / MATERIAL_PARALLAX_SAMPLES;
+    vec2 stepCoordMax = bounds.tanViewDir.xy * (ParallaxDepthF * maxTexDepth) / bounds.tanViewDir.z;
 
     #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
-//        vec2 atlasPixelSize = 1.0 / atlasSize;
         float prevTexDepth;
     #endif
 
-    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_MAX_DIST);
-    float maxSampleCount = viewDistF * MATERIAL_PARALLAX_SAMPLES + 0.5;
+//    float viewDistF = 1.0 - saturate(viewDist / MATERIAL_PARALLAX_MAX_DIST);
+//    float maxSampleCount = viewDistF * MATERIAL_PARALLAX_SAMPLES + 0.5;
 
-//    vec2 localSize = atlasSize * vIn.atlasTileSize;
+//    vec2 localSize = atlasSize * bounds.atlasTileSize;
 //    if (all(greaterThan(localSize, vec2(EPSILON))))
 //        stepCoord *= localSize / maxOf(localSize);
 //        stepCoord.y *= localSize.x / localSize.y;
 
     int i;
     texDepth = 1.0;
-    float depthDist = 1.0;
     for (i = 1; i <= MATERIAL_PARALLAX_SAMPLES; i++) {
-        if (i > maxSampleCount || depthDist < (1.0/255.0)) break;
-
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
             prevTexDepth = texDepth;
         #endif
 
-        vec2 localTraceCoord = localCoord - i * stepCoord;
+        float stepF = GetParallaxStepFactor(i);
+        vec2 localTraceCoord = localCoord - stepF * stepCoordMax;
 
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
             vec2 uv[4];
-            vec2 atlasTileSize = vIn.atlasTileSize * atlasSize;
+            vec2 atlasTileSize = bounds.atlasTileSize * atlasSize;
             vec2 f = GetLinearCoords(localTraceCoord, atlasTileSize, uv);
 
             uv[0] = GetAtlasCoord(uv[0], bounds.atlasTilePos, bounds.atlasTileSize);
@@ -86,32 +91,35 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
             texDepth = textureLod(normals, traceAtlasCoord, bounds.mip).a;
         #endif
 
-        depthDist = 1.0 - i * stepDepth - texDepth;
+        float traceDepth = 1.0 - stepF * maxTexDepth;
+        if (traceDepth - texDepth < (1.0/255.0)) break;
     }
 
-    float iF = max(i - 1, 0);
-    float pI = max(iF - 1.0, 0.0);
+    float stepF = GetParallaxStepFactor(i);
+    vec2 currentTraceOffset = localCoord - stepF * stepCoordMax;
+
+    int i_prev = max(i - 1, 0);
+    float stepF_prev = GetParallaxStepFactor(i_prev);
+    vec2 prevTraceOffset = localCoord - stepF_prev * stepCoordMax;
+    float prevTraceDepth = max(1.0 - stepF_prev * maxTexDepth, 0.0);
 
     #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
-        vec2 currentTraceOffset = localCoord - iF * stepCoord;
-        float currentTraceDepth = max(1.0 - iF * stepDepth, 0.0);
-        vec2 prevTraceOffset = localCoord - pI * stepCoord;
-        float prevTraceDepth = max(1.0 - pI * stepDepth, 0.0);
+        float currentTraceDepth = max(1.0 - stepF * maxTexDepth, 0.0);
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
-
         t = saturate(t);
-        traceDepth.xy = mix(prevTraceOffset, currentTraceOffset, t);
-        traceDepth.z = mix(prevTraceDepth, currentTraceDepth, t);
+
+        traceDepthResult.xy = mix(prevTraceOffset, currentTraceOffset, t);
+        traceDepthResult.z = mix(prevTraceDepth, currentTraceDepth, t);
     #else
-        traceDepth.xy = localCoord - pI * stepCoord;
-        traceDepth.z = max(1.0 - pI * stepDepth, 0.0);
+        traceDepthResult.xy = prevTraceOffset;
+        traceDepthResult.z = prevTraceDepth;
     #endif
 
     #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
-        return GetAtlasCoord(traceDepth.xy, bounds.atlasTilePos, bounds.atlasTileSize);
+        return GetAtlasCoord(traceDepthResult.xy, bounds.atlasTilePos, bounds.atlasTileSize);
     #else
-        return GetAtlasCoord(localCoord - i * stepCoord, bounds.atlasTilePos, bounds.atlasTileSize);
+        return GetAtlasCoord(currentTraceOffset, bounds.atlasTilePos, bounds.atlasTileSize);
     #endif
 }
 

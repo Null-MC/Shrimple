@@ -77,6 +77,7 @@ uniform float dhFarPlane;
 
 #ifdef MATERIAL_PARALLAX_ENABLED
     #include "/lib/sampling/atlas.glsl"
+    #include "/lib/sampling/linear.glsl"
     #include "/lib/material/parallax.glsl"
 #endif
 
