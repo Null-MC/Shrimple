@@ -32,6 +32,7 @@ in VertexData {
         vec3 tangentViewPos;
         flat uint atlasTilePos;
         flat uint atlasTileSize;
+        flat uint wrapMask;
     #endif
 
     #ifdef RENDER_TERRAIN

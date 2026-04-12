@@ -75,6 +75,15 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
         float stepF = GetParallaxStepFactor(i);
         vec2 localTraceCoord = localCoord - stepF * stepCoordMax;
 
+        #ifdef MATERIAL_PARALLAX_CUTOUT
+            bool cutout = saturate(localTraceCoord) != localTraceCoord;
+            if (localTraceCoord.x < 0.0 && bitfieldExtract(vIn.wrapMask, 0, 1) == 1u) cutout = false;
+            if (localTraceCoord.y < 0.0 && bitfieldExtract(vIn.wrapMask, 1, 1) == 1u) cutout = false;
+            if (localTraceCoord.x > 1.0 && bitfieldExtract(vIn.wrapMask, 2, 1) == 1u) cutout = false;
+            if (localTraceCoord.y > 1.0 && bitfieldExtract(vIn.wrapMask, 3, 1) == 1u) cutout = false;
+            if (cutout) discard;
+        #endif
+
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
             vec2 uv[4];
             vec2 atlasTileSize = bounds.atlasTileSize * atlasSize;

@@ -106,6 +106,8 @@ option.MATERIAL_PARALLAX_SAMPLES.comment=The number of samples to take when calc
 option.MATERIAL_PARALLAX_ENTITIES=Entities
 option.MATERIAL_PARALLAX_ENTITIES.comment=Allows parallax displacement to be applied to entities. May cause issues with mods that don't provide proper geometry data.
 
+option.MATERIAL_PARALLAX_CUTOUT=Cutout
+
 option.MATERIAL_PARALLAX_OPTIMIZE=Optimize
 option.MATERIAL_PARALLAX_OPTIMIZE.comment=Improves the quality of parallax by reducing the trace range to optimal values. Disable if you see artifacts/issues!
 
