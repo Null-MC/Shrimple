@@ -9,7 +9,16 @@ struct ParallaxBounds {
     float mip;
 };
 
-vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, const in float viewDist, out float texDepth, out vec3 traceDepth) {
+    vec2 localCoord = GetLocalCoord(srcCoord, bounds.atlasTilePos, bounds.atlasTileSize);
+
+    float depth = textureLod(normals, srcCoord, bounds.mip).a;
+    if (depth > 0.999) {
+        texDepth = 1.0;
+        traceDepth = vec3(0.0, 0.0, 1.0);
+        return srcCoord;
+    }
+
     #ifdef MATERIAL_PARALLAX_OPTIMIZE
         const int parallax_mip = 2;
         //vec2 atlasSize = textureSize(normals, 0);
@@ -49,10 +58,10 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, 
 //        stepCoord *= localSize / maxOf(localSize);
 //        stepCoord.y *= localSize.x / localSize.y;
 
-    float i;
+    int i;
     texDepth = 1.0;
     float depthDist = 1.0;
-    for (i = 0.0; i < (MATERIAL_PARALLAX_SAMPLES+0.5); i += 1.0) {
+    for (i = 1; i <= MATERIAL_PARALLAX_SAMPLES; i++) {
         if (i > maxSampleCount || depthDist < (1.0/255.0)) break;
 
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
@@ -80,18 +89,18 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 localCoord, 
         depthDist = 1.0 - i * stepDepth - texDepth;
     }
 
-    i = max(i - 1.0, 0.0);
-    float pI = max(i - 1.0, 0.0);
+    float iF = max(i - 1, 0);
+    float pI = max(iF - 1.0, 0.0);
 
     #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
-        vec2 currentTraceOffset = localCoord - i * stepCoord;
-        float currentTraceDepth = max(1.0 - i * stepDepth, 0.0);
+        vec2 currentTraceOffset = localCoord - iF * stepCoord;
+        float currentTraceDepth = max(1.0 - iF * stepDepth, 0.0);
         vec2 prevTraceOffset = localCoord - pI * stepCoord;
         float prevTraceDepth = max(1.0 - pI * stepDepth, 0.0);
 
         float t = (prevTraceDepth - prevTexDepth) / max(texDepth - prevTexDepth + prevTraceDepth - currentTraceDepth, EPSILON);
-        t = clamp(t, 0.0, 1.0);
 
+        t = saturate(t);
         traceDepth.xy = mix(prevTraceOffset, currentTraceOffset, t);
         traceDepth.z = mix(prevTraceDepth, currentTraceDepth, t);
     #else

@@ -51,6 +51,7 @@ uniform usampler2D TEX_GB_SPECULAR;
     #endif
 #endif
 
+uniform float far;
 uniform float near;
 uniform float fogStart;
 uniform float fogEnd;
@@ -93,6 +94,7 @@ uniform int vxRenderDistance;
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
 #include "/lib/sampling/lightmap.glsl"
+#include "/lib/sampling/linear.glsl"
 #include "/lib/lighting/attenuation.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
@@ -298,7 +300,7 @@ void main() {
             float roughL = _pow2(roughness);
         #endif
 
-        vec3 diffuseFinal = vec3(0.0);
+        vec3 diffuseFinal;
         vec3 specularFinal = vec3(0.0);
 
         #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -348,7 +350,7 @@ void main() {
                 #endif
             #endif
         #else
-            #if defined(PHOTONICS_GI_ENABLED)
+            #ifdef PHOTONICS_GI_ENABLED
                 #ifdef SHADOWS_ENABLED
                     lmcoord.y = shadowF;
                 #else
@@ -362,7 +364,8 @@ void main() {
                 lmcoord.x *= 1.0 - lpvFade;
             #endif
 
-            diffuseFinal = texture(texLightmap, LightMapTex(lmcoord)).rgb;
+//            diffuseFinal = texture(texLightmap, LightMapTex(lmcoord)).rgb;
+            diffuseFinal = TextureLinearRGB(texLightmap, LightMapTex(lmcoord), vec2(16.0));
             float oldLighting = GetOldLighting(localTexNormal);
             #ifdef MATERIAL_PBR_ENABLED
                 oldLighting = mix(oldLighting, 1.0, tex_sss);
@@ -498,5 +501,9 @@ void main() {
         vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
         outFinal = mix(outFinal, fogColorFinal, fogF);
+
+//        outFinal = vec3(lmcoord, 0.0);
+//        outFinal = texture(texLightmap, gl_FragCoord.xy / viewSize).rgb;
+//        outFinal = TextureLinearRGB(texLightmap, gl_FragCoord.xy / viewSize, vec2(16.0));
     }
 }

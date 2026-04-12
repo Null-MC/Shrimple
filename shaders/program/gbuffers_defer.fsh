@@ -129,8 +129,7 @@ void main() {
             bounds.tanViewDir = tanViewDir;
             bounds.mip = mip;
 
-            vec2 localCoord = GetLocalCoord(texcoord, bounds.atlasTilePos, bounds.atlasTileSize);
-            texcoord = GetParallaxCoord(bounds, localCoord, viewDist, texDepth, traceCoordDepth);
+            texcoord = GetParallaxCoord(bounds, texcoord, viewDist, texDepth, traceCoordDepth);
         }
     #endif
 
