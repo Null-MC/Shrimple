@@ -217,6 +217,11 @@ screen.MODS=Mods
 
 screen.MOD_PHOTONICS=Photonics
 
+option.PHOTONICS_RENDER_SCALE=Render Scale
+value.PHOTONICS_RENDER_SCALE.0=Full
+value.PHOTONICS_RENDER_SCALE.1=Half
+value.PHOTONICS_RENDER_SCALE.2=Quarter
+
 option.PHOTONICS_REFLECT_ENABLED=Reflections
 option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
 

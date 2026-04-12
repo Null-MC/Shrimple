@@ -38,7 +38,7 @@ vec3 modify_attenuation(
         vec3 localPos = sample_pos - rt_camera_position;
         vec3 localViewDir = normalize(localPos);
 
-        ivec2 uv = ivec2(gl_FragCoord.xy);
+        ivec2 uv = ivec2(gl_FragCoord.xy / PH_RENDER_SCALE);
 //        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
 //        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
 //        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);

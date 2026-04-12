@@ -1,10 +1,11 @@
 void modify_restir_gi(inout vec3 color) {
-    ivec2 uv = ivec2(gl_FragCoord.xy);
-
-    uvec2 reflectData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
-    vec4 albedoData = unpackUnorm4x8(reflectData.r);
-    vec4 specularData = unpackUnorm4x8(reflectData.g);
-    vec3 albedo = RGBToLinear(albedoData.rgb);
+    #ifdef DEBUG_WHITEWORLD
+        albedo = vec3(0.86);
+    #else
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        vec3 albedo = texelFetch(TEX_GB_COLOR, uv, 0).rgb;
+        albedo = RGBToLinear(albedo);
+    #endif
 
     color *= albedo/PI;
 }

@@ -147,7 +147,6 @@ void main() {
 
     vec4 color = vIn.color;
 
-    vec3 albedo = RGBToLinear(color.rgb);
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
     #ifndef RENDER_TRANSLUCENT
@@ -158,8 +157,8 @@ void main() {
     vec3 localTexNormal = localNormal;
     if (vIn.materialId == DH_BLOCK_WATER) {
         #ifndef WATER_TEXTURE_ENABLED
-            albedo = vec3(0.0);//RGBToLinear(parameters.tinting.rgb);
-            color.a = WATER_F0;
+            //color = RGBToLinear(parameters.tinting.rgb);
+            color = vec4(vec3(0.0), Water_f0);
         #endif
 
         #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
@@ -177,6 +176,8 @@ void main() {
             localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
         #endif
     }
+
+    vec3 albedo = RGBToLinear(color.rgb);
 
     #ifdef RENDER_TRANSLUCENT
         float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
@@ -355,10 +356,11 @@ void main() {
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-        color.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
+        outFinal.rgb = albedo/PI * diffuseFinal * color.a + specularFinal;
     #else
-        color.rgb = albedo * diffuseFinal * color.a + specularFinal;
+        outFinal.rgb = albedo * diffuseFinal * color.a + specularFinal;
     #endif
+    outFinal.a = color.a;
 
     #if !defined(SSAO_ENABLED) || defined(RENDER_TRANSLUCENT)
         float borderFogF = GetBorderFogStrength(viewDist);
@@ -369,41 +371,30 @@ void main() {
         vec3 skyColorL = RGBToLinear(skyColor);
         vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
-        color.rgb = mix(color.rgb, fogColorFinal, fogF);
-        color.a = max(color.a, fogF);
+        outFinal.rgb = mix(outFinal.rgb, fogColorFinal, fogF);
+        outFinal.a = max(outFinal.a, fogF);
     #endif
 
-    outFinal = color;
-//    outMeta = 0u;
+//    outFinal = color;
+    outAlbedo = color;
 
-    #ifdef RENDER_TRANSLUCENT
-//        outTint = vec4(1.0, 1.0, 1.0, 0.0);
-        vec3 tint = LinearToRGB(albedo * color.a);
-        uint matID = 0u;
+    #ifdef DEFERRED_ENABLED
+        const float occlusion = 1.0;
+        uint matId = 0u;
 
-        if (vIn.materialId == DH_BLOCK_WATER) {
-            matID = MAT_WATER;
-            tint = vIn.color.rgb;
-        }
+        if (vIn.materialId == DH_BLOCK_WATER)
+            matId = MAT_WATER;
 
-//        if (parameters.customId >= BLOCK_STAINED_GLASS_BLACK && parameters.customId <= BLOCK_TINTED_GLASS)
-//            matID = MAT_STAINED_GLASS;
-
-        outAlbedo = vec4(tint, (matID + 0.5) / 255.0);
-    #endif
-
-    #if defined(VELOCITY_ENABLED)
-        outVelocity = vec3(0.0);
-    #endif
-
-    #ifdef DEFERRED_NORMAL_ENABLED
         vec3 viewNormal = mat3(gbufferModelView) * localTexNormal;
-        outNormal = vec4(OctEncode(localNormal), OctEncode(viewNormal));
+        outNormals = vec4(OctEncode(localNormal), OctEncode(viewNormal));
+
+        outSpecularMeta = uvec2(
+            packUnorm4x8(specularData),
+            packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
+        );
     #endif
 
-    #ifdef DEFERRED_SPECULAR_ENABLED
-        outAlbedoSpecular = uvec2(
-            packUnorm4x8(vec4(LinearToRGB(albedo), lmcoord.y)),
-            packUnorm4x8(specularData));
+    #ifdef VELOCITY_ENABLED
+        outVelocity = vec3(0.0);
     #endif
 }

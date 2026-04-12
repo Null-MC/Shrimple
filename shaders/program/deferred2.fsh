@@ -83,6 +83,7 @@ uniform int heldBlockLightValue2;
 uniform int frameCounter;
 uniform vec2 viewSize;
 
+uniform float dhFarPlane;
 uniform int vxRenderDistance;
 
 #include "/lib/ign.glsl"

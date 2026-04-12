@@ -3,4 +3,4 @@
 #define RENDER_SOLID
 
 #include "end.glsl"
-#include "/program/dh_main.fsh"
+#include "/program/dh_defer.fsh"

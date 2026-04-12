@@ -101,12 +101,12 @@ Frag ph_mixNullable4(Frag s1, Frag s2, float a) {
 
 Frag ph_get(vec2 uv) {
     vec3 d = texelFetch(prev_radiosity_position, ivec2(uv), 0).xyz - world_pos;
-    if (dot(d, d) >= 0.1f) {
+    if (dot(d, d) >= 0.1) {
         return NULL4;
     }
 
     vec3 n = texelFetch(prev_radiosity_normal, ivec2(uv), 0).xyz;
-    if (dot(n, block_normal) < 0.99f) {
+    if (dot(n, block_normal) < 0.8) {
         return NULL4;
     }
 
@@ -135,7 +135,7 @@ Frag ph_get_mixed(vec2 center) {
 
 // TODO: reproject in voxel pattern to hide noise in texture
 void sample_direct() {
-    vec2 center = ph_reprojectf(previous_modelview_projection, world_pos + 0.01f * block_normal, vec2(viewWidth, viewHeight), get_taa_jitter());
+    vec2 center = ph_reprojectf(previous_modelview_projection, world_pos + 0.01f * block_normal, viewSize, get_taa_jitter());
 
     center -= 0.5f;
     Frag frag = ph_get_mixed(center);

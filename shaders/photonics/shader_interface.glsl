@@ -63,6 +63,9 @@ vec3 sun_direction = sunLocalDir;
 
 vec3 load_world_position() {
     vec2 texcoord = gl_FragCoord.xy / viewSize;
+    texcoord /= PH_RENDER_SCALE;
+//    texcoord += 0.5 / (viewSize * PH_RENDER_SCALE);
+
     float depth = texture(TEX_DEPTH, texcoord).r;
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
@@ -80,7 +83,7 @@ vec3 load_world_position() {
 }
 
 void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world_normal, out vec3 world_normal_mapped) {
-    ivec2 uv = ivec2(gl_FragCoord.xy);
+    ivec2 uv = ivec2(gl_FragCoord.xy / PH_RENDER_SCALE); // TODO: fix texel offset
 
     vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
     world_normal = OctDecode(normalData.xy);
