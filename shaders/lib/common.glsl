@@ -137,6 +137,10 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     #undef MATERIAL_PARALLAX_ENABLED
 #endif
 
+#if defined(LIGHTING_COLORED) || (defined(MATERIAL_PARALLAX_ENABLED) && defined(MATERIAL_PARALLAX_CUTOUT))
+    #define VOXEL_ENABLED
+#endif
+
 #ifdef SHADOWS_ENABLED
     const int shadowMapResolution = SHADOW_RESOLUTION;
 #else

@@ -201,8 +201,7 @@ void main() {
 
         vOut.tangentViewPos = viewPos.xyz * matViewTBN;
 
-        vOut.wrapMask = 0xFF;
-//        vOut.wrapMask = (1 << 3) | (1 << 1);
+        uint wrapMask = 0xFF;
 
         #ifdef RENDER_TERRAIN
             vec3 originPos = vOut.localPos + midBlockOffset;
@@ -210,43 +209,27 @@ void main() {
 
             vec3 localBitangent = normalize(cross(localNormal, localTangent));
 
-            // TODO: also check diagonals (+normal offset)
-
-//            // left
-//            if (texelFetch(texVoxels, ivec3(floor(voxelPos - localTangent)), 0).r == 0u)
-//                vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 0, 1);
-//
-//            // top
-//            if (texelFetch(texVoxels, ivec3(floor(voxelPos + localBitangent)), 0).r == 0u)
-//                vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 1, 1);
-//
-//            // right
-//            if (texelFetch(texVoxels, ivec3(floor(voxelPos + localTangent)), 0).r == 0u)
-//                vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 2, 1);
-//
-//            // bottom
-//            if (texelFetch(texVoxels, ivec3(floor(voxelPos - localBitangent)), 0).r == 0u)
-//                vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 3, 1);
-
             // left
             if (texelFetch(texVoxels, ivec3(floor(voxelPos - localTangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos - localTangent + localNormal)), 0).r == 0u)
-                    vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 0, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 0, 0, 1);
 
             // top
             if (texelFetch(texVoxels, ivec3(floor(voxelPos + localBitangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos + localBitangent + localNormal)), 0).r == 0u)
-                    vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 1, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 0, 1, 1);
 
             // right
             if (texelFetch(texVoxels, ivec3(floor(voxelPos + localTangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos + localTangent + localNormal)), 0).r == 0u)
-                    vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 2, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 0, 2, 1);
 
             // bottom
             if (texelFetch(texVoxels, ivec3(floor(voxelPos - localBitangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos - localBitangent + localNormal)), 0).r == 0u)
-                    vOut.wrapMask = bitfieldInsert(vOut.wrapMask, 0, 3, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 0, 3, 1);
         #endif
+
+        vOut.wrapMask = wrapMask;
     #endif
 }

@@ -14,7 +14,7 @@ in vec4 at_midBlock;
     #endif
 #endif
 
-#ifdef LIGHTING_COLORED
+#ifdef VOXEL_ENABLED
     layout(r16ui) uniform writeonly uimage3D imgVoxels;
 
     uniform sampler2D texBlockLight;
@@ -50,7 +50,7 @@ uniform vec3 cameraPosition;
     #include "/lib/water-waves.glsl"
 #endif
 
-#ifdef LIGHTING_COLORED
+#ifdef VOXEL_ENABLED
     #include "/lib/voxel.glsl"
     #include "/lib/sampling/block-light.glsl"
 #endif
@@ -70,7 +70,7 @@ void main() {
     blockId = int(mc_Entity.x + EPSILON);
     if (mc_Entity.x < 0.0) blockId = BLOCK_SOLID;
 
-    #ifdef LIGHTING_COLORED
+    #ifdef VOXEL_ENABLED
         bool ignoreBlock = blockId <= 0
             || blockId == BLOCK_WATER
             || blockId == BLOCK_IGNORED;
@@ -86,9 +86,9 @@ void main() {
 //            }
         }
 
-        vec3 lightColor;
-        float lightRange;
-        GetBlockColorRange(lpvId, lightColor, lightRange);
+//        vec3 lightColor;
+//        float lightRange;
+//        GetBlockColorRange(lpvId, lightColor, lightRange);
 
         if (isRenderTerrain) {
 //            #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
@@ -100,6 +100,10 @@ void main() {
             }
         }
         else if (entityId != ENTITY_PLAYER_CURRENT) {
+            vec3 lightColor;
+            float lightRange;
+            GetBlockColorRange(lpvId, lightColor, lightRange);
+
             if (lightRange > 0) {
 //                lpvId = currentRenderedItemId;
                 originPos = localPos;
