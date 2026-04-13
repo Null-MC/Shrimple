@@ -63,6 +63,7 @@ out VertexData {
 #endif
 
 uniform float far;
+uniform ivec2 atlasSize;
 uniform float windTime;
 uniform float windTimeLast;
 uniform int heldBlockLightValue;
@@ -194,14 +195,14 @@ void main() {
     #ifdef MATERIAL_PARALLAX_ENABLED
         vec2 atlasTilePos, atlasTileSize;
         GetAtlasBounds(vOut.texcoord, atlasTilePos, atlasTileSize);
-        vOut.atlasTilePos = packHalf2x16(atlasTilePos);
-        vOut.atlasTileSize = packHalf2x16(atlasTileSize);
+        vOut.atlasTilePos = packUnorm2x16(atlasTilePos + 0.5/atlasSize);
+        vOut.atlasTileSize = packUnorm2x16(atlasTileSize);
 
         mat3 matViewTBN = BuildTBN(viewNormal, viewTangent, at_tangent.w);
 
         vOut.tangentViewPos = viewPos.xyz * matViewTBN;
 
-        uint wrapMask = 0xFF;
+        uint wrapMask = 0u;
 
         #ifdef RENDER_TERRAIN
             vec3 originPos = vOut.localPos + midBlockOffset;
@@ -212,22 +213,22 @@ void main() {
             // left
             if (texelFetch(texVoxels, ivec3(floor(voxelPos - localTangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos - localTangent + localNormal)), 0).r == 0u)
-                    wrapMask = bitfieldInsert(wrapMask, 0, 0, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 1, 0, 1);
 
             // top
             if (texelFetch(texVoxels, ivec3(floor(voxelPos + localBitangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos + localBitangent + localNormal)), 0).r == 0u)
-                    wrapMask = bitfieldInsert(wrapMask, 0, 1, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 1, 1, 1);
 
             // right
             if (texelFetch(texVoxels, ivec3(floor(voxelPos + localTangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos + localTangent + localNormal)), 0).r == 0u)
-                    wrapMask = bitfieldInsert(wrapMask, 0, 2, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 1, 2, 1);
 
             // bottom
             if (texelFetch(texVoxels, ivec3(floor(voxelPos - localBitangent)), 0).r == 0u &&
                 texelFetch(texVoxels, ivec3(floor(voxelPos - localBitangent + localNormal)), 0).r == 0u)
-                    wrapMask = bitfieldInsert(wrapMask, 0, 3, 1);
+                    wrapMask = bitfieldInsert(wrapMask, 1, 3, 1);
         #endif
 
         vOut.wrapMask = wrapMask;

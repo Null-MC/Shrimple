@@ -6,11 +6,11 @@ in vec4 mc_Entity;
 in vec4 at_midBlock;
 
 #if defined(SHADOWS_ENABLED) && (!defined(RENDER_SOLID) || defined(SHADOW_COLORED))
-    out vec2 texcoord;
+    out vec2 out_texcoord;
 
     #ifdef SHADOW_COLORED
-        out vec4 color;
-        flat out int blockId;
+        out vec4 out_color;
+        flat out int out_blockId;
     #endif
 #endif
 
@@ -64,11 +64,12 @@ void main() {
         || renderStage == MC_RENDER_STAGE_TERRAIN_CUTOUT_MIPPED
         || renderStage == MC_RENDER_STAGE_TERRAIN_TRANSLUCENT;
 
-    #if !defined(SHADOWS_ENABLED) || !defined(SHADOW_COLORED)
-        int blockId;
-    #endif
-    blockId = int(mc_Entity.x + EPSILON);
+    int blockId = int(mc_Entity.x + EPSILON);
     if (mc_Entity.x < 0.0) blockId = BLOCK_SOLID;
+
+    #if defined(SHADOWS_ENABLED) && defined(SHADOW_COLORED)
+        out_blockId = blockId;
+    #endif
 
     #ifdef VOXEL_ENABLED
         bool ignoreBlock = blockId <= 0
@@ -118,11 +119,11 @@ void main() {
 
     #ifdef SHADOWS_ENABLED
         #if !defined(RENDER_SOLID) || defined(SHADOW_COLORED)
-            texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+            out_texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         #endif
 
         #ifdef SHADOW_COLORED
-            color = gl_Color;
+            out_color = gl_Color;
         #endif
 
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);

@@ -26,6 +26,6 @@
     }
 
     vec2 GetLocalCoord(const in vec2 atlasCoord, const in vec2 tilePos, const in vec2 tileSize) {
-        return (atlasCoord - tilePos) / tileSize;
+        return saturate((atlasCoord - tilePos) / tileSize);
     }
 #endif

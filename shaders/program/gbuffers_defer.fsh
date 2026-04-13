@@ -126,8 +126,8 @@ void main() {
 
         ParallaxBounds bounds;
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_MAX_DIST) {
-            bounds.atlasTilePos = unpackHalf2x16(vIn.atlasTilePos);
-            bounds.atlasTileSize = unpackHalf2x16(vIn.atlasTileSize);
+            bounds.atlasTilePos = unpackUnorm2x16(vIn.atlasTilePos);
+            bounds.atlasTileSize = unpackUnorm2x16(vIn.atlasTileSize);
             bounds.tanViewDir = tanViewDir;
             bounds.mip = mip;
 

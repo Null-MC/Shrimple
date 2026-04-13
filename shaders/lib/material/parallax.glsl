@@ -19,14 +19,17 @@ float GetParallaxStepFactor(const in int step) {
 vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, const in float viewDist, out float texDepth, out vec3 traceDepthResult) {
     vec2 localCoord = GetLocalCoord(srcCoord, bounds.atlasTilePos, bounds.atlasTileSize);
 
-    #if MATERIAL_PARALLAX_TYPE != PARALLAX_SMOOTH
-        float depth = textureLod(normals, srcCoord, bounds.mip).a;
-        if (depth > 0.999) {
-            texDepth = 1.0;
-            traceDepthResult = vec3(0.0, 0.0, 1.0);
-            return srcCoord;
-        }
-    #endif
+//    return srcCoord;
+//    return GetAtlasCoord(localCoord, bounds.atlasTilePos, bounds.atlasTileSize);
+
+//    #if MATERIAL_PARALLAX_TYPE != PARALLAX_SMOOTH
+//        float depth = textureLod(normals, srcCoord, bounds.mip).a;
+//        if (depth > 0.999) {
+//            texDepth = 1.0;
+//            traceDepthResult = vec3(0.0, 0.0, 1.0);
+//            return srcCoord;
+//        }
+//    #endif
 
     #ifdef MATERIAL_PARALLAX_OPTIMIZE
         const int parallax_mip = 2;
@@ -67,15 +70,15 @@ vec2 GetParallaxCoord(const in ParallaxBounds bounds, const in vec2 srcCoord, co
     #ifdef MATERIAL_PARALLAX_CUTOUT
         uint wmask = vIn.wrapMask;
         bvec4 wrapMask = bvec4(
-            (wmask & 1u) != 0u,
-            (wmask & 2u) != 0u,
-            (wmask & 4u) != 0u,
-            (wmask & 8u) != 0u);
+            (wmask & 1u) == 0u,
+            (wmask & 2u) == 0u,
+            (wmask & 4u) == 0u,
+            (wmask & 8u) == 0u);
     #endif
 
     int i;
     texDepth = 1.0;
-    for (i = 1; i <= MATERIAL_PARALLAX_SAMPLES; i++) {
+    for (i = 0; i <= MATERIAL_PARALLAX_SAMPLES; i++) {
         #if MATERIAL_PARALLAX_TYPE == PARALLAX_SMOOTH
             prevTexDepth = texDepth;
         #endif
