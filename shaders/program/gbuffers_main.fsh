@@ -229,12 +229,16 @@ void main() {
         vec3 tanViewDir = normalize(vIn.tangentViewPos);
 
         ParallaxBounds bounds;
-        if (!skipParallax && viewDist < MATERIAL_PARALLAX_MAX_DIST) {
-            bounds.atlasTilePos = unpackUnorm2x16(vIn.atlasTilePos);
-            bounds.atlasTileSize = unpackUnorm2x16(vIn.atlasTileSize);
-            bounds.tanViewDir = tanViewDir;
-            bounds.mip = mip;
+        bounds.atlasTilePos = unpackUnorm2x16(vIn.atlasTilePos);
+        bounds.atlasTileSize = unpackUnorm2x16(vIn.atlasTileSize);
+        bounds.tanViewDir = tanViewDir;
+        bounds.mip = mip;
 
+        // TODO: this fixes sign text, but why?
+//        if (saturate(bounds.atlasTileSize) == bounds.atlasTileSize)
+//            skipParallax = true;
+
+        if (!skipParallax && viewDist < MATERIAL_PARALLAX_MAX_DIST) {
             texcoord = GetParallaxCoord(bounds, texcoord, viewDist, texDepth, traceCoordDepth);
         }
     #endif

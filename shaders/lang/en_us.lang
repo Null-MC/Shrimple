@@ -85,6 +85,8 @@ value.MATERIAL_FORMAT.2=Lab PBR
 option.MATERIAL_GLASS_TINT=Glass Tinting
 option.MATERIAL_GLASS_TINT.comment=Allows stained glass to apply multiplicative blending to the scene behind it.
 
+option.MATERIAL_WETNESS=Wetness
+
 
 screen.MATERIAL_PARALLAX=Parallax
 screen.MATERIAL_PARALLAX.comment=Allows per-pixel displacement of texture data. Requires a resource pack with PBR /POM support.
@@ -197,7 +199,10 @@ option.BLOOM_LEVELS=Levels
 screen.EFFECT_SSAO=SSAO
 screen.EFFECT_SSAO.comment=Screen-Space Ambient Occlusion. For Voxy or Distant Horizons chunks only!
 
-option.SSAO_ENABLED=Enabled
+option.SSAO_MODE=Mode
+value.SSAO_MODE.0=Off
+value.SSAO_MODE.1=LOD Only
+value.SSAO_MODE.2=Full
 
 option.SSAO_SAMPLES=Sample Count
 

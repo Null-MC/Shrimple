@@ -19,7 +19,8 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 
-layout(rgba16f) uniform writeonly image2D IMG_FINAL;
+//layout(rgba16f) uniform writeonly image2D IMG_FINAL;
+layout(r16f) uniform writeonly image2D IMG_SSAO;
 
 shared float sharedOcclusion[20*20];
 shared float sharedDepthL[20*20];
@@ -128,48 +129,50 @@ void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     if (any(greaterThanEqual(uv, viewSize))) return;
 
-    vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
+//    vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
     float lod_depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
 
+    float occlusion = 1.0;
     if (lod_depth > 0.0) {
-        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-        if (depth >= 1.0) color *= BilateralGaussianBlur();
+//        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+//        if (depth >= 1.0) color *= BilateralGaussianBlur();
+        occlusion = BilateralGaussianBlur();
 
-        vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
-        vec3 screenPos = vec3(texcoord, lod_depth);
-
-        #ifdef TAA_ENABLED
-            // screenPos.xy -= taa_offset;
-        #endif
-
-        vec3 ndcPos = screenPos;
-        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
-//        ndcPos.z = -ndcPos.z;
-
-        // TODO: fix hand depth?
-
-        mat4 matProjInv = mat4(
-            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0/near,
-            0.0, 0.0, -1.0, 0.0);
-
-        vec3 viewPos = project(matProjInv, ndcPos);
-        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-
-        float viewDist = length(localPos);
-
-        float borderFogF = GetBorderFogStrength(viewDist);
-        float envFogF = GetEnvFogStrength(viewDist);
-        float fogF = max(borderFogF, envFogF);
-
-        vec3 fogColorL = RGBToLinear(fogColor);
-        vec3 skyColorL = RGBToLinear(skyColor);
-        vec3 localViewDir = normalize(localPos);
-        vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
-
-        color.rgb = mix(color.rgb, fogColorFinal, fogF);
+//        vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
+//        vec3 screenPos = vec3(texcoord, lod_depth);
+//
+//        #ifdef TAA_ENABLED
+//            // screenPos.xy -= taa_offset;
+//        #endif
+//
+//        vec3 ndcPos = screenPos;
+//        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
+////        ndcPos.z = -ndcPos.z;
+//
+//        // TODO: fix hand depth?
+//
+//        mat4 matProjInv = mat4(
+//            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
+//            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
+//            0.0, 0.0, 0.0, 1.0/near,
+//            0.0, 0.0, -1.0, 0.0);
+//
+//        vec3 viewPos = project(matProjInv, ndcPos);
+//        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+//
+//        float viewDist = length(localPos);
+//
+//        float borderFogF = GetBorderFogStrength(viewDist);
+//        float envFogF = GetEnvFogStrength(viewDist);
+//        float fogF = max(borderFogF, envFogF);
+//
+//        vec3 fogColorL = RGBToLinear(fogColor);
+//        vec3 skyColorL = RGBToLinear(skyColor);
+//        vec3 localViewDir = normalize(localPos);
+//        vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
+//
+//        color.rgb = mix(color.rgb, fogColorFinal, fogF);
     }
 
-    imageStore(IMG_FINAL, uv, vec4(color, 1.0));
+    imageStore(IMG_SSAO, uv, vec4(occlusion));
 }

@@ -16,7 +16,7 @@ const float LpvBlockRange = 16.0; // [8 10 12 14 16 18 20 22 24 26 28 30 32]
 
 
 shared uint voxelSharedData[10*10*10];
-shared vec3 lpvBuffer[10*10*10];
+shared vec4 lpvBuffer[10*10*10];
 
 layout(rgba8) uniform image3D imgFloodFillA;
 layout(rgba8) uniform image3D imgFloodFillB;
@@ -63,14 +63,15 @@ vec3 fromExp2(const in vec3 color) {
     return color * (lum_tgt / lum_now);
 }
 
-vec3 GetLpvValue(const in ivec3 texCoord) {
-    if (!IsInVoxelBounds(texCoord)) return vec3(0.0);
+vec4 GetLpvValue(const in ivec3 texCoord) {
+    if (!IsInVoxelBounds(texCoord)) return vec4(0.0);
 
-    vec3 lpvSample = (frameCounter % 2) == 0
-        ? imageLoad(imgFloodFillB, texCoord).rgb
-        : imageLoad(imgFloodFillA, texCoord).rgb;
+    vec4 color = (frameCounter % 2) == 0
+        ? imageLoad(imgFloodFillB, texCoord)
+        : imageLoad(imgFloodFillA, texCoord);
 
-    return RGBToLinear(lpvSample);
+    color.rgb = RGBToLinear(color.rgb);
+    return color;
 }
 
 const ivec3 lpvFlatten = ivec3(1, 10, 100);
@@ -83,7 +84,7 @@ ivec3 GetVoxelFrameOffset() {
     return ivec3(floor(cameraPosition)) - ivec3(floor(previousCameraPosition));
 }
 
-vec3 sampleShared(const in ivec3 pos, const in int mask_index, out float weight) {
+vec4 sampleShared(const in ivec3 pos, const in int mask_index, out float weight) {
     int shared_index = getSharedCoord(pos + 1);
 
     //float mixWeight = 1.0;
@@ -98,8 +99,10 @@ vec3 sampleShared(const in ivec3 pos, const in int mask_index, out float weight)
 //        mixMask = bitfieldExtract(maskData, 8, 8);
 //    }
 
+    vec4 color = lpvBuffer[shared_index];
     uint wMask = bitfieldExtract(mixMask, mask_index, 1);
-    return lpvBuffer[shared_index] * wMask;// * mixWeight;
+    color *= wMask;// * mixWeight;
+    return color;
 }
 
 vec3 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
@@ -107,12 +110,12 @@ vec3 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
     uvec3 m2 = (uvec3(mask) >> uvec3(1, 3, 5)) & uvec3(1u);
 
     vec3 w1, w2;
-    vec3 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x) * m1.x;
-    vec3 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x) * m2.x;
-    vec3 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y) * m1.y;
-    vec3 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y) * m2.y;
-    vec3 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z) * m1.z;
-    vec3 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z) * m2.z;
+    vec3 nX1 = sampleShared(fragCoord + ivec3(-1,  0,  0), 1, w1.x).rgb * m1.x;
+    vec3 nX2 = sampleShared(fragCoord + ivec3( 1,  0,  0), 0, w2.x).rgb * m2.x;
+    vec3 nY1 = sampleShared(fragCoord + ivec3( 0, -1,  0), 3, w1.y).rgb * m1.y;
+    vec3 nY2 = sampleShared(fragCoord + ivec3( 0,  1,  0), 2, w2.y).rgb * m2.y;
+    vec3 nZ1 = sampleShared(fragCoord + ivec3( 0,  0, -1), 5, w1.z).rgb * m1.z;
+    vec3 nZ2 = sampleShared(fragCoord + ivec3( 0,  0,  1), 4, w2.z).rgb * m2.z;
 
     const float wMaxInv = 1.0 / 6.0;//max(sumOf(w1 + w2), 1.0);
     float avgFalloff = wMaxInv * LpvFalloff;
@@ -133,8 +136,9 @@ void copyToShared(const in ivec3 imgCoordOffset, const in uint i) {
     ivec3 pos = workGroupOffset + ivec3(i / lpvFlatten) % 10;
 
     ivec3 lpvPos = imgCoordOffset + pos;
-    vec3 color = GetLpvValue(lpvPos);
-    lpvBuffer[i] = toExp2(color);
+    vec4 color = GetLpvValue(lpvPos);
+    color.rgb = toExp2(color.rgb);
+    lpvBuffer[i] = color;
 
     uint blockId = 0u;
     if (IsInVoxelBounds(pos))
@@ -178,15 +182,22 @@ void main() {
 
     uint blockId = voxelSharedData[getSharedCoord(ivec3(gl_LocalInvocationID) + 1)];
 
-    vec3 lightValue = vec3(0.0);
+    vec4 colorFinal = vec4(0.0);
 
     float mixWeight = 1.0;
     uint mixMask = 0xFFFF;
     vec3 tint = vec3(1.0);
 
-    if (blockId > 0u && blockId < 65000u) {
+    if (blockId > 0u && blockId < USHORT_MAX) {
         GetBlockMask(blockId, mixWeight, mixMask);
     }
+
+    float _w;
+    colorFinal.a = lpvBuffer[getSharedCoord(ivec3(gl_LocalInvocationID) + ivec3(1,2,1))].a;
+    colorFinal.a = max(colorFinal.a, 1.0 - mixWeight);
+    if (blockId == BLOCK_GLASS) colorFinal.a = 1.0;
+    //uint blockId_up = voxelSharedData[getSharedCoord(ivec3(gl_LocalInvocationID) + ivec3(1,2,1))];
+//    if (blockId_up != 0u) colorFinal.a = 0.0;
 
     vec3 lightColor = vec3(0.0);
     float lightRange = 0.0;
@@ -202,19 +213,20 @@ void main() {
     if (mixWeight > EPSILON) {
         vec3 lightMixed = mixNeighboursDirect(ivec3(gl_LocalInvocationID), mixMask);
         lightMixed *= mixWeight * tint;
-        lightValue += lightMixed;
+        colorFinal.rgb += lightMixed;
     }
 
     if (lightRange > 0.0) {
         vec3 newLight = lightColor * (lightRange / 15.0);
-        lightValue += toExp2(newLight);
+        colorFinal.rgb += toExp2(newLight);
     }
 
-    lightValue = fromExp2(lightValue);
-    lightValue = LinearToRGB(lightValue);
+    colorFinal.rgb = fromExp2(colorFinal.rgb);
+    colorFinal.rgb = LinearToRGB(colorFinal.rgb);
+//    colorFinal.a = saturate(colorFinal.a / 15.0);
 
     if (frameCounter % 2 == 0)
-        imageStore(imgFloodFillA, imgCoord, vec4(lightValue, 1.0));
+        imageStore(imgFloodFillA, imgCoord, colorFinal);
     else
-        imageStore(imgFloodFillB, imgCoord, vec4(lightValue, 1.0));
+        imageStore(imgFloodFillB, imgCoord, colorFinal);
 }

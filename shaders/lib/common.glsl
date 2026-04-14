@@ -48,6 +48,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 //#define MATERIAL_GLASS_TINT
 //#define REFLECT_ENABLED
 //#define REFRACT_ENABLED
+#define MATERIAL_WETNESS
 
 #define MATERIAL_PARALLAX_ENABLED
 #define MATERIAL_PARALLAX_TYPE 1 // [0 1 2]
@@ -67,7 +68,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define LIGHTING_MIN 0.400 // [0.000 0.002 0.004 0.006 0.008 0.010 0.012 0.014 0.016 0.018 0.020 0.025 0.030 0.035 0.040 0.045 0.050 0.060 0.070 0.080 0.090 0.100 0.150 0.200 0.250 0.300 0.350 0.400 0.450 0.500 0.550 0.600 0.650 0.700 0.800 0.900 1.000 1.200 1.400 1.600 1.800 2.000 2.200 2.400 2.600 2.800 3.000]
 #define LIGHTING_HAND
 //#define LIGHTING_SPECULAR
-//#define LIGHTING_COLORED
+#define LIGHTING_COLORED
 #define LIGHTING_COLORED_CANDLES
 #define LIGHTING_VOXEL_SIZE 128 // [64 128 256]
 #define LPV_FRUSTUM_OFFSET 0
@@ -84,7 +85,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 #define BLOOM_STRENGTH 3.2 // [0.2 0.4 0.6 0.8 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.2 4.4 4.6 4.8 5.0 5.2 5.4 5.6 5.8 6.0 8 10 12 14 16 18 20]
 #define BLOOM_LEVELS 6 // [1 2 3 4 5 6 7 8]
 
-#define SSAO_ENABLED
+#define SSAO_MODE 1 // [0 1 2]
 #define SSAO_SAMPLES 4 // [2 4 6 8 10 12]
 
 #define SSR_ENABLED
@@ -165,6 +166,14 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     #else
         #define TEX_SHADOW shadowtex0
     #endif
+#endif
+
+#if defined(DISTANT_HORIZONS) || defined(VOXY)
+    #define LOD_ENABLED
+#endif
+
+#if SSAO_MODE == SSAO_FULL || (SSAO_MODE == SSAO_LOD && defined(LOD_ENABLED))
+    #define SSAO_ENABLED
 #endif
 
 #ifndef PHOTONICS

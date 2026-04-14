@@ -51,6 +51,10 @@ uniform usampler2D TEX_GB_SPECULAR;
     #endif
 #endif
 
+#ifdef SSAO_ENABLED
+    uniform sampler2D TEX_SSAO;
+#endif
+
 uniform float far;
 uniform float near;
 uniform float fogStart;
@@ -198,15 +202,25 @@ void main() {
         vec3 localViewDir = localPos / viewDist;
         vec3 localTexNormal = mat3(gbufferModelViewInverse) * viewTexNormal;
 
-        #if defined(MATERIAL_PBR_ENABLED) && defined(WORLD_OVERWORLD)
+        #ifdef VOXEL_ENABLED
+            vec3 voxelPos = GetVoxelPosition(localPos);
+            vec3 lpvSamplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
+        #endif
+
+        #if defined(MATERIAL_WETNESS) && defined(WORLD_OVERWORLD)
             float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), lmcoord.y);
+            #ifdef VOXEL_ENABLED
+                if (IsInVoxelBounds(lpvSamplePos))
+                    skyExposure *= SampleFloodFill_SkyExposure(lpvSamplePos);
+            #endif
+
             float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
             float porosity = mat_porosity(specularData.rgb);
             float surfaceWetness = wetness * porosity;
 
             if (surfaceWetness > 0.0) {
                 albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
-                specularData.r = mix(specularData.r, 1.0, surfaceWetness);
+                specularData.r = mix(specularData.r, 1.0, 0.86*surfaceWetness);
             }
         #endif
 
@@ -284,7 +298,7 @@ void main() {
         #endif
 
         #ifdef LIGHTING_COLORED
-            vec3 voxelPos = GetVoxelPosition(localPos);
+//            vec3 voxelPos = GetVoxelPosition(localPos);
             float lpvFade = GetVoxelFade(voxelPos);
         #endif
 
@@ -312,8 +326,8 @@ void main() {
             vec3 blockLight = lmcoord.x * blockLightColor;
 
             #if defined(LIGHTING_COLORED) && !defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
-                vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
-                vec3 lpvSample = SampleFloodFill(samplePos);
+//                vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
+                vec3 lpvSample = SampleFloodFill(lpvSamplePos);
                 blockLight = mix(blockLight, lpvSample, lpvFade);
             #endif
 
@@ -360,15 +374,17 @@ void main() {
 
             lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
 
+            vec2 sample_lmcoord = lmcoord;
             #ifdef LIGHTING_COLORED
-                lmcoord.x *= 1.0 - lpvFade;
+                sample_lmcoord.x *= 1.0 - lpvFade;
             #endif
+            sample_lmcoord = LightMapTex(sample_lmcoord);
 
             #if MC_VERSION >= 12111
                 // lightmap sampling has no interpolation in 1.21.11+
-                diffuseFinal = TexelFetchLinearRGB(texLightmap, LightMapTex(lmcoord) * 16.0, 0);
+                diffuseFinal = TexelFetchLinearRGB(texLightmap, sample_lmcoord * 16.0, 0);
             #else
-                diffuseFinal = texture(texLightmap, LightMapTex(lmcoord)).rgb;
+                diffuseFinal = texture(texLightmap, sample_lmcoord).rgb;
             #endif
 
             float oldLighting = GetOldLighting(localTexNormal);
@@ -391,7 +407,13 @@ void main() {
             diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
         #endif
 
-        diffuseFinal *= _pow2(occlusion);
+        #if SSAO_MODE != SSAO_FULL
+            diffuseFinal *= _pow2(occlusion);
+        #endif
+
+        #ifdef SSAO_ENABLED
+            diffuseFinal *= texelFetch(TEX_SSAO, uv, 0).r;
+        #endif
 
         #ifndef LIGHTING_SPECULAR
             vec2 uvcoord = gl_FragCoord.xy / viewSize;

@@ -29,6 +29,10 @@
 #define LIGHTING_MODE_VANILLA 0
 #define LIGHTING_MODE_ENHANCED 1
 
+#define SSAO_OFF 0
+#define SSAO_LOD 1
+#define SSAO_FULL 2
+
 #define TEX_FINAL colortex0
 #define IMG_FINAL colorimg0
 #define TEX_TRANSLUCENT_FINAL colortex1
@@ -41,6 +45,7 @@
 
 //#define TEX_ALBEDO_SPECULAR colortex3
 //#define TEX_NORMAL colortex4
+#define IMG_SSAO colorimg7
 #define TEX_SSAO colortex7
 //#define TEX_META colortex8
 
