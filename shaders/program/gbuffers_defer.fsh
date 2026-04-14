@@ -9,14 +9,22 @@ in VertexData {
     vec2 texcoord;
     vec3 localPos;
 
+    #ifdef RENDER_TERRAIN
+        flat int blockId;
+
+        #ifdef VELOCITY_ENABLED
+            vec3 velocity;
+        #endif
+
+        #ifdef IRIS_FEATURE_FADE_VARIABLE
+            flat float chunkFade;
+        #endif
+    #endif
+
     #ifdef RENDER_ENTITY
         vec3 localNormal;
     #else
         flat uint localNormal;
-    #endif
-
-    #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
-        flat float chunkFade;
     #endif
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
@@ -33,14 +41,6 @@ in VertexData {
         flat uint atlasTilePos;
         flat uint atlasTileSize;
         flat uint wrapMask;
-    #endif
-
-    #ifdef RENDER_TERRAIN
-        flat int blockId;
-    #endif
-
-    #if defined(VELOCITY_ENABLED) && defined(RENDER_TERRAIN)
-        vec3 velocity;
     #endif
 } vIn;
 
@@ -111,11 +111,15 @@ void main() {
         vec3 localGeoNormal = OctDecode(unpackUnorm2x16(vIn.localNormal));
     #endif
 
+    #ifdef RENDER_TERRAIN
+        int blockId = vIn.blockId;
+    #endif
+
     #ifdef MATERIAL_PARALLAX_ENABLED
         bool skipParallax = false;
 
         #ifdef RENDER_TERRAIN
-            if (vIn.blockId == BLOCK_LAVA || vIn.blockId == BLOCK_WATER || vIn.blockId == BLOCK_END_PORTAL) skipParallax = true;
+            if (blockId == BLOCK_LAVA || blockId == BLOCK_WATER || blockId == BLOCK_END_PORTAL) skipParallax = true;
         #elif defined(RENDER_ENTITY)
             if (entityId == ENTITY_SHADOW) skipParallax = true;
         #endif
@@ -192,7 +196,7 @@ void main() {
     #endif
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
-        if (vIn.blockId == BLOCK_WATER) {
+        if (blockId == BLOCK_WATER) {
             vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
             float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
             vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
@@ -216,16 +220,16 @@ void main() {
         // TODO: if vanilla lighting, make foliage have "up" normals
 //        #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
         #ifdef RENDER_TERRAIN
-            bool isGrass = vIn.blockId == BLOCK_GRASS_SHORT
-                || vIn.blockId == BLOCK_TALL_GRASS_LOWER
-                || vIn.blockId == BLOCK_TALL_GRASS_UPPER;
+            bool isGrass = blockId == BLOCK_GRASS_SHORT
+                || blockId == BLOCK_TALL_GRASS_LOWER
+                || blockId == BLOCK_TALL_GRASS_UPPER;
 
             if (isGrass) localTexNormal = vec3(0,1,0);
         #endif
     #endif
 
     #ifdef RENDER_TERRAIN
-        if (vIn.blockId == BLOCK_WATER) {
+        if (blockId == BLOCK_WATER) {
             #ifndef WATER_TEXTURE_ENABLED
                 color.rgb = vec3(0.0);//RGBToLinear(vIn.color.rgb);
                 color.a = Water_f0;

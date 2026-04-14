@@ -3,11 +3,11 @@
 
 
 #if defined(SHADOWS_ENABLED) && (!defined(RENDER_SOLID) || defined(SHADOW_COLORED))
-    in vec2 in_texcoord;
+    in vec2 v_texcoord;
 
     #ifdef SHADOW_COLORED
-        in vec4 in_color;
-        flat in int in_blockId;
+        in vec4 v_color;
+        flat in int v_blockId;
     #endif
 #endif
 
@@ -25,7 +25,7 @@ void main() {
     outColor = vec4(0.0);
 
     #if defined(SHADOWS_ENABLED) && (!defined(RENDER_SOLID) || defined(SHADOW_COLORED))
-        outColor = texture(gtexture, in_texcoord);
+        outColor = texture(gtexture, v_texcoord);
 
         #ifdef SHADOW_COLORED
             #ifdef RENDER_COLORWHEEL
@@ -34,21 +34,21 @@ void main() {
                 vec4 overlayColor;
                 clrwl_computeFragment(outColor, outColor, lmcoord, ao, overlayColor);
             #else
-                outColor *= in_color;
+                outColor *= v_color;
             #endif
 
             #ifndef WATER_TEXTURE_ENABLED
-                if (in_blockId == BLOCK_WATER)
+                if (v_blockId == BLOCK_WATER)
                     outColor.rgb = vec3(1.0);
             #endif
 
-//            if (in_blockId == BLOCK_WATER)
+//            if (v_blockId == BLOCK_WATER)
 //                outColor.a = outColor.a*0.2 + 0.8;
         #endif
     #endif
 
     #ifndef WATER_TEXTURE_ENABLED
-        if (in_blockId == BLOCK_WATER)
+        if (v_blockId == BLOCK_WATER)
             outColor.a = 0.2;
     #endif
 

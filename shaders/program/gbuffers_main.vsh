@@ -15,14 +15,22 @@ out VertexData {
     vec2 texcoord;
     vec3 localPos;
 
+    #ifdef RENDER_TERRAIN
+        flat int blockId;
+
+        #ifdef VELOCITY_ENABLED
+            vec3 velocity;
+        #endif
+
+        #ifdef IRIS_FEATURE_FADE_VARIABLE
+            flat float chunkFade;
+        #endif
+    #endif
+
     #ifdef RENDER_ENTITY
         vec3 localNormal;
     #else
         flat uint localNormal;
-    #endif
-
-    #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
-        flat float chunkFade;
     #endif
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
@@ -39,15 +47,6 @@ out VertexData {
         flat uint atlasTilePos;
         flat uint atlasTileSize;
         flat uint wrapMask;
-    #endif
-
-//    #if defined(MATERIAL_PBR_ENABLED) || defined(REFLECT_ENABLED)
-    #ifdef RENDER_TERRAIN
-        flat int blockId;
-    #endif
-
-    #if defined(VELOCITY_ENABLED) && defined(RENDER_TERRAIN)
-        vec3 velocity;
     #endif
 } vOut;
 
@@ -132,11 +131,13 @@ void main() {
     #ifdef RENDER_TERRAIN
         vec3 midBlockOffset = at_midBlock.xyz / 64.0;
 
-        vOut.blockId = int(mc_Entity.x + EPSILON);
+        int blockId = int(mc_Entity.x + EPSILON);
+        vOut.blockId = blockId;
+
         vec3 velocity = vec3(0.0);
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-            if (vOut.blockId == BLOCK_WATER) {
+            if (blockId == BLOCK_WATER) {
                 vec2 waterWorldPos = (vOut.localPos.xz + cameraPosition.xz) / WaterNormalScale;
                 float waveHeight = wave_fbm(waterWorldPos, 8);
 
@@ -151,11 +152,11 @@ void main() {
         #endif
 
         #ifdef WIND_ENABLED
-            if (vOut.blockId > 0 && vOut.blockId < 256*256) {
+            if (blockId > 0 && blockId < 256*256) {
             #ifdef VELOCITY_ENABLED
-                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, vOut.blockId, velocity, windTime, windTimeLast);
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, velocity, windTime, windTimeLast);
             #else
-                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, vOut.blockId, windTime);
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, windTime);
             #endif
 
             vOut.localPos += windOffset;

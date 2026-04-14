@@ -6,11 +6,11 @@ in vec4 mc_Entity;
 in vec4 at_midBlock;
 
 #if defined(SHADOWS_ENABLED) && (!defined(RENDER_SOLID) || defined(SHADOW_COLORED))
-    out vec2 out_texcoord;
+    out vec2 v_texcoord;
 
     #ifdef SHADOW_COLORED
-        out vec4 out_color;
-        flat out int out_blockId;
+        out vec4 v_color;
+        flat out int v_blockId;
     #endif
 #endif
 
@@ -68,7 +68,7 @@ void main() {
     if (mc_Entity.x < 0.0) blockId = BLOCK_SOLID;
 
     #if defined(SHADOWS_ENABLED) && defined(SHADOW_COLORED)
-        out_blockId = blockId;
+        v_blockId = blockId;
     #endif
 
     #ifdef VOXEL_ENABLED
@@ -119,11 +119,11 @@ void main() {
 
     #ifdef SHADOWS_ENABLED
         #if !defined(RENDER_SOLID) || defined(SHADOW_COLORED)
-            out_texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+            v_texcoord = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
         #endif
 
         #ifdef SHADOW_COLORED
-            out_color = gl_Color;
+            v_color = gl_Color;
         #endif
 
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
