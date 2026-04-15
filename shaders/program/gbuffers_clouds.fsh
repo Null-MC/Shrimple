@@ -97,9 +97,10 @@ void main() {
 
         vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
-        color.rgb *= 0.2 * skyLightColor;
+        float NoLm = dot(localNormal, localSkyLightDir) * 0.4 + 0.6;
+        color.rgb *= 0.1 * NoLm * skyLightColor;
 
-        color.rgb += AmbientLightF * SampleSkyIrradiance(localNormal);
+        color.rgb += 0.8 * AmbientLightF * SampleSkyIrradiance(localNormal);
 
 //        color.rgb *= 0.1;
     #else
