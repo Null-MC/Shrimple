@@ -7,6 +7,7 @@ in vec4 at_midBlock;
 out VertexData {
     vec2 lmcoord;
     vec3 localPos;
+    vec3 localNormal;
 } vOut;
 
 
@@ -26,6 +27,8 @@ void main() {
 
     vec3 viewPos = mul3(gl_ModelViewMatrix, gl_Vertex.xyz);
     vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+
+    vOut.localNormal = gl_Normal;
 
 //    #ifdef WIND_ENABLED
 ////        int blockId = int(mc_Entity.x + EPSILON);

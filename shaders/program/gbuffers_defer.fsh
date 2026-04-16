@@ -87,16 +87,7 @@ uniform float dhFarPlane;
 #endif
 
 
-layout(location = 0) out vec4 outAlbedo;
-layout(location = 1) out vec4 outNormals;
-layout(location = 2) out uvec2 outSpecularMeta;
-
-#ifdef VELOCITY_ENABLED
-    /* RENDERTARGETS: 4,5,6,3 */
-    layout(location = 3) out vec3 outVelocity;
-#else
-    /* RENDERTARGETS: 4,5,6 */
-#endif
+#include "_outputDefer.glsl"
 
 void main() {
     float viewDist = length(vIn.localPos);
@@ -253,7 +244,7 @@ void main() {
 
     outSpecularMeta = uvec2(
         packUnorm4x8(specularData),
-        packUnorm4x8(vec4(lmcoord, occlusion, (matId+0.5) / 255.0))
+        packUnorm4x8(vec4(lmcoord, occlusion, matId / 255.0))
     );
 
     #ifdef VELOCITY_ENABLED

@@ -120,7 +120,7 @@ void main() {
 
         outSpecularMeta = uvec2(
             packUnorm4x8(specularData),
-            packUnorm4x8(vec4(vIn.lmcoord, occlusion, (matId+0.5) / 255.0))
+            packUnorm4x8(vec4(vIn.lmcoord, occlusion, matId / 255.0))
         );
     #endif
 

@@ -53,9 +53,10 @@
 #define IMG_BLOOM_TILES imgBloomTiles
 
 #define DEBUG_VIEW_NONE 0
-#define DEBUG_VIEW_SSAO 1
-#define DEBUG_VIEW_IRRADIANCE 2
-#define DEBUG_VIEW_BLOOM 3
+#define DEBUG_VIEW_SKY 1
+#define DEBUG_VIEW_GBUFFER 2
+#define DEBUG_VIEW_SSAO 3
+#define DEBUG_VIEW_BLOOM 4
 
 const float Water_f0 = 0.02;
 const int WaterNormalResolution = 256;
