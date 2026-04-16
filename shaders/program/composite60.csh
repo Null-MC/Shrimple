@@ -12,7 +12,7 @@ layout(rgba16f) uniform writeonly image2D imgTAA;
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_VELOCITY;
-//uniform usampler2D TEX_META;
+uniform usampler2D TEX_GB_SPECULAR;
 uniform sampler2D texTAA_prev;
 uniform sampler2D depthtex0;
 
@@ -50,7 +50,6 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
 
     ivec2 uv_i = ivec2(i_shared % 18, i_shared / 18);
     vec3 color = texelFetch(TEX_FINAL, uv_base + uv_i, 0).rgb;
-//    color = color / (1.0 + luminance(color));
     sharedBuffer[i_shared] = color;
 }
 
@@ -99,14 +98,9 @@ void main() {
         float depthNow = texelFetch(depthtex0, uv, 0).r;
         bool isLod = false;
 
-//        uint meta = texelFetch(TEX_META, uv, 0).r;
-//        bool isHand = meta != 0u;
-//        if (isHand) {
-//            depthNow = depthNow * 2.0 - 1.0;
-//            depthNow /= MC_HAND_DEPTH;
-//            depthNow = depthNow * 0.5 + 0.5;
-//        }
-        bool isHand = false; // TODO: move this to specular MAT
+        uint metaData = texelFetch(TEX_GB_SPECULAR, uv, 0).g;
+        uint matId = uint(unpackUnorm4x8(metaData).a * 255.0 + 0.5);
+        bool isHand = matId == MAT_HAND;
 
         #ifdef DISTANT_HORIZONS
             if (depthNow == 1.0) {
