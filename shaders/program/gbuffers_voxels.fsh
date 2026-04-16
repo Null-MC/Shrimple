@@ -143,7 +143,7 @@ void main() {
     vec4 color = vec4(ray.result_color, 1.0);
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);
 
-    color.rgb = LinearToRGB(color.rgb);
+//    color.rgb = LinearToRGB(color.rgb);
 
     const float occlusion = 1.0;
     const uint matId = 0u;
