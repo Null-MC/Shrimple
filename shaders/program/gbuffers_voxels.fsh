@@ -25,7 +25,6 @@ void main() {
     vec3 localViewDir = mat3(gbufferModelViewInverse) * normalize(viewPos);
 
     vec3 rayOrigin = vIn.localPos + rt_camera_position;
-//    rayOrigin -= 0.001 * vIn.localNormal;
     rayOrigin += 0.001 * localViewDir;
 
     RayJob ray = RayJob(
@@ -43,15 +42,15 @@ void main() {
     vec3 hitOffset = ray.result_position - origin;
     if (clamp(hitOffset, -0.01, 1.01) != hitOffset) discard;
 
-    vec2 lmcoord = vIn.lmcoord;
-    lmcoord.y = get_result_sky_light(ray.result_normal) / 15.0;
-
     vec3 hitLocalNormal = ray.result_normal;
     vec3 hitLocalPos = ray.result_position - rt_camera_position;
     vec3 hitViewPos = mul3(gbufferModelView, hitLocalPos);
 
     if (lengthSq(hitLocalNormal) < EPSILON)
         hitLocalNormal = normalize(vIn.localNormal);
+
+    vec2 lmcoord = vIn.lmcoord;
+    lmcoord.y = get_result_sky_light(hitLocalNormal) / 15.0;
 
     float hitViewDepth = -hitViewPos.z + 0.001;
     gl_FragDepth = 0.5 * (-gbufferProjection[2].z*hitViewDepth + gbufferProjection[3].z) / hitViewDepth + 0.5;

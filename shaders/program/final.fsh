@@ -11,6 +11,7 @@ uniform sampler2D TEX_FINAL;
 #elif DEBUG_VIEW == DEBUG_VIEW_GBUFFER
     uniform sampler2D TEX_GB_COLOR;
     uniform sampler2D TEX_GB_NORMALS;
+    uniform usampler2D TEX_GB_SPECULAR;
 #elif DEBUG_VIEW == DEBUG_VIEW_SSAO
     uniform sampler2D TEX_SSAO;
 #elif DEBUG_VIEW == DEBUG_VIEW_BLOOM
@@ -84,12 +85,21 @@ void main() {
 
         tex2 = (gl_FragCoord.xy - vec2(thumbSize.x + 16.0, 8)) / thumbSize;
         if (saturate(tex2) == tex2) {
-            color = OctDecode(texture(TEX_GB_NORMALS, tex2).xy) * 0.5 + 0.5;
+            ivec2 uv = ivec2(tex2 * viewSize);
+            color = OctDecode(texelFetch(TEX_GB_NORMALS, uv, 0).xy) * 0.5 + 0.5;
         }
 
         vec2 tex3 = (gl_FragCoord.xy - vec2(thumbSize.x*2.0 + 24.0, 8)) / thumbSize;
         if (saturate(tex3) == tex3) {
-            color = OctDecode(texture(TEX_GB_NORMALS, tex3).zw) * 0.5 + 0.5;
+            ivec2 uv = ivec2(tex3 * viewSize);
+            color = OctDecode(texelFetch(TEX_GB_NORMALS, uv, 0).zw) * 0.5 + 0.5;
+        }
+
+        vec2 tex4 = (gl_FragCoord.xy - vec2(thumbSize.x*3.0 + 32.0, 8)) / thumbSize;
+        if (saturate(tex4) == tex4) {
+            ivec2 uv = ivec2(tex4 * viewSize);
+            uint metaData = texelFetch(TEX_GB_SPECULAR, uv, 0).g;
+            color = unpackUnorm4x8(metaData).rgb;
         }
     #elif DEBUG_VIEW == DEBUG_VIEW_SSAO
         tex = (gl_FragCoord.xy - 8) / (viewSize * 0.2);
