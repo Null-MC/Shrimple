@@ -17,8 +17,7 @@ in VertexData {
 #endif
 
 #ifdef LIGHTING_COLORED
-    uniform sampler3D texFloodFillA;
-    uniform sampler3D texFloodFillB;
+    uniform sampler3D texFloodFill;
 #endif
 
 #ifdef SHADOWS_ENABLED

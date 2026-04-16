@@ -146,6 +146,13 @@ void sample_direct() {
     }
 
     // direct light
+    #if LIGHTING_RESOLUTION > 0
+        rt_pos = rt_pos * LIGHTING_RESOLUTION;
+        rt_pos += 0.99*block_normal;
+        rt_pos = floor(rt_pos) + 0.5;
+        rt_pos = rt_pos / LIGHTING_RESOLUTION;
+    #endif
+
     int light_offset = load_light_offset(rt_pos);
 
     int light_count = light_registry_array[light_offset];

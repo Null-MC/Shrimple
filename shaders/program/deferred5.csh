@@ -4,22 +4,10 @@
 #define TEX_DEPTH depthtex1
 #define TEX_LOD_DEPTH texDepthLod_opaque
 
-//#ifdef DISTANT_HORIZONS
-////    #define TEX_LOD_DEPTH dhDepthTex0
-//    #define SSAO_PROJ dhProjection
-//    #define SSAO_PROJ_INV dhProjectionInverse
-//#elif defined(VOXY)
-////    #define TEX_LOD_DEPTH vxDepthTexOpaque
-//    #define SSAO_PROJ vxProj
-//    #define SSAO_PROJ_INV vxProjInv
-//#endif
-
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-
-//layout(rgba16f) uniform writeonly image2D IMG_FINAL;
 layout(r16f) uniform writeonly image2D IMG_SSAO;
 
 shared float sharedOcclusion[20*20];
@@ -32,36 +20,12 @@ uniform sampler2D TEX_SSAO;
 
 uniform float near;
 uniform float far;
-uniform vec2 viewSize;
-uniform float farPlane;
 uniform float nearPlane;
-uniform vec3 fogColor;
-uniform float fogDensity;
-uniform float fogStart;
-uniform float fogEnd;
-uniform float skyDayF;
-uniform vec3 skyColor;
-uniform float rainStrength;
-uniform float weatherStrength;
-uniform float weatherDensity;
-uniform int isEyeInWater;
-//uniform vec3 sunPosition;
-uniform vec3 sunLocalDir;
-uniform int hasSkylight;
-uniform ivec2 eyeBrightnessSmooth;
-uniform mat4 gbufferModelViewInverse;
-uniform mat4 gbufferProjectionInverse;
+uniform float farPlane;
+uniform vec2 viewSize;
 uniform vec2 taa_offset = vec2(0.0);
 
-uniform float dhNearPlane;
-uniform float dhFarPlane;
-uniform mat4 dhProjectionInverse;
-uniform mat4 vxProjInv;
-uniform int vxRenderDistance;
-
 #include "/lib/sampling/depth.glsl"
-#include "/lib/oklab.glsl"
-#include "/lib/fog.glsl"
 #include "/lib/ssao.glsl"
 
 
@@ -74,7 +38,15 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
 
     ivec2 uv = uv_base + ivec2(i_shared % 20, i_shared / 20);
     sharedOcclusion[i_shared] = texelFetch(TEX_SSAO, uv, 0).r;
-    sharedDepthL[i_shared] = near / texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+
+    #ifdef LOD_ENABLED
+        float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+        float depthL = near / depth;
+    #else
+        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+        float depthL = linearizeDepth(depth, nearPlane, farPlane);
+    #endif
+    sharedDepthL[i_shared] = depthL;
 }
 
 float Gaussian(const in float sigma, const in float x) {
@@ -129,49 +101,17 @@ void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     if (any(greaterThanEqual(uv, viewSize))) return;
 
-//    vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
-    float lod_depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+    #ifdef LOD_ENABLED
+        float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
+        bool isSky = depth <= 0.0;
+    #else
+        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
+        bool isSky = depth >= 1.0;
+    #endif
 
     float occlusion = 1.0;
-    if (lod_depth > 0.0) {
-//        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-//        if (depth >= 1.0) color *= BilateralGaussianBlur();
+    if (!isSky) {
         occlusion = BilateralGaussianBlur();
-
-//        vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
-//        vec3 screenPos = vec3(texcoord, lod_depth);
-//
-//        #ifdef TAA_ENABLED
-//            // screenPos.xy -= taa_offset;
-//        #endif
-//
-//        vec3 ndcPos = screenPos;
-//        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
-////        ndcPos.z = -ndcPos.z;
-//
-//        // TODO: fix hand depth?
-//
-//        mat4 matProjInv = mat4(
-//            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-//            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-//            0.0, 0.0, 0.0, 1.0/near,
-//            0.0, 0.0, -1.0, 0.0);
-//
-//        vec3 viewPos = project(matProjInv, ndcPos);
-//        vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
-//
-//        float viewDist = length(localPos);
-//
-//        float borderFogF = GetBorderFogStrength(viewDist);
-//        float envFogF = GetEnvFogStrength(viewDist);
-//        float fogF = max(borderFogF, envFogF);
-//
-//        vec3 fogColorL = RGBToLinear(fogColor);
-//        vec3 skyColorL = RGBToLinear(skyColor);
-//        vec3 localViewDir = normalize(localPos);
-//        vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
-//
-//        color.rgb = mix(color.rgb, fogColorFinal, fogF);
     }
 
     imageStore(IMG_SSAO, uv, vec4(occlusion));

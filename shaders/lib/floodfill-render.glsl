@@ -8,11 +8,10 @@ vec3 GetFloodFillSamplePos(const in vec3 voxelPos, const in vec3 normal) {
 
 vec4 _SampleFloodFill(const in vec3 lpvPos, const in int frame) {
     vec3 texcoord = lpvPos / VoxelBufferSize;
+    texcoord.z *= 0.5;
+    if (frame % 2 == 1) texcoord.z += 0.5;
 
-    vec4 lpvSample = (frame % 2) == 0
-        ? texture(texFloodFillA, texcoord).rgba
-        : texture(texFloodFillB, texcoord).rgba;
-
+    vec4 lpvSample = texture(texFloodFill, texcoord).rgba;
     lpvSample.rgb = RGBToLinear(lpvSample.rgb);
     return lpvSample;
 }

@@ -156,6 +156,10 @@ option.REFRACT_ENABLED=Refraction
 option.LIGHTING_MIN=Minimum
 suffix.LIGHTING_MIN=%
 
+option.LIGHTING_RESOLUTION=Pixel Res
+value.LIGHTING_RESOLUTION.0=Off
+suffix.LIGHTING_RESOLUTION=x
+
 
 screen.SHADOWS=Shadows
 

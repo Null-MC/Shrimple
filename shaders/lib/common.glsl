@@ -72,6 +72,8 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define LIGHTING_COLORED_CANDLES
 #define LIGHTING_VOXEL_SIZE 128 // [64 128 256]
 #define LPV_FRUSTUM_OFFSET 0
+#define LIGHTING_PIXELATE
+#define LIGHTING_RESOLUTION 16 // [0 4 8 16 32 64 128]
 
 //#define SHADOWS_ENABLED
 #define SHADOW_RESOLUTION 1024 // [128 256 512 768 1024 1536 2048 3072 4096 6144 8192]
@@ -232,10 +234,6 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
     // TODO: replace former with latter
     #define REFLECT_ENABLED
     #define DEFERRED_REFLECT_ENABLED
-#endif
-
-#if !defined(VOXY) && !defined(DISTANT_HORIZONS)
-    #undef SSAO_ENABLED
 #endif
 
 #if defined(SSAO_ENABLED) || defined(SSR_ENABLED) || defined(PHOTONICS_LIGHT_ENABLED)

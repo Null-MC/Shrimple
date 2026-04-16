@@ -15,8 +15,7 @@ colortex7		    R16F		1.0		SSAO
 ### CUSTOM IMAGES
 imgVoxels           R16UI       *3D     voxel buffer
 imgBlockLight       RGBA8       256^2   static block light color-range data
-imgFloodFillA       RGBA8       *3D     floodfill main
-imgFloodFillB       RGBA8       *3D     floodfill alt
+imgFloodFill        RGBA8       *3D     floodfill
 imgTAA              RGBA16F     1.0     TAA
 imgTAA_prev         RGBA16F     1.0     TAA history
 

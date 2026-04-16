@@ -26,8 +26,7 @@ uniform usampler2D TEX_GB_SPECULAR;
     uniform sampler2D texLightmap;
 
     #ifdef LIGHTING_COLORED
-        uniform sampler3D texFloodFillA;
-        uniform sampler3D texFloodFillB;
+        uniform sampler3D texFloodFill;
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

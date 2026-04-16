@@ -3,8 +3,7 @@
 #endif
 
 #if !defined(PHOTONICS_BLOCK_LIGHT_ENABLED) && defined(LIGHTING_COLORED)
-    uniform sampler3D texFloodFillA;
-    uniform sampler3D texFloodFillB;
+    uniform sampler3D texFloodFill;
 #endif
 
 uniform float cloudHeight;

@@ -18,8 +18,7 @@ const float LpvBlockRange = 16.0; // [8 10 12 14 16 18 20 22 24 26 28 30 32]
 shared uint voxelSharedData[10*10*10];
 shared vec4 lpvBuffer[10*10*10];
 
-layout(rgba8) uniform image3D imgFloodFillA;
-layout(rgba8) uniform image3D imgFloodFillB;
+layout(rgba8) uniform image3D imgFloodFill;
 
 uniform usampler3D texVoxels;
 uniform sampler2D texBlockLight;
@@ -63,13 +62,13 @@ vec3 fromExp2(const in vec3 color) {
     return color * (lum_tgt / lum_now);
 }
 
-vec4 GetLpvValue(const in ivec3 texCoord) {
-    if (!IsInVoxelBounds(texCoord)) return vec4(0.0);
+vec4 GetLpvValue(in ivec3 texcoord) {
+    if (!IsInVoxelBounds(texcoord)) return vec4(0.0);
 
-    vec4 color = (frameCounter % 2) == 0
-        ? imageLoad(imgFloodFillB, texCoord)
-        : imageLoad(imgFloodFillA, texCoord);
+    if (frameCounter % 2 == 0)
+        texcoord.z += LIGHTING_VOXEL_SIZE;
 
+    vec4 color = imageLoad(imgFloodFill, texcoord);
     color.rgb = RGBToLinear(color.rgb);
     return color;
 }
@@ -225,8 +224,6 @@ void main() {
     colorFinal.rgb = LinearToRGB(colorFinal.rgb);
 //    colorFinal.a = saturate(colorFinal.a / 15.0);
 
-    if (frameCounter % 2 == 0)
-        imageStore(imgFloodFillA, imgCoord, colorFinal);
-    else
-        imageStore(imgFloodFillB, imgCoord, colorFinal);
+    if (frameCounter % 2 == 1) imgCoord.z += LIGHTING_VOXEL_SIZE;
+    imageStore(imgFloodFill, imgCoord, colorFinal);
 }

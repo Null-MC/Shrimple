@@ -43,8 +43,7 @@ uniform usampler2D TEX_GB_SPECULAR;
 #endif
 
 #ifdef LIGHTING_COLORED
-    uniform sampler3D texFloodFillA;
-    uniform sampler3D texFloodFillB;
+    uniform sampler3D texFloodFill;
 
     #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
         uniform sampler2D texBlockLight;
@@ -197,6 +196,15 @@ void main() {
         #endif
 
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
+
+        #if LIGHTING_RESOLUTION > 0
+            vec3 snapOffset = fract(cameraPosition);
+
+            localPos = (localPos + snapOffset) * LIGHTING_RESOLUTION;
+            localPos += 0.99*localGeoNormal;
+            localPos = floor(localPos) + 0.5;
+            localPos = localPos / LIGHTING_RESOLUTION - snapOffset;
+        #endif
 
         float viewDist = length(localPos);
         vec3 localViewDir = localPos / viewDist;
@@ -463,27 +471,29 @@ void main() {
         #ifdef LIGHTING_SPECULAR
             float NoV = dot(localTexNormal, -localViewDir);
 
-            float smoothness = 1.0 - roughness;
+            float smoothL = 1.0 - roughness; //roughL;
+            smoothL = _pow2(smoothL);
+
             #ifdef MATERIAL_PBR_ENABLED
                 LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
                 vec3 F = F_lazanyi(NoV, lF.f0, lF.f82);
 
-                diffuseFinal *= 1.0 - metalness * sqrt(smoothness);
+                diffuseFinal *= 1.0 - metalness * smoothL;
             #else
                 float f0 = mat_f0_lab(specularData.g);
                 float F = F_schlick(NoV, f0, 1.0);
             #endif
 
-            diffuseFinal *= 1.0 - F * _pow2(smoothness);
+            diffuseFinal *= 1.0 - F * smoothL;
 
             #if !(defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED))
                 // TODO: reflect in view space to avoid view-bob
                 vec3 reflectLocalDir = normalize(reflect(localViewDir, localTexNormal));
 
                 vec3 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
-                reflectColor *= lmcoord.y;
+                reflectColor *= _pow2(lmcoord.y);
 
-                specularFinal += F * _pow2(smoothness) * reflectColor;
+                specularFinal += smoothL * F * reflectColor;
             #endif
 
             // apply metal tint

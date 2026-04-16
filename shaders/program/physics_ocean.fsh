@@ -28,8 +28,7 @@ uniform sampler2D gtexture;
 #endif
 
 #ifdef LIGHTING_COLORED
-    uniform sampler3D texFloodFillA;
-    uniform sampler3D texFloodFillB;
+    uniform sampler3D texFloodFill;
 
     #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
         uniform sampler2D texBlockLight;
