@@ -98,6 +98,7 @@ vec3 ph_sample_indirect_impl() {
             #else
                 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
                     float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
+//                    hitSkyLevel = _pow3(hitSkyLevel);
                     vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, hitSkyLevel))).rgb;
 
                     float oldLighting = GetOldLighting(hitLocalNormal);

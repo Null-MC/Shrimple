@@ -376,7 +376,8 @@ void main() {
                 #ifdef SHADOWS_ENABLED
                     lmcoord.y = shadowF;
                 #else
-                    lmcoord.y = _pow3(lmcoord.y);
+//                    lmcoord.y = _pow3(lmcoord.y);
+                    lmcoord.y = 0.5 * _pow3(lmcoord.y);
                 #endif
             #endif
 

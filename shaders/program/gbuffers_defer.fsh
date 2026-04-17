@@ -133,10 +133,15 @@ void main() {
     vec4 color = textureLod(gtexture, texcoord, mip);
     vec2 lmcoord = vIn.lmcoord;
 
+    #ifdef RENDER_TERRAIN
+        float occlusion = vIn.color.a;
+    #else
+        float occlusion = 1.0;
+    #endif
+
     #ifdef RENDER_COLORWHEEL
-        float ao;
         vec4 overlayColor;
-        clrwl_computeFragment(color, color, lmcoord, ao, overlayColor);
+        clrwl_computeFragment(color, color, lmcoord, occlusion, overlayColor);
         color.rgb = mix(color.rgb, overlayColor.rgb, overlayColor.a);
     #else
         #ifndef RENDER_SOLID
@@ -146,9 +151,7 @@ void main() {
 
     #ifdef RENDER_TERRAIN
         color.rgb *= vIn.color.rgb;
-        float occlusion = vIn.color.a;
     #else
-        float occlusion = 1.0;
         color *= vIn.color;
     #endif
 
