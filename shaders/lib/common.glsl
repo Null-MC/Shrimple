@@ -350,3 +350,23 @@ vec3 project(const in vec4 pos) {
 vec3 project(const in mat4 matProj, const in vec3 pos) {
     return project(matProj * vec4(pos, 1.0));
 }
+
+vec3 ndcToScreen(const in vec3 ndcPos) {
+    vec3 screenPos = ndcPos;
+    #ifdef LOD_ENABLED
+        screenPos.xy = screenPos.xy * 0.5 + 0.5;
+    #else
+        screenPos = screenPos * 0.5 + 0.5;
+    #endif
+    return screenPos;
+}
+
+vec3 screenToNdc(const in vec3 screenPos) {
+    vec3 ndcPos = screenPos;
+    #ifdef LOD_ENABLED
+        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
+    #else
+        ndcPos = ndcPos * 2.0 - 1.0;
+    #endif
+    return ndcPos;
+}

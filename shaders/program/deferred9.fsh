@@ -3,8 +3,10 @@
 
 #if defined(DISTANT_HORIZONS) || defined(VOXY)
     #define TEX_DEPTH texDepthLod_opaque
+    #define MAT_PROJ_INV matProjInv
 #else
     #define TEX_DEPTH depthtex0
+    #define MAT_PROJ_INV gbufferProjectionInverse
 #endif
 
 in vec2 texcoord;
@@ -86,6 +88,7 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform int frameCounter;
 uniform vec2 viewSize;
+uniform vec2 taa_offset = vec2(0.0);
 
 uniform float dhFarPlane;
 uniform int vxRenderDistance;
@@ -93,9 +96,9 @@ uniform int vxRenderDistance;
 #include "/lib/ign.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
-//#include "/lib/hash-noise.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/shadows.glsl"
+#include "/lib/hash-noise.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/sampling/linear.glsl"
 #include "/lib/lighting/attenuation.glsl"
@@ -138,7 +141,11 @@ uniform int vxRenderDistance;
 #endif
 
 #ifdef SHADOWS_ENABLED
-    #include "/lib/shadow-sample.glsl"
+    #if LIGHTING_RESOLUTION > 0
+        #include "/lib/shadow-sample-pixelated.glsl"
+    #else
+        #include "/lib/shadow-sample.glsl"
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -186,14 +193,14 @@ void main() {
                 0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
                 0.0, 0.0, 0.0, 1.0/near,
                 0.0, 0.0, -1.0, 0.0);
-
-            vec3 ndcPos = vec3(texcoord, depth);
-            ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
-            vec3 viewPos = project(matProjInv, ndcPos);
-        #else
-            vec3 ndcPos = vec3(texcoord, depth) * 2.0 - 1.0;
-            vec3 viewPos = project(gbufferProjectionInverse, ndcPos);
         #endif
+
+        vec3 screenPos = vec3(texcoord, depth);
+        #ifdef TAA_ENABLED
+            screenPos.xy -= taa_offset;
+        #endif
+        vec3 ndcPos = screenToNdc(screenPos);
+        vec3 viewPos = project(MAT_PROJ_INV, ndcPos);
 
         vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
@@ -246,43 +253,58 @@ void main() {
         #endif
 
         #ifdef SHADOWS_ENABLED
-            vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
+//            vec3 shadowPos = localPos;
+//            shadowPos += 0.08 * localGeoNormal;
 
-            vec3 shadowPos = localPos;
-            shadowPos += 0.08 * localGeoNormal;
-            shadowPos = mul3(shadowModelView, shadowPos);
-            //        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
-            //        shadowPos.z += 0.032 * viewDist;
+            #if LIGHTING_RESOLUTION > 0
+                #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                    shadow = SampleShadowColor(localPos, localGeoNormal);
+                #else
+                    shadowF = SampleShadow(localPos, localGeoNormal);
+                #endif
+            #else
+//                vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
-            #ifdef MATERIAL_PBR_ENABLED
-                shadowPos.z += tex_sss;
+                vec3 shadowPos = localPos;
+                shadowPos += 0.08 * localGeoNormal;
+                shadowPos = mul3(shadowModelView, shadowPos);
+                //        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
+                //        shadowPos.z += 0.032 * viewDist;
+
+                #ifdef MATERIAL_PBR_ENABLED
+                    shadowPos.z += tex_sss;
+                #endif
+
+                shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
+
+                float shadowLength = length(shadowPos.xy);
+                float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);
+                //        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
+                shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
+                shadowCoverageF = 1.0 - shadowCoverageF;
+
+                distort(shadowPos.xy);
+                shadowPos = shadowPos * 0.5 + 0.5;
+
+                // TODO: this needs to move somewhere else and apply to diffuse only
+                //        float shadow_geoNoL = dot(localGeoNormal, localSkyLightDir);
+                //        #ifdef MATERIAL_PBR_ENABLED
+                //            shadow_geoNoL = mix(shadow_geoNoL, 1.0, tex_sss);
+                //            shadow_geoNoL = pow(saturate(shadow_geoNoL), 0.2);
+                //        #endif
+
+                #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                    shadow = SampleShadowColor(shadowPos);
+                    shadow = mix(shadow, vec3(pow4(lmcoord.y)), shadowCoverageF);
+                #else
+                    shadowF = SampleShadow(shadowPos);
+                    shadowF = mix(shadowF, pow4(lmcoord.y), shadowCoverageF);
+                #endif
             #endif
 
-            shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
-
-            float shadowLength = length(shadowPos.xy);
-            float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);
-            //        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
-            shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
-            shadowCoverageF = 1.0 - shadowCoverageF;
-
-            distort(shadowPos.xy);
-            shadowPos = shadowPos * 0.5 + 0.5;
-
-            // TODO: this needs to move somewhere else and apply to diffuse only
-            //        float shadow_geoNoL = dot(localGeoNormal, localSkyLightDir);
-            //        #ifdef MATERIAL_PBR_ENABLED
-            //            shadow_geoNoL = mix(shadow_geoNoL, 1.0, tex_sss);
-            //            shadow_geoNoL = pow(saturate(shadow_geoNoL), 0.2);
-            //        #endif
-
             #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                shadow = SampleShadowColor(shadowPos);
-                shadow = mix(shadow, vec3(pow4(lmcoord.y)), shadowCoverageF);
                 shadow *= cloudShadowF; // * shadow_geoNoL
             #else
-                shadowF = SampleShadow(shadowPos);
-                shadowF = mix(shadowF, pow4(lmcoord.y), shadowCoverageF);
                 shadowF *= cloudShadowF; // * shadow_geoNoL
             #endif
         #endif

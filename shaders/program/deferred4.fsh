@@ -36,27 +36,6 @@ uniform vec2 taa_offset = vec2(0.0);
 #include "/lib/ign.glsl"
 
 
-vec3 ndcToScreen(const in vec3 ndcPos) {
-    vec3 screenPos = ndcPos;
-    #ifdef LOD_ENABLED
-        screenPos.xy = screenPos.xy * 0.5 + 0.5;
-    #else
-        screenPos = screenPos * 0.5 + 0.5;
-    #endif
-    return screenPos;
-}
-
-vec3 screenToNdc(const in vec3 screenPos) {
-    vec3 ndcPos = screenPos;
-    #ifdef LOD_ENABLED
-        ndcPos.xy = ndcPos.xy * 2.0 - 1.0;
-    #else
-        ndcPos = ndcPos * 2.0 - 1.0;
-    #endif
-    return ndcPos;
-}
-
-
 float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in vec3 viewNormal) {
     vec2 seed = gl_FragCoord.xy;
 
