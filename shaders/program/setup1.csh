@@ -126,6 +126,7 @@ void main() {
     }
 
     switch (blockId) {
+//        case BLOCK_KELP:
         case BLOCK_LEAVES:
             wavingTop = 1.0;
             wavingBottom = 1.0;

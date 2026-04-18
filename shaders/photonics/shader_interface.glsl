@@ -55,11 +55,11 @@ uniform float dhFarPlane;
 
 vec3 sun_direction = sunLocalDir;
 
-#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-    vec3 indirect_light_color = GetSkyLightColor(vec3(0.0), sunLocalDir.y, abs(sunLocalDir.y));
-#else
-    vec3 indirect_light_color = RGBToLinear(texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb);
-#endif
+//#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+//    vec3 indirect_light_color = GetSkyLightColor(vec3(0.0), sunLocalDir.y, abs(sunLocalDir.y));
+//#else
+//    vec3 indirect_light_color = RGBToLinear(texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb);
+//#endif
 
 vec3 load_world_position() {
     vec2 texcoord = gl_FragCoord.xy / viewSize;

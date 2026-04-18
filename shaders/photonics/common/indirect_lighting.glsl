@@ -6,6 +6,7 @@
     uniform sampler3D texFloodFill;
 #endif
 
+uniform vec3 shadowLightPosition;
 uniform float cloudHeight;
 uniform float cloudTime;
 
@@ -78,20 +79,27 @@ vec3 ph_sample_indirect_impl() {
         vec3 sample_color = vec3(0.0);
 
         #ifdef PHOTONICS_GI_ENABLED
+            vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+
             #ifdef SHADOWS_ENABLED
                 // trace sun
                 ray.origin = ray.result_position + 0.1 * ray.result_normal;
-                ray.direction = ph_sun_direction;
+                ray.direction = localSkyLightDir;
 
                 breakOnEmpty = true;
                 trace_ray(ray, true);
                 breakOnEmpty = false;
 
                 if (!ray.result_hit && !ray_iteration_bound_reached) {
-                    sample_color += indirect_light_color * result_tint_color;
+                    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, abs(sunLocalDir.y));
+                    #else
+                        vec3 skyLightColor = RGBToLinear(texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb);
+                    #endif
+                    sample_color += skyLightColor * result_tint_color;
 
                     #ifdef SHADOW_CLOUDS
-                        float cloudShadow = SampleCloudShadow(hitLocalPos, ph_sun_direction);
+                        float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
                         sample_color *= cloudShadow * 0.5 + 0.5;
                     #endif
                 }

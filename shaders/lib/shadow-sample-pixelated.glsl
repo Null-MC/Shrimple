@@ -13,7 +13,8 @@ float SampleShadows(const in vec3 localPos, const in vec3 localGeoNormal) {
     float shadow = 0.0;
 
     for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-        vec3 sampleOffset = hash33(vec3(gl_FragCoord.xy, frameCounter*SHADOW_PCF_SAMPLES + i));
+        int loop_seed = frameCounter*SHADOW_PCF_SAMPLES + i;
+        vec3 sampleOffset = hash33(vec3(gl_FragCoord.xy, loop_seed));
         vec3 sampleLocalPos = snapLocalPos + sampleOffset/LIGHTING_RESOLUTION;
         vec3 shadowSamplePos = GetShadowPosition(sampleLocalPos);
 
@@ -35,10 +36,13 @@ float SampleShadows(const in vec3 localPos, const in vec3 localGeoNormal) {
         vec3 snapLocalPos = localPos - 0.5 / LIGHTING_RESOLUTION;
         snapLocalPos += localGeoNormal/LIGHTING_RESOLUTION;
 
+        vec3 origin = snapLocalPos + cameraPosition;
+
         vec3 shadow = vec3(0.0);
 
         for (int i = 0; i < SHADOW_PCF_SAMPLES; i++) {
-            vec3 sampleOffset = hash33(vec3(gl_FragCoord.xy, frameCounter*SHADOW_PCF_SAMPLES + i));
+            int loop_seed = frameCounter*SHADOW_PCF_SAMPLES + i;
+            vec3 sampleOffset = hash33(vec3(gl_FragCoord.xy, loop_seed));
             vec3 sampleLocalPos = snapLocalPos + sampleOffset/LIGHTING_RESOLUTION;
             vec3 shadowSamplePos = GetShadowPosition(sampleLocalPos);
 

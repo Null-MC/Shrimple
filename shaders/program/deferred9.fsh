@@ -253,20 +253,20 @@ void main() {
         #endif
 
         #ifdef SHADOWS_ENABLED
-//            vec3 shadowPos = localPos;
-//            shadowPos += 0.08 * localGeoNormal;
+            vec3 shadowPos = localPos;
+            shadowPos += 0.08 * localGeoNormal;
 
             #if LIGHTING_RESOLUTION > 0
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                    shadow = SampleShadowColor(localPos, localGeoNormal);
+                    shadow = SampleShadowColor(shadowPos, localGeoNormal);
                 #else
-                    shadowF = SampleShadow(localPos, localGeoNormal);
+                    shadowF = SampleShadow(shadowPos, localGeoNormal);
                 #endif
             #else
 //                vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
-                vec3 shadowPos = localPos;
-                shadowPos += 0.08 * localGeoNormal;
+//                vec3 shadowPos = localPos;
+//                shadowPos += 0.08 * localGeoNormal;
                 shadowPos = mul3(shadowModelView, shadowPos);
                 //        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
                 //        shadowPos.z += 0.032 * viewDist;
