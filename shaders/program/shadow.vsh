@@ -140,7 +140,7 @@ void main() {
 
                     float viewDist = length(localPos);
                     float waveFadeF = smoothstep(0.0, 2.0, viewDist);
-                    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                    #ifdef LOD_ENABLED
                         waveFadeF *= smoothstep(dh_clipDistF * far, 0.8 * dh_clipDistF * far, viewDist);
                     #endif
                     localPos.y += (waveHeight*0.5 - 0.4) * waveFadeF;

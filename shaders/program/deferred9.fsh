@@ -1,7 +1,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#if defined(DISTANT_HORIZONS) || defined(VOXY)
+#ifdef LOD_ENABLED
     #define TEX_DEPTH texDepthLod_opaque
     #define MAT_PROJ_INV matProjInv
 #else
@@ -12,13 +12,17 @@
 in vec2 texcoord;
 
 
-uniform sampler2D TEX_DEPTH;
+#ifdef LOD_ENABLED
+    uniform sampler2D texDepthLod_opaque;
+#endif
+
+uniform sampler2D depthtex0;
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_GB_COLOR;
 uniform sampler2D TEX_GB_NORMALS;
 uniform usampler2D TEX_GB_SPECULAR;
 
-#ifdef PHOTONICS_GI_ENABLED
+#if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
     uniform sampler2D texPhotonicsIndirect;
 #endif
 
@@ -166,7 +170,13 @@ void main() {
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
     vec4 src = texelFetch(TEX_GB_COLOR, uv, 0);
 
-    if (src.a > 0.0 && depth < 1.0) {
+    #ifdef LOD_ENABLED
+        bool isSky = depth <= 0.0;
+    #else
+        bool isSky = depth >= 1.0;
+    #endif
+
+    if (src.a > 0.0 && !isSky) {
 //        float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 //        vec4 color = texelFetch(TEX_GB_COLOR, uv, 0);
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
@@ -187,7 +197,7 @@ void main() {
             const float tex_sss = 0.0;
         #endif
 
-        #if defined(DISTANT_HORIZONS) || defined(VOXY)
+        #ifdef LOD_ENABLED
             mat4 matProjInv = mat4(
                 gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
                 0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
@@ -344,6 +354,12 @@ void main() {
             float roughL = _pow2(roughness);
         #endif
 
+        bool isLod = false;
+        #ifdef LOD_ENABLED
+            float vDepth = texelFetch(depthtex0, uv, 0).r;
+            isLod = vDepth >= 1.0;
+        #endif
+
         vec3 diffuseFinal;
         vec3 specularFinal = vec3(0.0);
 
@@ -376,10 +392,6 @@ void main() {
 
                 #ifndef SHADOWS_ENABLED
                     skyLight *= lmcoord.y;
-                #endif
-
-                #ifndef PHOTONICS_GI_ENABLED
-                    skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
                 #endif
 
                 diffuseFinal += skyLight;
@@ -434,9 +446,16 @@ void main() {
             #endif
         #endif
 
-        #if defined(PHOTONICS_GI_ENABLED) && !(defined(PHOTONICS_RESTIR_ENABLED) && defined(PHOTONICS_RESTIR_GI_ENABLED))
-            diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
+        #if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
+            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
         #endif
+
+        bool skip_GI = false;
+        #ifdef PHOTONICS_GI_ENABLED
+            if (!isLod) skip_GI = true;
+        #endif
+
+        if (!skip_GI) diffuseFinal += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
 
         #if SSAO_MODE != SSAO_FULL
             diffuseFinal *= _pow2(occlusion);

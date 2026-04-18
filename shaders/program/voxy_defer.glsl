@@ -5,32 +5,14 @@
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/octohedral.glsl"
-//#include "/lib/oklab.glsl"
-//#include "/lib/fog.glsl"
-//#include "/lib/shadows.glsl"
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
 //    #include "/lib/fresnel.glsl"
     #include "/lib/material/pbr.glsl"
-
-//    #ifdef MATERIAL_PBR_ENABLED
-//        #include "/lib/material/lazanyi.glsl"
-//    #endif
 #endif
 
-//#if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-//    #include "/lib/water-waves.glsl"
-//#endif
 
-
-//#include "_output.glsl"
-layout(location = 0) out vec4 outAlbedo;
-layout(location = 1) out vec4 outNormals;
-layout(location = 2) out uvec2 outSpecularMeta;
-
-#ifdef VELOCITY_ENABLED
-    layout(location = 3) out vec3 outVelocity;
-#endif
+#include "_outputDefer.glsl"
 
 void voxy_emitFragment(VoxyFragmentParameters parameters) {
     vec4 color = parameters.sampledColour;

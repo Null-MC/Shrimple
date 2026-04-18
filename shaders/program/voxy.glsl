@@ -55,6 +55,19 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     vec3 viewPos = project(vxProjInv, ndcPos);
     vec3 localPos = mul3(vxModelViewInv, viewPos);
 
+    #ifdef RENDER_TRANSLUCENT
+        float depth = texelFetch(depthtex0, ivec2(gl_FragCoord.xy), 0).r;
+
+        if (depth < 1.0) {
+            vec3 vanillaNdcPos = vec3(gl_FragCoord.xy / viewSize, depth) * 2.0 - 1.0;
+            vec3 vanillaViewPos = project(vxProjInv, vanillaNdcPos);
+
+//            vec3 viewPos = mul3(gbufferModelView, localPos);
+            if (vanillaViewPos.z > viewPos.z) {discard;}
+            discard; return;
+        }
+    #endif
+
     vec3 localNormal = vec3(
         uint((parameters.face >> 1) == 2),
         uint((parameters.face >> 1) == 0),

@@ -18,5 +18,5 @@ vec3 SampleSkyIrradiance(const in vec3 localNormal) {
 //    float groundOcclusion = min(localNormal.y + 1.0, 1.0);
 //    groundOcclusion = mix(groundOcclusion, 1.0, altitude);
 
-    return irradiance;// * groundOcclusion;
+    return irradiance * PI;// * groundOcclusion;
 }

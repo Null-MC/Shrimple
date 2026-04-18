@@ -1,7 +1,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#if defined(DISTANT_HORIZONS) || defined(VOXY)
+#ifdef LOD_ENABLED
     #define TEX_DEPTH texDepthLod_trans
 #else
     #define TEX_DEPTH depthtex0
@@ -140,7 +140,7 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 
     vec3 dest_viewPos = 0.1 * viewDist * viewDir + viewPos;
 
-    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+    #ifdef LOD_ENABLED
         mat4 matProj = mat4(
             gbufferProjection[0][0], 0.0, 0.0, 0.0,
             0.0, gbufferProjection[1][1], 0.0, 0.0,
@@ -174,7 +174,7 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 //#endif
 
 vec3 toNdc(vec3 screenPos) {
-    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+    #ifdef LOD_ENABLED
         screenPos.xy = screenPos.xy * 2.0 - 1.0;
         return screenPos;
     #else
@@ -212,7 +212,7 @@ void main() {
 ////            ndcPos.z /= MC_HAND_DEPTH;
 //        }
 
-        #if defined(DISTANT_HORIZONS) || defined(VOXY)
+        #ifdef LOD_ENABLED
             #define MAT_PROJ_INV matProjInv
 
             mat4 matProjInv = mat4(
@@ -396,7 +396,7 @@ void main() {
 
                     float sampleDepth = texture(TEX_DEPTH, traceScreenPos).r;
 
-                    #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                    #ifdef LOD_ENABLED
                         float screenDepthL = near / sampleDepth;
                         float traceDepthL = near / traceClipPos.z;
                     #else
@@ -428,7 +428,7 @@ void main() {
 
                         float sampleDepth = texture(TEX_DEPTH, testPos).r;
 
-                        #if defined(DISTANT_HORIZONS) || defined(VOXY)
+                        #ifdef LOD_ENABLED
                             float screenDepthL = near / sampleDepth;
                             float traceDepthL = near / traceClipPos.z;
                         #else

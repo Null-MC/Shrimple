@@ -51,6 +51,7 @@ vec3 ph_sample_indirect_impl() {
     ray.origin = rt_pos + 0.1 * block_normal;
     ray.direction = trace_localDir;
 
+    RAY_ITERATION_COUNT = 100;
     breakOnEmpty = true;
     trace_ray(ray, true);
     breakOnEmpty = false;
@@ -86,6 +87,7 @@ vec3 ph_sample_indirect_impl() {
                 ray.origin = ray.result_position + 0.1 * ray.result_normal;
                 ray.direction = localSkyLightDir;
 
+                RAY_ITERATION_COUNT = 100;
                 breakOnEmpty = true;
                 trace_ray(ray, true);
                 breakOnEmpty = false;
@@ -163,6 +165,7 @@ vec3 ph_sample_indirect_impl() {
                             ray.origin = hitTracePos;
                             ray.direction = lightDir;
 
+                            RAY_ITERATION_COUNT = 20;
                             breakOnEmpty=true;
                             trace_ray(ray, true);
                             breakOnEmpty=false;
