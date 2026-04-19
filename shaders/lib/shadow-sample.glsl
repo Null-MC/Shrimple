@@ -1,4 +1,5 @@
 const float ShadowPixelRadius = 1.8 / shadowMapResolution;
+const float ShadowSampleCountInv = 1.0 / SHADOW_PCF_SAMPLES;
 
 
 float GetShadowDither() {
@@ -49,7 +50,7 @@ float SampleShadows(const in vec3 shadowPos) {
         shadow += shadow_sample;
     }
 
-    return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
+    return max(shadow * ShadowSampleCountInv, 0.0);
 }
 
 #ifdef SHADOW_COLORED
@@ -81,7 +82,7 @@ float SampleShadows(const in vec3 shadowPos) {
             shadow += shadowF * shadowColor.rgb;
         }
 
-        return max(shadow / float(SHADOW_PCF_SAMPLES), 0.0);
+        return max(shadow * ShadowSampleCountInv, 0.0);
     }
 #else
     vec3 SampleShadowColor(const in vec3 shadowPos) {

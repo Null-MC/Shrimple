@@ -54,9 +54,10 @@
 
 #define DEBUG_VIEW_NONE 0
 #define DEBUG_VIEW_SKY 1
-#define DEBUG_VIEW_GBUFFER 2
-#define DEBUG_VIEW_SSAO 3
-#define DEBUG_VIEW_BLOOM 4
+#define DEBUG_VIEW_SHADOW 2
+#define DEBUG_VIEW_GBUFFER 3
+#define DEBUG_VIEW_SSAO 4
+#define DEBUG_VIEW_BLOOM 5
 
 const float Water_f0 = 0.02;
 const int WaterNormalResolution = 256;

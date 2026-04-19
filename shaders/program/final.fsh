@@ -8,6 +8,9 @@ uniform sampler2D TEX_FINAL;
 #if DEBUG_VIEW == DEBUG_VIEW_SKY
     uniform sampler3D texSkyIrradiance;
     uniform sampler2D texSkyTransmit;
+#elif DEBUG_VIEW == DEBUG_VIEW_SHADOW
+    uniform sampler2D shadowtex0;
+    uniform sampler2D shadowcolor0;
 #elif DEBUG_VIEW == DEBUG_VIEW_GBUFFER
     uniform sampler2D TEX_GB_COLOR;
     uniform sampler2D TEX_GB_NORMALS;
@@ -75,6 +78,17 @@ void main() {
         tex2 = (gl_FragCoord.xy - vec2(irradianceSize.x*8.0 + 16.0, 8.0)) / transmitSize;
         if (saturate(tex2) == tex2) {
             color = texture(texSkyTransmit, tex2).rgb;
+        }
+    #elif DEBUG_VIEW == DEBUG_VIEW_SHADOW
+        vec2 thumbSize = viewSize.yy * 0.2;
+        tex = (gl_FragCoord.xy - 8) / thumbSize;
+        if (saturate(tex) == tex) {
+            color = texture(shadowtex0, tex).rrr;
+        }
+
+        tex2 = (gl_FragCoord.xy - vec2(thumbSize.x + 16.0, 8)) / thumbSize;
+        if (saturate(tex2) == tex2) {
+            color = texture(shadowcolor0, tex2).rgb;
         }
     #elif DEBUG_VIEW == DEBUG_VIEW_GBUFFER
         vec2 thumbSize = viewSize * 0.2;

@@ -114,8 +114,7 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 //#define RENDER_SCALE 50
 //const float RenderScale = RENDER_SCALE * 0.01;
 
-//#define DEBUG
-#define DEBUG_VIEW 0 // [0 1 2 3 4]
+#define DEBUG_VIEW 0 // [0 1 2 3 4 5]
 //#define DEBUG_WHITEWORLD
 
 

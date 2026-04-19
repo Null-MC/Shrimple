@@ -277,15 +277,18 @@ void main() {
 
 //                vec3 shadowPos = localPos;
 //                shadowPos += 0.08 * localGeoNormal;
-                shadowPos = mul3(shadowModelView, shadowPos);
+                vec3 shadowViewPos = mul3(shadowModelView, shadowPos);
                 //        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
                 //        shadowPos.z += 0.032 * viewDist;
+                vec3 shadowViewNormal = mat3(shadowModelView) * localGeoNormal;
+                vec2 shadowScreenPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xy;
+                shadowViewPos.z += GetShadowBiasF(shadowScreenPos, shadowViewNormal.z);
 
                 #ifdef MATERIAL_PBR_ENABLED
-                    shadowPos.z += tex_sss;
+                    shadowViewPos.z += tex_sss;
                 #endif
 
-                shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
+                shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
 
                 float shadowLength = length(shadowPos.xy);
                 float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);

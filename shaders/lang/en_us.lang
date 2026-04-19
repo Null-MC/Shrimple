@@ -9,9 +9,10 @@ screen.DEBUG.comment=An internal collection of development related settings. Not
 option.DEBUG_VIEW=Debug View
 value.DEBUG_VIEW.0=None
 value.DEBUG_VIEW.1=Sky
-value.DEBUG_VIEW.2=GBuffer
-value.DEBUG_VIEW.3=SSAO
-value.DEBUG_VIEW.4=Bloom
+value.DEBUG_VIEW.2=Shadow
+value.DEBUG_VIEW.3=GBuffer
+value.DEBUG_VIEW.4=SSAO
+value.DEBUG_VIEW.5=Bloom
 
 option.DEBUG_WHITEWORLD=White-World
 option.DEBUG_WHITEWORLD.comment=Makes all textures white, for inspecting lighting alone.

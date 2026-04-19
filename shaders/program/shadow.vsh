@@ -159,7 +159,8 @@ void main() {
         vec3 viewPosOffset = viewPos;
 
         #ifndef RENDER_TRANSLUCENT
-            viewPosOffset.z -= 0.20 * max(viewNormal.z, 0.0);
+            vec2 shadowScreenPos = (gl_ProjectionMatrix * vec4(viewPos, 1.0)).xy;
+            viewPosOffset.z -= GetShadowBiasF(shadowScreenPos, viewNormal.z);
         #endif
 
         gl_Position = gl_ProjectionMatrix * vec4(viewPosOffset, 1.0);
