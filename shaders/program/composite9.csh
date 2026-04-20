@@ -2,7 +2,16 @@
 #include "/lib/common.glsl"
 
 layout (local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+
+#if RENDER_SCALE == 3
+    const vec2 workGroupsRender = vec2(0.25, 0.25);
+#elif RENDER_SCALE == 2
+    const vec2 workGroupsRender = vec2(0.50, 0.50);
+#elif RENDER_SCALE == 1
+    const vec2 workGroupsRender = vec2(0.75, 0.75);
+#else
+    const vec2 workGroupsRender = vec2(1.00, 1.00);
+#endif
 
 
 layout(r32f) uniform writeonly image2D imgDepthLod_trans;
@@ -18,7 +27,7 @@ uniform sampler2D depthtex0;
 #endif
 
 uniform float near;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 uniform mat4 vxProjInv;
 uniform mat4 dhProjectionInverse;
 uniform mat4 gbufferProjectionInverse;
@@ -32,7 +41,7 @@ uniform mat4 gbufferProjectionInverse;
 
 
 void main() {
-    if (!all(lessThan(gl_GlobalInvocationID.xy, viewSize))) return;
+    if (!all(lessThan(gl_GlobalInvocationID.xy, viewSizeScaled))) return;
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
     float depth = texelFetch(depthtex0, uv, 0).r;
@@ -47,7 +56,7 @@ void main() {
         #endif
     }
 
-    vec2 texcoord = (uv + 0.5) / viewSize;
+    vec2 texcoord = (uv + 0.5) / viewSizeScaled;
     vec3 ndcPos = vec3(texcoord, depth) * 2.0 - 1.0;
     vec3 viewPos = project(isLod ? LOD_PROJ_INV : gbufferProjectionInverse, ndcPos);
 

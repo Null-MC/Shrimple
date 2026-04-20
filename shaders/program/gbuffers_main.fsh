@@ -119,7 +119,7 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform ivec2 atlasSize;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 uniform int textureFilteringMode;
 uniform int vxRenderDistance;
@@ -254,6 +254,11 @@ void main() {
         #ifndef RENDER_SOLID
             if (color.a < alphaTestRef) discard;
         #endif
+    #endif
+
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) discard;
     #endif
 
     #if defined(RENDER_TERRAIN) && LIGHTING_MODE == LIGHTING_MODE_ENHANCED

@@ -9,7 +9,7 @@
     #define MAT_PROJ_INV gbufferProjectionInverse
 #endif
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 
 #ifdef LOD_ENABLED
@@ -92,6 +92,7 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform int frameCounter;
 uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 uniform vec2 taa_offset = vec2(0.0);
 
 uniform float dhFarPlane;
@@ -205,7 +206,7 @@ void main() {
                 0.0, 0.0, -1.0, 0.0);
         #endif
 
-        vec3 screenPos = vec3(texcoord, depth);
+        vec3 screenPos = vec3(v_texcoord, depth);
         #ifdef TAA_ENABLED
             screenPos.xy -= taa_offset;
         #endif
@@ -450,15 +451,17 @@ void main() {
         #endif
 
         #if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
-            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
+            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
         #endif
 
-        bool skip_GI = false;
-        #ifdef PHOTONICS_GI_ENABLED
-            if (!isLod) skip_GI = true;
-        #endif
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            bool skip_GI = false;
+            #ifdef PHOTONICS_GI_ENABLED
+                if (!isLod) skip_GI = true;
+            #endif
 
-        if (!skip_GI) diffuseFinal += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+            if (!skip_GI) diffuseFinal += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+        #endif
 
         #if SSAO_MODE != SSAO_FULL
             diffuseFinal *= _pow2(occlusion);
@@ -469,13 +472,12 @@ void main() {
         #endif
 
         #ifndef LIGHTING_SPECULAR
-            vec2 uvcoord = gl_FragCoord.xy / viewSize;
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                diffuseFinal += sample_photonics_direct(uvcoord);
+                diffuseFinal += sample_photonics_direct(v_texcoord);
             #endif
 
             #ifdef PHOTONICS_HAND_LIGHT_ENABLED
-                diffuseFinal += sample_photonics_handheld(uvcoord);
+                diffuseFinal += sample_photonics_handheld(v_texcoord);
             #endif
         #endif
 
@@ -562,13 +564,12 @@ void main() {
         #endif
 
         #ifdef LIGHTING_SPECULAR
-            vec2 uvcoord = gl_FragCoord.xy / viewSize;
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                outFinal += sample_photonics_direct(uvcoord);
+                outFinal += sample_photonics_direct(v_texcoord);
             #endif
 
             #ifdef PHOTONICS_HAND_LIGHT_ENABLED
-                outFinal += sample_photonics_handheld(uvcoord);
+                outFinal += sample_photonics_handheld(v_texcoord);
             #endif
         #endif
 

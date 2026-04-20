@@ -4,6 +4,13 @@
 layout (local_size_x = 16, local_size_y = 16) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
+//#if RENDER_SCALE == 0
+//    const vec2 workGroupsRender = vec2(1.00, 1.00);
+//#elif RENDER_SCALE == 1
+//    const vec2 workGroupsRender = vec2(0.75, 0.75);
+//#elif RENDER_SCALE == 2
+//    const vec2 workGroupsRender = vec2(0.50, 0.50);
+//#endif
 
 layout(rgba16f) uniform image2D IMG_FINAL;
 

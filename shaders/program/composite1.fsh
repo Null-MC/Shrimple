@@ -1,7 +1,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_TRANSLUCENT_FINAL;
@@ -83,7 +83,7 @@ void main() {
 //        float depthTranslucent = texelFetch(depthtex0, uv, 0).r;
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
 
-        vec2 coord = texcoord;
+        vec2 coord = v_texcoord;
         if (depthTranslucent < depthOpaque) {
             const float eta = 1.0 / 1.33;
             vec3 geoLocalNormal = OctDecode(normalData.xy);
@@ -114,17 +114,17 @@ void main() {
         if (isTransLod) {
             depthTranslucent = texelFetch(dhDepthTex0, uv, 0).r;
         }
-        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transNdcPos = vec3(v_texcoord, depthTranslucent) * 2.0 - 1.0;
         vec3 transViewPos = project(isTransLod ? dhProjectionInverse : gbufferProjectionInverse, transNdcPos);
     #elif defined(VOXY)
         bool isTransLod = depthTranslucent == 1.0;
         if (isTransLod) {
             depthTranslucent = texelFetch(vxDepthTexTrans, uv, 0).r;
         }
-        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transNdcPos = vec3(v_texcoord, depthTranslucent) * 2.0 - 1.0;
         vec3 transViewPos = project(isTransLod ? vxProjInv : gbufferProjectionInverse, transNdcPos);
     #else
-        vec3 transNdcPos = vec3(texcoord, depthTranslucent) * 2.0 - 1.0;
+        vec3 transNdcPos = vec3(v_texcoord, depthTranslucent) * 2.0 - 1.0;
         vec3 transViewPos = project(gbufferProjectionInverse, transNdcPos);
     #endif
 
@@ -149,7 +149,7 @@ void main() {
                 }
             #endif
 
-            vec3 opaqueNdcPos = vec3(texcoord, depthOpaque) * 2.0 - 1.0;
+            vec3 opaqueNdcPos = vec3(v_texcoord, depthOpaque) * 2.0 - 1.0;
 
             #ifdef DISTANT_HORIZONS
                 vec3 opaqueViewPos = project(isOpaqueLod ? dhProjectionInverse : gbufferProjectionInverse, opaqueNdcPos);

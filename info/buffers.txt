@@ -9,7 +9,6 @@ colortex5		    RGBA16F 	1.0		deferred normals
 colortex6		    RG32UI 	    1.0		deferred specular, meta
 
 colortex7		    R16F		1.0		SSAO
---colortex8           R8UI        1.0     meta
 
 
 ### CUSTOM IMAGES

@@ -60,7 +60,7 @@ uniform mat4 gbufferModelView;
 uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
 uniform ivec2 atlasSize;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
@@ -200,6 +200,11 @@ void main() {
             vec3 dY = dFdy(wavePos);
             localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
         }
+    #endif
+
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) discard;
     #endif
 
     #ifdef DISTANT_HORIZONS

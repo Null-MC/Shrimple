@@ -24,6 +24,7 @@ uniform vec3 sunLocalDir;
 uniform vec3 cameraPosition;
 uniform ivec2 eyeBrightnessSmooth;
 uniform int hasSkylight;
+uniform vec2 viewSizeScaled;
 
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
@@ -40,6 +41,11 @@ uniform float dhFarPlane;
 layout(location = 0) out vec4 outFinal;
 
 void main() {
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) discard;
+    #endif
+
     vec4 color = vec4(0.0);
     vec3 localViewDir = normalize(localPos);
 

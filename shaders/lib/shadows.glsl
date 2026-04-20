@@ -10,8 +10,8 @@ void distort(inout vec2 shadowScreenPos) {
 }
 
 float GetShadowBiasF(const in vec2 shadowScreenPos, const in float shadowViewNormalZ) {
-    float distortF = GetShadowDistortionF(shadowScreenPos);
-    distortF *= length(shadowScreenPos);
+    float len = length(shadowScreenPos);
+    float distortF = len * (len + Shadow_DistortF);
 
     return 4.0 * distortF * max(shadowViewNormalZ, 0.0);
 }

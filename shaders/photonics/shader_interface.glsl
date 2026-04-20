@@ -25,6 +25,7 @@ uniform sampler2D TEX_GB_NORMALS;
 uniform float near;
 uniform float far;
 uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 uniform vec3 fogColor;
 uniform float fogStart;
 uniform float fogEnd;
@@ -62,11 +63,10 @@ vec3 sun_direction = sunLocalDir;
 //#endif
 
 vec3 load_world_position() {
-    vec2 texcoord = gl_FragCoord.xy / viewSize;
-    texcoord /= PH_RENDER_SCALE;
-//    texcoord += 0.5 / (viewSize * PH_RENDER_SCALE);
+    ivec2 uv = ivec2(gl_FragCoord.xy);
+    float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
-    float depth = texture(TEX_DEPTH, texcoord).r;
+    vec2 texcoord = gl_FragCoord.xy / viewSizeScaled;
     vec3 screenPos = vec3(texcoord, depth);
     vec3 ndcPos = screenPos * 2.0 - 1.0;
 
@@ -83,7 +83,7 @@ vec3 load_world_position() {
 }
 
 void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world_normal, out vec3 world_normal_mapped) {
-    ivec2 uv = ivec2(gl_FragCoord.xy / PH_RENDER_SCALE); // TODO: fix texel offset
+    ivec2 uv = ivec2(gl_FragCoord.xy);
 
     vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
     world_normal = OctDecode(normalData.xy);

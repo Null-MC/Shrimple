@@ -15,7 +15,7 @@
 const float SSAO_Bias = 0.08;
 const float SSAO_MinLight = 0.0;
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 
 uniform sampler2D TEX_DEPTH;
@@ -36,7 +36,7 @@ uniform vec2 taa_offset = vec2(0.0);
 #include "/lib/ign.glsl"
 
 
-float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in vec3 viewNormal) {
+float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     vec2 seed = gl_FragCoord.xy;
 
     #ifdef TAA_ENABLED
@@ -82,11 +82,13 @@ float GetSpiralOcclusion(const in vec2 texcoord, const in vec3 viewPos, const in
         vec3 sampleScreenPos = ndcToScreen(sampleNdcPos);
         sampleScreenPos = saturate(sampleScreenPos);
 
+        vec2 sampleCoord = sampleScreenPos.xy * RENDER_SCALE_F;
+
         #ifdef LOD_ENABLED
-            sampleScreenPos.z = texture(TEX_LOD_DEPTH, sampleScreenPos.xy).r;
+            sampleScreenPos.z = texture(TEX_LOD_DEPTH, sampleCoord).r;
             bool isSky = sampleScreenPos.z <= 0.0;
         #else
-            sampleScreenPos.z = texture(TEX_DEPTH, sampleScreenPos.xy).r;
+            sampleScreenPos.z = texture(TEX_DEPTH, sampleCoord).r;
             bool isSky = sampleScreenPos.z >= 1.0;
         #endif
 
@@ -118,20 +120,19 @@ layout(location = 0) out float outOcclusion;
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
     float occlusion = 1.0;
-    bool hasAO = false;
 
     #ifdef LOD_ENABLED
         float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
-        hasAO = depth > 0.0;
+        bool isSky = depth <= 0.0;
     #else
         float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-        hasAO = depth < 1.0;
+        bool isSky = depth >= 1.0;
     #endif
 
-    if (hasAO) {
+    if (!isSky) {
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
 
-        vec3 screenPos = vec3(texcoord, depth);
+        vec3 screenPos = vec3(v_texcoord, depth);
 
         #ifdef TAA_ENABLED
              screenPos.xy -= taa_offset;
@@ -164,6 +165,7 @@ void main() {
             viewPos = mul3(gbufferModelView, localPos);
         #endif
 
+        bool hasAO = true;
         #if SSAO_MODE == SSAO_LOD
             float viewDist = length(viewPos);
             if (viewDist < dh_clipDistF * far) hasAO = false;
@@ -172,7 +174,7 @@ void main() {
         if (hasAO) {
             vec3 viewTexNormal = OctDecode(normalData.zw);
 
-            occlusion = GetSpiralOcclusion(texcoord, viewPos, viewTexNormal);
+            occlusion = GetSpiralOcclusion(viewPos, viewTexNormal);
             occlusion = saturate(1.0 - occlusion);
         }
     }

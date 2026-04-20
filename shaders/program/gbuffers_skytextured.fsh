@@ -17,6 +17,7 @@ uniform sampler2D gtexture;
 uniform vec3 cameraPosition;
 uniform float rainStrength;
 uniform int renderStage;
+uniform vec2 viewSizeScaled;
 
 #ifndef WORLD_END
     #include "/lib/sky-transmit.glsl"
@@ -28,6 +29,11 @@ layout(location = 0) out vec4 outFinal;
 
 
 void main() {
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) discard;
+    #endif
+
     vec4 color = texture(gtexture, vIn.texcoord);
 
     color *= vIn.color;
