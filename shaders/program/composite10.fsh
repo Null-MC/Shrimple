@@ -1,3 +1,4 @@
+#include "/lib/types.glsl"
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
@@ -19,7 +20,6 @@
 in vec2 v_texcoord;
 
 uniform sampler2D TEX_DEPTH;
-//uniform usampler2D TEX_META;
 uniform sampler2D TEX_FINAL;
 
 uniform sampler2D TEX_GB_COLOR;
@@ -193,7 +193,7 @@ void main() {
 //        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
 //        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
 //        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
-        vec4 color = texelFetch(TEX_GB_COLOR, uv, 0);
+        FLOAT16_4 color = FLOAT16_4(texelFetch(TEX_GB_COLOR, uv, 0));
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
         uvec2 specularMetaData = texelFetch(TEX_GB_SPECULAR, uv, 0).rg;
 
@@ -226,19 +226,19 @@ void main() {
 
         float totalDist = viewDist;
 
-        vec3 albedo = RGBToLinear(color.rgb);
-        vec4 specularData = unpackUnorm4x8(specularMetaData.r);
+        FLOAT16_3 albedo = RGBToLinear(color.rgb);
+        FLOAT16_4 specularData = FLOAT16_4(unpackUnorm4x8(specularMetaData.r));
         vec4 meta = unpackUnorm4x8(specularMetaData.g);
 
         #ifdef MATERIAL_PBR_ENABLED
-            float roughness = mat_roughness(specularData.r);
+            FLOAT16 roughness = mat_roughness(specularData.r);
         #else
-            float roughness = mat_roughness_lab(specularData.r);
+            FLOAT16 roughness = mat_roughness_lab(specularData.r);
         #endif
 
-        float smoothness = 1.0 - roughness;
+        FLOAT16 smoothness = FLOAT16(1.0) - roughness;
 
-        if (smoothness > (16.5/255.0)) {
+        if (smoothness > FLOAT16(16.5/255.0)) {
 //            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
             vec3 localGeoNormal = OctDecode(normalData.xy);
             vec3 viewTexNormal = OctDecode(normalData.zw);
@@ -268,7 +268,7 @@ void main() {
                 if (ray.result_hit) {
                     hit = true;
                     if (lengthSq(ray.result_position - rtPos) > 0.002) {
-                    vec3 albedo = RGBToLinear(ray.result_color);
+                    vec3 hitAlbedo = RGBToLinear(ray.result_color);
 //                    vec3 albedo = ray.result_color;
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
@@ -332,7 +332,7 @@ void main() {
                             skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
 
-                        reflectColor = albedo/PI * (blockLight + skyLight);
+                        reflectColor = hitAlbedo/PI * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
                             lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
@@ -351,7 +351,7 @@ void main() {
                             lit += lpvSample;
                         #endif
 
-                        reflectColor = albedo * lit;
+                        reflectColor = hitAlbedo * lit;
                     #endif
 
                     // TODO: fog
@@ -435,7 +435,7 @@ void main() {
                         traceScreenPos = testPos;
                     }
 
-                    float mip = roughness * 6.0;
+                    FLOAT16 mip = roughness * FLOAT16(6.0);
                     reflectColor = textureLod(TEX_FINAL, traceScreenPos * RENDER_SCALE_F, mip).rgb;
                 }
             #endif

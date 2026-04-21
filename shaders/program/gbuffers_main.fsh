@@ -667,14 +667,6 @@ void main() {
 //    #endif
 
 
-    #if defined(VELOCITY_ENABLED)
-        #if defined(RENDER_TERRAIN)
-            outVelocity = vIn.velocity;
-        #else
-            outVelocity = vec3(0.0);
-        #endif
-    #endif
-
 //    #ifdef RENDER_TRANSLUCENT
 //        vec3 tint = vec3(1.0);
 //        uint matID = 0;
@@ -722,5 +714,13 @@ void main() {
             packUnorm4x8(specularData),
             packUnorm4x8(vec4(lmcoord, occlusion, matId / 255.0))
         );
+    #endif
+
+    #ifdef VELOCITY_ENABLED
+        #if defined(RENDER_TERRAIN)
+            outVelocity = vIn.velocity;
+        #else
+            outVelocity = vec3(0.0);
+        #endif
     #endif
 }

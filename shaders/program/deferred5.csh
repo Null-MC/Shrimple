@@ -1,3 +1,4 @@
+#include "/lib/types.glsl"
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
@@ -19,7 +20,7 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 
 layout(r16f) uniform writeonly image2D IMG_SSAO;
 
-shared float sharedOcclusion[20*20];
+shared FLOAT16 sharedOcclusion[20*20];
 shared float sharedDepthL[20*20];
 
 uniform sampler2D TEX_FINAL;
@@ -46,7 +47,7 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     if (i_shared >= (20*20)) return;
 
     ivec2 uv = uv_base + ivec2(i_shared % 20, i_shared / 20);
-    sharedOcclusion[i_shared] = texelFetch(TEX_SSAO, uv, 0).r;
+    sharedOcclusion[i_shared] = FLOAT16(texelFetch(TEX_SSAO, uv, 0).r);
 
     #ifdef LOD_ENABLED
         float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
@@ -78,7 +79,7 @@ float BilateralGaussianBlur() {
             float fx = Gaussian(g_sigmaXY, ix);
 
             int shared_i = getSharedIndex(luv + ivec2(ix, iy));
-            float sampleOcclusion = sharedOcclusion[shared_i];
+            FLOAT16 sampleOcclusion = sharedOcclusion[shared_i];
             float sampleDepthL = sharedDepthL[shared_i];
 
             float depthDiff = abs(sampleDepthL - depthL);

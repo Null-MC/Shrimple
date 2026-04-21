@@ -1,3 +1,4 @@
+#include "/lib/types.glsl"
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
@@ -7,7 +8,7 @@ const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 
 #if RENDER_SCALE == 0
-    shared vec3 sharedBuffer[18*18];
+    shared FLOAT16_3 sharedBuffer[18*18];
 #endif
 
 layout(rgba16f) uniform writeonly image2D imgTAA;
@@ -59,9 +60,7 @@ const int TAA_MaxAccumFrames = 8;
     //        uv = ivec2(uv * RENDER_SCALE_F);
     //    #endif
 
-        vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
-    //    vec3 color = TexelFetchLinearRGB(TEX_FINAL, uv + 0.5, 0).rgb;
-        sharedBuffer[i_shared] = color;
+        sharedBuffer[i_shared] = FLOAT16_3(texelFetch(TEX_FINAL, uv, 0).rgb);
     }
 #endif
 
@@ -148,15 +147,15 @@ void main() {
 
         #if RENDER_SCALE == 0
             ivec2 luv = ivec2(gl_LocalInvocationID.xy) + 1;
-            vec3 in0 = sharedBuffer[getSharedIndex(luv)];
-            vec3 in1 = sharedBuffer[getSharedIndex(luv + ivec2(+1,  0))];
-            vec3 in2 = sharedBuffer[getSharedIndex(luv + ivec2(-1,  0))];
-            vec3 in3 = sharedBuffer[getSharedIndex(luv + ivec2( 0, +1))];
-            vec3 in4 = sharedBuffer[getSharedIndex(luv + ivec2( 0, -1))];
-            vec3 in5 = sharedBuffer[getSharedIndex(luv + ivec2(+1, +1))];
-            vec3 in6 = sharedBuffer[getSharedIndex(luv + ivec2(-1, +1))];
-            vec3 in7 = sharedBuffer[getSharedIndex(luv + ivec2(+1, -1))];
-            vec3 in8 = sharedBuffer[getSharedIndex(luv + ivec2(-1, -1))];
+            FLOAT16_3 in0 = sharedBuffer[getSharedIndex(luv)];
+            FLOAT16_3 in1 = sharedBuffer[getSharedIndex(luv + ivec2(+1,  0))];
+            FLOAT16_3 in2 = sharedBuffer[getSharedIndex(luv + ivec2(-1,  0))];
+            FLOAT16_3 in3 = sharedBuffer[getSharedIndex(luv + ivec2( 0, +1))];
+            FLOAT16_3 in4 = sharedBuffer[getSharedIndex(luv + ivec2( 0, -1))];
+            FLOAT16_3 in5 = sharedBuffer[getSharedIndex(luv + ivec2(+1, +1))];
+            FLOAT16_3 in6 = sharedBuffer[getSharedIndex(luv + ivec2(-1, +1))];
+            FLOAT16_3 in7 = sharedBuffer[getSharedIndex(luv + ivec2(+1, -1))];
+            FLOAT16_3 in8 = sharedBuffer[getSharedIndex(luv + ivec2(-1, -1))];
         #else
             vec2 txs = texcoord * RENDER_SCALE_F;
             vec3 in0 = texture(TEX_FINAL, txs).rgb;

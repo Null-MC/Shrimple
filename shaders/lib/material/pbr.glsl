@@ -57,6 +57,26 @@ float mat_roughness(const in float specular_r) {
     #endif
 }
 
+#ifdef TYPES_ENABLED
+    FLOAT16 mat_roughness_lab(const in FLOAT16 specular_r) {
+        return FLOAT16(1.0) - specular_r;
+    }
+
+    FLOAT16 mat_roughness_old(const in FLOAT16 specular_r) {
+        return FLOAT16(1.0) - specular_r;
+    }
+
+    FLOAT16 mat_roughness(const in FLOAT16 specular_r) {
+        #if MATERIAL_FORMAT == FORMAT_LABPBR
+            return mat_roughness_lab(specular_r);
+        #elif MATERIAL_FORMAT == FORMAT_OLDPBR
+            return mat_roughness_old(specular_r);
+        #else
+            return FLOAT16(1.0);
+        #endif
+    }
+#endif
+
 float mat_f0_lab(const in float specular_g) {
     float f0 = clamp(specular_g, 0.0, 0.9);
     if (f0 < EPSILON) f0 = 0.04;
