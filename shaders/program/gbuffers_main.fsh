@@ -258,7 +258,7 @@ void main() {
 
     #if RENDER_SCALE != 0
         ivec2 uv = ivec2(gl_FragCoord.xy);
-        if (any(greaterThan(uv, viewSizeScaled))) discard;
+        if (any(greaterThan(uv, viewSizeScaled))) return;
     #endif
 
     #if defined(RENDER_TERRAIN) && LIGHTING_MODE == LIGHTING_MODE_ENHANCED

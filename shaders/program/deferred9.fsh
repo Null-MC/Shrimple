@@ -194,8 +194,10 @@ void main() {
 
         #ifdef MATERIAL_PBR_ENABLED
             float tex_sss = mat_sss(specularData.b);
+            float porosity = mat_porosity(specularData.rgb);
         #else
             const float tex_sss = 0.0;
+            const float porosity = 0.8;
         #endif
 
         #ifdef LOD_ENABLED
@@ -241,7 +243,7 @@ void main() {
             #endif
 
             float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
-            float porosity = mat_porosity(specularData.rgb);
+//            float porosity = mat_porosity(specularData.rgb);
             float surfaceWetness = wetness * porosity;
 
             if (surfaceWetness > 0.0) {
