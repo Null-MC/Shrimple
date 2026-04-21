@@ -59,9 +59,8 @@ const int TAA_MaxAccumFrames = 8;
     //        uv = ivec2(uv * RENDER_SCALE_F);
     //    #endif
 
-        vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
-    //    vec3 color = TexelFetchLinearRGB(TEX_FINAL, uv + 0.5, 0).rgb;
-        sharedBuffer[i_shared] = color;
+    //    sharedBuffer[i_shared] = TexelFetchLinearRGB(TEX_FINAL, uv + 0.5, 0).rgb;
+        sharedBuffer[i_shared] = texelFetch(TEX_FINAL, uv, 0).rgb;
     }
 #endif
 

@@ -268,8 +268,8 @@ void main() {
                 if (ray.result_hit) {
                     hit = true;
                     if (lengthSq(ray.result_position - rtPos) > 0.002) {
-                    vec3 albedo = RGBToLinear(ray.result_color);
-//                    vec3 albedo = ray.result_color;
+                    vec3 hitAlbedo = RGBToLinear(ray.result_color);
+//                    vec3 hitAlbedo = ray.result_color;
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
@@ -332,7 +332,7 @@ void main() {
                             skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
 
-                        reflectColor = albedo/PI * (blockLight + skyLight);
+                        reflectColor = hitAlbedo/PI * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
                             lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
@@ -351,7 +351,7 @@ void main() {
                             lit += lpvSample;
                         #endif
 
-                        reflectColor = albedo * lit;
+                        reflectColor = hitAlbedo * lit;
                     #endif
 
                     // TODO: fog

@@ -1,4 +1,4 @@
 #version 430 compatibility
 
 #include "end.glsl"
-#include "/program/composite9.csh"
+#include "/program/composite9.vsh"
