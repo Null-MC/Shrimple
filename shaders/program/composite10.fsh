@@ -299,6 +299,25 @@ void main() {
 
                         float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
                         shadow *= pow(saturate(shadow_NoL), 0.2);
+
+                        #ifdef PHOTONICS_SHADOW_ENABLED
+                            RayJob ray = RayJob(
+                                hitLocalPos + rt_camera_position + 0.004 * localGeoNormal,
+                                localSkyLightDir,
+                                vec3(0), vec3(0), vec3(0), false
+                            );
+
+                            RAY_ITERATION_COUNT = 100;
+
+                            trace_ray(ray, true);
+
+//                            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                                if (ray.result_hit) shadow = vec3(0.0);
+                                else shadow *= result_tint_color;
+//                            #else
+//                                if (ray.result_hit) shadowF = 0.0;
+//                            #endif
+                        #endif
                     #endif
 
                     #ifdef SHADOW_CLOUDS

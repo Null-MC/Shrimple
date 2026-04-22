@@ -237,6 +237,9 @@ screen.MODS=Mods
 
 screen.MOD_PHOTONICS=Photonics
 
+option.PHOTONICS_SHADOW_ENABLED=Shadows
+option.PHOTONICS_SHADOW_ENABLED.comment=Replaces standard shadow-maps with ray-traced shadows using Photonics.
+
 option.PHOTONICS_REFLECT_ENABLED=Reflections
 option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
 

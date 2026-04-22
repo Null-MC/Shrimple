@@ -318,11 +318,30 @@ void main() {
                 #endif
             #endif
 
-            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                shadow *= cloudShadowF; // * shadow_geoNoL
-            #else
-                shadowF *= cloudShadowF; // * shadow_geoNoL
+            #ifdef PHOTONICS_SHADOW_ENABLED
+                RayJob ray = RayJob(
+                    localPos + rt_camera_position + 0.004 * localGeoNormal,
+                    localSkyLightDir,
+                    vec3(0), vec3(0), vec3(0), false
+                );
+
+                RAY_ITERATION_COUNT = 100;
+
+                trace_ray(ray, true);
+
+                #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                    if (ray.result_hit) shadow = vec3(0.0);
+                    else shadow *= result_tint_color;
+                #else
+                    if (ray.result_hit) shadowF = 0.0;
+                #endif
             #endif
+        #endif
+
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            shadow *= cloudShadowF; // * shadow_geoNoL
+        #else
+            shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif
 
         #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
