@@ -1,7 +1,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 uniform sampler2D TEX_FINAL;
 
@@ -31,13 +31,26 @@ uniform float far3;
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/octohedral.glsl"
 
+#if !defined(TAA_ENABLED) && RENDER_SCALE != 0
+    #include "/lib/sampling/linear.glsl"
+#endif
+
 #if defined(DEBUG_FAR)
     #include "/lib/text.glsl"
 #endif
 
 
 void main() {
-    vec3 color = texelFetch(TEX_FINAL, ivec2(gl_FragCoord.xy), 0).rgb;
+    #if !defined(TAA_ENABLED) && RENDER_SCALE != 0
+        vec2 texcoord = v_texcoord * RENDER_SCALE_F;
+
+        ivec2 uvs[4];
+        vec2 f = GetLinearCoords(texcoord * viewSize, uvs);
+        vec3 color = TexelFetchLinearRGB(TEX_FINAL, uvs, 0, smoothstep(0.0, 1.0, f));
+    #else
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        vec3 color = texelFetch(TEX_FINAL, uv, 0).rgb;
+    #endif
 
     #ifdef DEBUG_FAR
         beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewSize.y/2 - 24));

@@ -119,7 +119,7 @@ uniform int heldItemId2;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform ivec2 atlasSize;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 uniform int textureFilteringMode;
 uniform int vxRenderDistance;
@@ -254,6 +254,11 @@ void main() {
         #ifndef RENDER_SOLID
             if (color.a < alphaTestRef) discard;
         #endif
+    #endif
+
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) return;
     #endif
 
     #if defined(RENDER_TERRAIN) && LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -662,14 +667,6 @@ void main() {
 //    #endif
 
 
-    #if defined(VELOCITY_ENABLED)
-        #if defined(RENDER_TERRAIN)
-            outVelocity = vIn.velocity;
-        #else
-            outVelocity = vec3(0.0);
-        #endif
-    #endif
-
 //    #ifdef RENDER_TRANSLUCENT
 //        vec3 tint = vec3(1.0);
 //        uint matID = 0;
@@ -717,5 +714,13 @@ void main() {
             packUnorm4x8(specularData),
             packUnorm4x8(vec4(lmcoord, occlusion, matId / 255.0))
         );
+    #endif
+
+    #ifdef VELOCITY_ENABLED
+        #if defined(RENDER_TERRAIN)
+            outVelocity = vIn.velocity;
+        #else
+            outVelocity = vec3(0.0);
+        #endif
     #endif
 }

@@ -3,8 +3,12 @@
 
 #ifdef LOD_ENABLED
     #define TEX_DEPTH texDepthLod_trans
+    #define MAT_PROJ_INV matProjInv
+    #define MAT_PROJ matProj
 #else
     #define TEX_DEPTH depthtex0
+    #define MAT_PROJ_INV gbufferProjectionInverse
+    #define MAT_PROJ gbufferProjection
 #endif
 
 #ifndef PHOTONICS_REFLECT_ENABLED
@@ -12,7 +16,7 @@
 #endif
 
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 uniform sampler2D TEX_DEPTH;
 //uniform usampler2D TEX_META;
@@ -146,14 +150,10 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
             0.0, gbufferProjection[1][1], 0.0, 0.0,
             0.0, 0.0, 0.0, -1.0,
             0.0, 0.0, near, 0.0);
-
-        vec3 dest_clipPos = project(matProj, dest_viewPos);
-        vec3 dest_screenPos = dest_clipPos.xyz;
-        dest_screenPos.xy = dest_screenPos.xy * 0.5 + 0.5;
-    #else
-        vec3 dest_clipPos = project(gbufferProjection, dest_viewPos);
-        vec3 dest_screenPos = dest_clipPos.xyz * 0.5 + 0.5;
     #endif
+
+    vec3 dest_clipPos = project(MAT_PROJ, dest_viewPos);
+    vec3 dest_screenPos = ndcToScreen(dest_clipPos);
 
     // float4 dest_clipPos = mul(ap.camera.projection, float4(dest_viewPos, 1.0));
     // dest_clipPos.xyz = clamp(dest_clipPos.xyz, float3(-1.0, -1.0, 0.00001), 1.0) / dest_clipPos.w;
@@ -173,15 +173,6 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
 //    }
 //#endif
 
-vec3 toNdc(vec3 screenPos) {
-    #ifdef LOD_ENABLED
-        screenPos.xy = screenPos.xy * 2.0 - 1.0;
-        return screenPos;
-    #else
-        return screenPos * 2.0 - 1.0;
-    #endif
-}
-
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
@@ -190,10 +181,15 @@ void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
 
+    #ifdef LOD_ENABLED
+        bool isSky = depth <= 0.0;
+    #else
+        bool isSky = depth >= 1.0;
+    #endif
+
     vec3 reflectColor = vec3(0.0);
 
-    // TODO: (depth > 0.0) if LOD
-    if (depth < 1.0) {
+    if (!isSky) {
 //        uvec2 albedoSpecularData = texelFetch(TEX_ALBEDO_SPECULAR, uv, 0).rg;
 //        vec4 albedoData = unpackUnorm4x8(albedoSpecularData.r);
 //        vec4 specularData = unpackUnorm4x8(albedoSpecularData.g);
@@ -201,8 +197,8 @@ void main() {
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
         uvec2 specularMetaData = texelFetch(TEX_GB_SPECULAR, uv, 0).rg;
 
-        vec3 screenPos = vec3(texcoord, depth);
-        vec3 ndcPos = toNdc(screenPos);
+        vec3 screenPos = vec3(v_texcoord, depth);
+        vec3 ndcPos = screenToNdc(screenPos);
 
         #if defined(TAA_ENABLED) && defined(PHOTONICS_REFLECT_ENABLED)
             ndcPos.xy -= taa_offset * 2.0;
@@ -213,15 +209,11 @@ void main() {
 //        }
 
         #ifdef LOD_ENABLED
-            #define MAT_PROJ_INV matProjInv
-
             mat4 matProjInv = mat4(
                 gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
                 0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
                 0.0, 0.0, 0.0, 1.0/near,
                 0.0, 0.0, -1.0, 0.0);
-        #else
-            #define MAT_PROJ_INV gbufferProjectionInverse
         #endif
 
         vec3 viewPos = project(MAT_PROJ_INV, ndcPos);
@@ -246,7 +238,7 @@ void main() {
 
         float smoothness = 1.0 - roughness;
 
-        if (smoothness > (1.5/255.0)) {
+        if (smoothness > (16.5/255.0)) {
 //            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
             vec3 localGeoNormal = OctDecode(normalData.xy);
             vec3 viewTexNormal = OctDecode(normalData.zw);
@@ -276,8 +268,8 @@ void main() {
                 if (ray.result_hit) {
                     hit = true;
                     if (lengthSq(ray.result_position - rtPos) > 0.002) {
-//                    vec3 albedo = RGBToLinear(ray.result_color);
-                    vec3 albedo = ray.result_color;
+                    vec3 hitAlbedo = RGBToLinear(ray.result_color);
+//                    vec3 hitAlbedo = ray.result_color;
 
                     vec3 hitLocalPos = ray.result_position - rt_camera_position;
                     vec3 hitLocalNormal = ray.result_normal;
@@ -307,6 +299,25 @@ void main() {
 
                         float shadow_NoL = dot(hitLocalNormal, localSkyLightDir);
                         shadow *= pow(saturate(shadow_NoL), 0.2);
+
+                        #ifdef PHOTONICS_SHADOW_ENABLED
+                            RayJob ray = RayJob(
+                                hitLocalPos + rt_camera_position + 0.004 * localGeoNormal,
+                                localSkyLightDir,
+                                vec3(0), vec3(0), vec3(0), false
+                            );
+
+                            RAY_ITERATION_COUNT = 100;
+
+                            trace_ray(ray, true);
+
+//                            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                                if (ray.result_hit) shadow = vec3(0.0);
+                                else shadow *= result_tint_color;
+//                            #else
+//                                if (ray.result_hit) shadowF = 0.0;
+//                            #endif
+                        #endif
                     #endif
 
                     #ifdef SHADOW_CLOUDS
@@ -340,7 +351,7 @@ void main() {
                             skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
 
-                        reflectColor = albedo/PI * (blockLight + skyLight);
+                        reflectColor = hitAlbedo/PI * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
                             lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
@@ -359,7 +370,7 @@ void main() {
                             lit += lpvSample;
                         #endif
 
-                        reflectColor = albedo * lit;
+                        reflectColor = hitAlbedo * lit;
                     #endif
 
                     // TODO: fog
@@ -378,7 +389,7 @@ void main() {
                 }
             #else
                 vec3 screenEnd = projectScreenTrace(viewPos, screenPos, reflectViewDir);
-                vec3 traceClipEnd = toNdc(screenEnd);
+                vec3 traceClipEnd = screenToNdc(screenEnd);
                 vec3 traceClipStart = ndcPos;
 
                 vec3 traceClipPos;
@@ -394,7 +405,7 @@ void main() {
 //                    uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
 //                    if (meta != 0u) continue;
 
-                    float sampleDepth = texture(TEX_DEPTH, traceScreenPos).r;
+                    float sampleDepth = texture(TEX_DEPTH, traceScreenPos * RENDER_SCALE_F).r;
 
                     #ifdef LOD_ENABLED
                         float screenDepthL = near / sampleDepth;
@@ -421,12 +432,12 @@ void main() {
                         float f = (i + 0.5) / float(SSR_REFINE_STEPS);
                         traceClipPos = mix(traceClipStart, traceClipEnd, saturate(f));
                         vec2 testPos = traceClipPos.xy * 0.5 + 0.5;
-                        if (saturate(testPos) != testPos) break;
+//                        if (saturate(testPos) != testPos) break;
 
 //                        uint meta = texelFetch(TEX_META, ivec2(traceScreenPos * viewSize), 0).r;
 //                        if (meta != 0u) continue;
 
-                        float sampleDepth = texture(TEX_DEPTH, testPos).r;
+                        float sampleDepth = texture(TEX_DEPTH, testPos * RENDER_SCALE_F).r;
 
                         #ifdef LOD_ENABLED
                             float screenDepthL = near / sampleDepth;
@@ -442,11 +453,9 @@ void main() {
 
                         traceScreenPos = testPos;
                     }
-                }
 
-                if (hit) {
                     float mip = roughness * 6.0;
-                    reflectColor = textureLod(TEX_FINAL, traceScreenPos, mip).rgb;
+                    reflectColor = textureLod(TEX_FINAL, traceScreenPos * RENDER_SCALE_F, mip).rgb;
                 }
             #endif
 
@@ -472,6 +481,8 @@ void main() {
             #endif
 
             reflectColor *= F * _pow2(smoothness);
+
+//            reflectColor = vec3(3,0,0);
         }
 
         #ifdef MATERIAL_PBR_ENABLED
@@ -485,7 +496,7 @@ void main() {
 
         // apply fog for reflect source
         float borderFogF = GetBorderFogStrength(viewDist);
-        float envFogF = GetEnvFogStrength(viewDist);
+        float envFogF = GetEnvFogStrength(totalDist);
         float fogF = max(borderFogF, envFogF);
 
         reflectColor *= 1.0 - fogF;

@@ -15,11 +15,16 @@
 #include "_outputDefer.glsl"
 
 void voxy_emitFragment(VoxyFragmentParameters parameters) {
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) return;
+    #endif
+
     vec4 color = parameters.sampledColour;
     color.rgb *= parameters.tinting.rgb;
 
     vec3 ndcPos = gl_FragCoord.xyz;
-    ndcPos.xy /= viewSize;
+    ndcPos.xy /= viewSizeScaled;
     ndcPos = ndcPos * 2.0 - 1.0;
 
     vec3 viewPos = project(vxProjInv, ndcPos);

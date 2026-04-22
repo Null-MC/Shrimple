@@ -42,7 +42,7 @@ uniform vec3 fogColor;
 uniform float fogDensity;
 uniform float fogStart;
 uniform float fogEnd;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 uniform mat4 dhProjectionInverse;
 uniform int vxRenderDistance;
@@ -85,6 +85,11 @@ void main() {
 
             if (-viewPos.z >= depthVoxyL) {discard; return;}
         }
+    #endif
+
+    #if RENDER_SCALE != 0
+        ivec2 uv = ivec2(gl_FragCoord.xy);
+        if (any(greaterThan(uv, viewSizeScaled))) return;
     #endif
 
     float viewDist = length(vIn.localPos);

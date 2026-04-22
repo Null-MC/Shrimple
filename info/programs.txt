@@ -12,13 +12,8 @@ deferred4      voxy/DH SSAO
 deferred5      voxy/DH SSAO apply
 deferred9       opaque final
 
-deferred10      photonics Lighting
---deferred20      voxy/DH SSAO
---deferred21      voxy/DH SSAO apply
-
-composite1      translucent overlay
-
-composite9      depth merge translucent
+composite1      depth merge translucent
+composite9      translucent overlay
 composite10     reflections
 
 composite60	    taa resolve

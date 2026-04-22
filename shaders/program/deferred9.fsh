@@ -9,7 +9,7 @@
     #define MAT_PROJ_INV gbufferProjectionInverse
 #endif
 
-in vec2 texcoord;
+in vec2 v_texcoord;
 
 
 #ifdef LOD_ENABLED
@@ -92,6 +92,7 @@ uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform int frameCounter;
 uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 uniform vec2 taa_offset = vec2(0.0);
 
 uniform float dhFarPlane;
@@ -207,7 +208,7 @@ void main() {
                 0.0, 0.0, -1.0, 0.0);
         #endif
 
-        vec3 screenPos = vec3(texcoord, depth);
+        vec3 screenPos = vec3(v_texcoord, depth);
         #ifdef TAA_ENABLED
             screenPos.xy -= taa_offset;
         #endif
@@ -317,11 +318,30 @@ void main() {
                 #endif
             #endif
 
-            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                shadow *= cloudShadowF; // * shadow_geoNoL
-            #else
-                shadowF *= cloudShadowF; // * shadow_geoNoL
+            #ifdef PHOTONICS_SHADOW_ENABLED
+                RayJob ray = RayJob(
+                    localPos + rt_camera_position + 0.004 * localGeoNormal,
+                    localSkyLightDir,
+                    vec3(0), vec3(0), vec3(0), false
+                );
+
+                RAY_ITERATION_COUNT = 100;
+
+                trace_ray(ray, true);
+
+                #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                    if (ray.result_hit) shadow = vec3(0.0);
+                    else shadow *= result_tint_color;
+                #else
+                    if (ray.result_hit) shadowF = 0.0;
+                #endif
             #endif
+        #endif
+
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            shadow *= cloudShadowF; // * shadow_geoNoL
+        #else
+            shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif
 
         #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
@@ -452,15 +472,15 @@ void main() {
         #endif
 
         #if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
-            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, texcoord).rgb;
-        #endif
-
-        bool skip_GI = false;
-        #ifdef PHOTONICS_GI_ENABLED
-            if (!isLod) skip_GI = true;
+            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
         #endif
 
         #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+            bool skip_GI = false;
+            #ifdef PHOTONICS_GI_ENABLED
+                if (!isLod) skip_GI = true;
+            #endif
+
             if (!skip_GI) diffuseFinal += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
         #endif
 
@@ -473,13 +493,12 @@ void main() {
         #endif
 
         #ifndef LIGHTING_SPECULAR
-            vec2 uvcoord = gl_FragCoord.xy / viewSize;
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                diffuseFinal += sample_photonics_direct(uvcoord);
+                diffuseFinal += sample_photonics_direct(v_texcoord);
             #endif
 
             #ifdef PHOTONICS_HAND_LIGHT_ENABLED
-                diffuseFinal += sample_photonics_handheld(uvcoord);
+                diffuseFinal += sample_photonics_handheld(v_texcoord);
             #endif
         #endif
 
@@ -566,13 +585,12 @@ void main() {
         #endif
 
         #ifdef LIGHTING_SPECULAR
-            vec2 uvcoord = gl_FragCoord.xy / viewSize;
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-                outFinal += sample_photonics_direct(uvcoord);
+                outFinal += sample_photonics_direct(v_texcoord);
             #endif
 
             #ifdef PHOTONICS_HAND_LIGHT_ENABLED
-                outFinal += sample_photonics_handheld(uvcoord);
+                outFinal += sample_photonics_handheld(v_texcoord);
             #endif
         #endif
 

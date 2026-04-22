@@ -14,6 +14,11 @@ uniform mat4 shadowModelViewInverse;
 
 
 void main() {
+    #ifdef PHOTONICS_SHADOW_ENABLED
+        gl_Position = vec4(-10.0);
+        return;
+    #endif
+
     vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
     vOut.localNormal = mat3(shadowModelViewInverse) * viewNormal;
 

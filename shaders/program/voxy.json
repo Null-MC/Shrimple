@@ -30,6 +30,14 @@
   #ifdef TAA_ENABLED
     "taaOffset": "{return taa_offset;}",
   #endif
+  "useViewportDims": true,
+  #if RENDER_SCALE == 3
+    "renderScale": [0.25],
+  #elif RENDER_SCALE == 2
+    "renderScale": [0.50],
+  #elif RENDER_SCALE == 1
+    "renderScale": [0.75],
+  #endif
   "uniforms": [
     "cameraPosition",
     "cloudHeight",
@@ -52,6 +60,7 @@
     "sunLocalDir",
     "taa_offset",
     "viewSize",
+    "viewSizeScaled",
     "vxModelViewInv",
     "vxProjInv",
     "vxRenderDistance",

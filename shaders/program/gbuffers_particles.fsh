@@ -27,6 +27,10 @@ uniform sampler2D gtexture;
 
 #ifdef LIGHTING_COLORED
     uniform sampler3D texFloodFill;
+
+    #ifdef LIGHTING_HAND
+        uniform sampler2D texBlockLight;
+    #endif
 #endif
 
 #ifdef SHADOWS_ENABLED
@@ -62,7 +66,13 @@ uniform mat4 gbufferModelViewInverse;
 uniform mat4 shadowModelView;
 uniform mat4 shadowProjection;
 uniform vec3 cameraPosition;
+uniform bool firstPersonCamera;
+uniform vec3 relativeEyePosition;
 uniform ivec2 eyeBrightnessSmooth;
+uniform int heldItemId;
+uniform int heldItemId2;
+uniform int heldBlockLightValue;
+uniform int heldBlockLightValue2;
 uniform int hasSkylight;
 uniform int frameCounter;
 uniform int isEyeInWater;
@@ -93,6 +103,15 @@ uniform float dhFarPlane;
 #ifdef LIGHTING_COLORED
     #include "/lib/voxel.glsl"
     #include "/lib/floodfill-render.glsl"
+#endif
+
+#ifdef LIGHTING_HAND
+    #ifdef LIGHTING_COLORED
+        #include "/lib/sampling/block-light.glsl"
+    #endif
+
+    #include "/lib/lighting/attenuation.glsl"
+    #include "/lib/lighting/hand.glsl"
 #endif
 
 #ifdef SHADOWS_ENABLED
@@ -134,10 +153,6 @@ void main() {
 
     vec3 albedo = RGBToLinear(color.rgb);
 
-    #ifdef DEBUG_WHITEWORLD
-        albedo = vec3(0.86);
-    #endif
-
     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -178,19 +193,18 @@ void main() {
         lmcoord = _pow3(lmcoord);
 
         const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
-        vec3 blockLight = lmcoord.x * blockLightColor;
+        vec3 diffuseFinal = lmcoord.x * blockLightColor;
 
         #ifdef LIGHTING_COLORED
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, vec3(0.0));
             vec3 lpvSample = SampleFloodFill(samplePos);
 //            blockLight = mix(blockLight, lpvSample, lpvFade);
-            blockLight += lpvSample * lpvFade;
+            diffuseFinal += lpvSample * lpvFade;
         #endif
 
-        vec3 skyLight = vec3(0.0);
         #ifdef WORLD_OVERWORLD
             vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
-            skyLight = shadow * skyLightColor;
+            vec3 skyLight = shadow * skyLightColor;
 
             #ifndef SHADOWS_ENABLED
                 skyLight *= lmcoord.y;
@@ -199,12 +213,8 @@ void main() {
             #ifndef PHOTONICS_GI_ENABLED
                 skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(vec3(0,1,0));
             #endif
-        #endif
 
-        color.rgb = albedo * (blockLight + skyLight);
-
-        #ifdef RENDER_TERRAIN
-            color.rgb *= _pow2(vIn.color.a);
+            diffuseFinal += skyLight;
         #endif
     #else
         lmcoord.y = min(lmcoord.y, shadowF * (1.0 - AmbientLightF) + AmbientLightF);
@@ -214,61 +224,92 @@ void main() {
         #endif
 
         lmcoord = LightMapTex(lmcoord);
-        vec3 lit = texture(lightmap, lmcoord).rgb;
-        lit = RGBToLinear(lit);
+        vec3 diffuseFinal = texture(lightmap, lmcoord).rgb;
+        diffuseFinal = RGBToLinear(diffuseFinal);
 
         #ifdef LIGHTING_COLORED
             vec3 samplePos = GetFloodFillSamplePos(voxelPos, vec3(0.0));
             vec3 lpvSample = SampleFloodFill(samplePos, pow(vIn.lmcoord.x, 2.2));
-            lit += lpvFade * lpvSample;
+            diffuseFinal += lpvFade * lpvSample;
         #endif
-
-        color.rgb = albedo * lit;
     #endif
 
     // TODO: move to ambient lighting?
-    color.rgb *= tex_occlusion;
+    diffuseFinal *= tex_occlusion;
+
+    #if defined(LIGHTING_HAND) && defined(LIGHTING_COLORED)
+        vec3 handLightPos = GetHandLightPosition();
+        float handDist = distance(vIn.localPos, handLightPos);
+
+        if (heldItemId >= 0) {
+            vec3 lightColor;
+            float lightRange;
+            GetBlockColorRange(heldItemId, lightColor, lightRange);
+
+            const float lightRadius = 0.5;
+            float att = GetLightAttenuation(handDist, lightRange, lightRadius);
+            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+//            float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
+
+            diffuseFinal += att * lightColor;
+//            #ifdef LIGHTING_SPECULAR
+//                specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
+//            #endif
+        }
+
+        if (heldItemId2 >= 0) {
+            vec3 lightColor;
+            float lightRange;
+            GetBlockColorRange(heldItemId2, lightColor, lightRange);
+
+            const float lightRadius = 0.5;
+            float att = GetLightAttenuation(handDist, lightRange, lightRadius);
+            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+//            float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
+
+            diffuseFinal += att * lightColor;
+//            #ifdef LIGHTING_SPECULAR
+//                specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
+//            #endif
+        }
+    #endif
 
     #ifdef MATERIAL_PBR_ENABLED
         float emission = mat_emission(specularData);
         TransformEmission(emission);
-
-//        if (all(greaterThan(vIn.lmcoord, vec2(0.99)))) emission = 40.0;
-//        if (vIn.lmcoord.x > 0.99 && vIn.lmcoord.y > 0.99) emission = 40.0;
-
-        color.rgb += albedo * emission;
+        diffuseFinal += emission;
     #endif
 
-    color.rgb *= color.a;
+    #ifdef DEBUG_WHITEWORLD
+        albedo = vec3(0.86);
+    #endif
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        outFinal.rgb = albedo/PI * diffuseFinal * color.a;// + specularFinal;
+    #else
+        outFinal.rgb = albedo * diffuseFinal * color.a;// + specularFinal;
+    #endif
+    outFinal.a = color.a;
 
     float borderFogF = GetBorderFogStrength(viewDist);
     float envFogF = GetEnvFogStrength(viewDist);
     float fogF = max(borderFogF, envFogF);
-
-    #if defined(RENDER_TERRAIN) && defined(IRIS_FEATURE_FADE_VARIABLE)
-        #ifdef RENDER_TRANSLUCENT
-            color.a *= vIn.chunkFade;
-        #else
-            fogF = max(fogF, 1.0 - vIn.chunkFade);
-        #endif
-    #endif
 
     vec3 fogColorL = RGBToLinear(fogColor);
     vec3 skyColorL = RGBToLinear(skyColor);
     vec3 localViewDir = normalize(vIn.localPos);
     vec3 fogColorFinal = GetSkyFogWaterColor(skyColorL, fogColorL, localViewDir);
 
-    color.rgb = mix(color.rgb, fogColorFinal, fogF);
+    outFinal.rgb = mix(outFinal.rgb, fogColorFinal, fogF);
 
-    outFinal = color;
-    outAlbedo = vec4(1.0, 1.0, 1.0, 0.0);
+    #ifdef DEFERRED_ENABLED
+        outAlbedo = color;
+
+        outNormals = vec4(0.0);
+        outSpecularMeta = uvec2(0u);
+    #endif
 
     #ifdef VELOCITY_ENABLED
         outVelocity = vec3(0.0);
-    #endif
-
-    #ifdef DEFERRED_ENABLED
-        outNormals = vec4(0.0);
-        outSpecularMeta = uvec2(0u);
     #endif
 }

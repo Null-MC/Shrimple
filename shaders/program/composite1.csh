@@ -1,6 +1,12 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#ifdef DISTANT_HORIZONS
+    #define LOD_PROJ_INV dhProjectionInverse
+#elif defined(VOXY)
+    #define LOD_PROJ_INV vxProjInv
+#endif
+
 layout (local_size_x = 16, local_size_y = 16) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
@@ -11,9 +17,7 @@ uniform sampler2D depthtex0;
 
 #ifdef DISTANT_HORIZONS
     uniform sampler2D dhDepthTex0;
-#endif
-
-#ifdef VOXY
+#elif defined(VOXY)
     uniform sampler2D vxDepthTexTrans;
 #endif
 
@@ -22,13 +26,6 @@ uniform vec2 viewSize;
 uniform mat4 vxProjInv;
 uniform mat4 dhProjectionInverse;
 uniform mat4 gbufferProjectionInverse;
-
-
-#ifdef DISTANT_HORIZONS
-    #define LOD_PROJ_INV dhProjectionInverse
-#elif defined(VOXY)
-    #define LOD_PROJ_INV vxProjInv
-#endif
 
 
 void main() {

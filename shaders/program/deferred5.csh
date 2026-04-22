@@ -6,7 +6,16 @@
 
 
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+
+#if RENDER_SCALE == 3
+    const vec2 workGroupsRender = vec2(0.25, 0.25);
+#elif RENDER_SCALE == 2
+    const vec2 workGroupsRender = vec2(0.50, 0.50);
+#elif RENDER_SCALE == 1
+    const vec2 workGroupsRender = vec2(0.75, 0.75);
+#else
+    const vec2 workGroupsRender = vec2(1.00, 1.00);
+#endif
 
 layout(r16f) uniform writeonly image2D IMG_SSAO;
 
@@ -22,7 +31,7 @@ uniform float near;
 uniform float far;
 uniform float nearPlane;
 uniform float farPlane;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 uniform vec2 taa_offset = vec2(0.0);
 
 #include "/lib/sampling/depth.glsl"
@@ -99,7 +108,7 @@ void main() {
 
     // exit early if OOB
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    if (any(greaterThanEqual(uv, viewSize))) return;
+    if (any(greaterThanEqual(uv, viewSizeScaled))) return;
 
     #ifdef LOD_ENABLED
         float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;

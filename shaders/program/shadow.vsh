@@ -129,6 +129,11 @@ void main() {
         vec3 viewNormal = normalize(gl_NormalMatrix * gl_Normal);
 
         if (isRenderTerrain) {
+            #ifdef PHOTONICS_SHADOW_ENABLED
+                gl_Position = vec4(-10.0);
+                return;
+            #endif
+
             #if defined(WATER_WAVE_ENABLED) || defined(WIND_ENABLED)
                 vec3 localPos = mul3(shadowModelViewInverse, viewPos);
             #endif
