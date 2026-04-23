@@ -1,14 +1,14 @@
 ### COLORTEX
 colortex0		    RGB16F		1.0		final
 colortex1		    RGBA16F		1.0		translucent final
---colortex2		    RGB8		1.0		translucent tint
+
 colortex3           RGB16F      1.0     velocity
 
 colortex4		    RGBA8 	    1.0		deferred albedo
 colortex5		    RGBA16F 	1.0		deferred normals
 colortex6		    RG32UI 	    1.0		deferred specular, meta
 
-colortex7		    R16F		1.0		SSAO
+colortex7		    R8		    1.0		SSAO
 
 
 ### CUSTOM IMAGES

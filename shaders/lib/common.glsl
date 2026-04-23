@@ -2,11 +2,9 @@
 const int colortex0Format = RGBA16F;
 const int colortex1Format = RGBA16F;
 const vec4 colortex1ClearColor = vec4(0.0,0.0,0.0,0.0);
-const int colortex2Format = RGBA8;
-const vec4 colortex2ClearColor = vec4(1.0,1.0,1.0,0.0);
+
 const int colortex3Format = RGB16F;
 const vec4 colortex3ClearColor = vec4(0.0,0.0,0.0,0.0);
-
 const int colortex4Format = RGBA8;
 const vec4 colortex4ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex5Format = RGBA16F;
@@ -14,7 +12,7 @@ const vec4 colortex5ClearColor = vec4(0.0,0.0,0.0,0.0);
 const int colortex6Format = RG32UI;
 const vec4 colortex6ClearColor = vec4(0.0,0.0,0.0,0.0);
 
-const int colortex7Format = R16F;
+const int colortex7Format = R8;
 const int colortex8Format = R8UI;
 const vec4 colortex8ClearColor = vec4(0.0,0.0,0.0,0.0);
 
@@ -136,6 +134,11 @@ const float shadowDistanceRenderMul = 1.0;
 #endif
 
 const float AmbientLightF = SHADOW_AMBIENT * 0.01;
+
+#ifndef WORLD_OVERWORLD
+    #undef SHADOWS_ENABLED
+    #undef SHADOW_CLOUDS
+#endif
 
 #if MATERIAL_FORMAT == FORMAT_DEFAULT && defined(MC_TEXTURE_FORMAT_LAB_PBR)
     #undef MATERIAL_FORMAT

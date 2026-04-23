@@ -190,7 +190,7 @@ void main() {
         vec4 meta = unpackUnorm4x8(specularMetaData.g);
 
         vec2 lmcoord = meta.xy;
-        float occlusion = meta.z;
+        float occlusion = _pow2(meta.z);
 
         #ifdef MATERIAL_PBR_ENABLED
             float tex_sss = mat_sss(specularData.b);
@@ -278,17 +278,19 @@ void main() {
             #else
 //                vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
-//                vec3 shadowPos = localPos;
-//                shadowPos += 0.08 * localGeoNormal;
                 vec3 shadowViewPos = mul3(shadowModelView, shadowPos);
-                //        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
-                //        shadowPos.z += 0.032 * viewDist;
                 vec3 shadowViewNormal = mat3(shadowModelView) * localGeoNormal;
                 vec2 shadowScreenPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xy;
                 shadowViewPos.z += GetShadowBiasF(shadowScreenPos, shadowViewNormal.z);
 
                 #ifdef MATERIAL_PBR_ENABLED
-                    shadowViewPos.z += tex_sss;
+                    vec2 seed = gl_FragCoord.xy;
+                    #ifdef TAA_ENABLED
+                        seed += vec2(71.83, 83.71) * (frameCounter % 16);
+                    #endif
+
+                    float dither = InterleavedGradientNoise(seed);
+                    shadowViewPos.z += tex_sss * _pow2(dither);
                 #endif
 
                 shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
@@ -301,13 +303,6 @@ void main() {
 
                 distort(shadowPos.xy);
                 shadowPos = shadowPos * 0.5 + 0.5;
-
-                // TODO: this needs to move somewhere else and apply to diffuse only
-                //        float shadow_geoNoL = dot(localGeoNormal, localSkyLightDir);
-                //        #ifdef MATERIAL_PBR_ENABLED
-                //            shadow_geoNoL = mix(shadow_geoNoL, 1.0, tex_sss);
-                //            shadow_geoNoL = pow(saturate(shadow_geoNoL), 0.2);
-                //        #endif
 
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
                     shadow = SampleShadowColor(shadowPos);
@@ -379,6 +374,11 @@ void main() {
             float roughL = _pow2(roughness);
         #endif
 
+        #ifdef SSAO_ENABLED
+            float ssao = texelFetch(TEX_SSAO, uv, 0).r;
+            occlusion *= RGBToLinear(ssao);
+        #endif
+
         bool isLod = false;
         #ifdef LOD_ENABLED
             float vDepth = texelFetch(depthtex0, uv, 0).r;
@@ -429,6 +429,9 @@ void main() {
                         specularFinal += SampleLightSpecular(albedo, localTexNormal, skySpecularLightDir, -localViewDir, skyLight_NoLm, roughL, specularData.g) * skyLightColor;
                     }
                 #endif
+            #elif defined(WORLD_END)
+                const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
+                diffuseFinal += _pow3(lmcoord.y) * EndSkyLightColor;
             #endif
         #else
             #ifdef PHOTONICS_GI_ENABLED
@@ -475,22 +478,31 @@ void main() {
             if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
             bool skip_GI = false;
             #ifdef PHOTONICS_GI_ENABLED
                 if (!isLod) skip_GI = true;
             #endif
 
-            if (!skip_GI) diffuseFinal += lmcoord.y * AmbientLightF * SampleSkyIrradiance(localTexNormal);
+            if (!skip_GI) {
+                diffuseFinal *= occlusion * 0.5 + 0.5;
+                diffuseFinal += (lmcoord.y * occlusion * AmbientLightF) * SampleSkyIrradiance(localTexNormal);
+            }
+            else {
+                diffuseFinal *= occlusion;
+            }
+        #else
+            diffuseFinal *= occlusion;
         #endif
 
-        #if SSAO_MODE != SSAO_FULL
-            diffuseFinal *= _pow2(occlusion);
-        #endif
+//        #if SSAO_MODE != SSAO_FULL
+//            diffuseFinal *= occlusion;
+//        #endif
 
-        #ifdef SSAO_ENABLED
-            diffuseFinal *= texelFetch(TEX_SSAO, uv, 0).r;
-        #endif
+//        #ifdef SSAO_ENABLED
+//            float ssao = texelFetch(TEX_SSAO, uv, 0).r;
+//            diffuseFinal *= RGBToLinear(ssao);
+//        #endif
 
         #ifndef LIGHTING_SPECULAR
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED

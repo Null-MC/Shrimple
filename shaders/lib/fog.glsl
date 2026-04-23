@@ -4,8 +4,8 @@
     #define FOG_HORIZON_F 0.02
 #endif
 
-const vec3 colorSkyDay     = pow(vec3(0.404, 0.639, 0.812), vec3(2.2));
-const vec3 colorFogDay     = pow(vec3(0.608, 0.659, 0.710), vec3(2.2));
+const vec3 colorSkyDay     = pow(vec3(0.294, 0.467, 0.788), vec3(2.2));
+const vec3 colorFogDay     = pow(vec3(0.482, 0.576, 0.671), vec3(2.2));
 
 const vec3 colorSkyNight   = pow(vec3(0.106, 0.090, 0.149), vec3(2.2));
 const vec3 colorFogNight   = pow(vec3(0.169, 0.220, 0.322), vec3(2.2));

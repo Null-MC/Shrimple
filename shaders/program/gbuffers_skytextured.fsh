@@ -8,7 +8,7 @@ in VertexData {
 } vIn;
 
 
-#ifndef WORLD_END
+#ifdef WORLD_OVERWORLD
     uniform sampler2D texSkyTransmit;
 #endif
 
@@ -19,14 +19,19 @@ uniform float rainStrength;
 uniform int renderStage;
 uniform vec2 viewSizeScaled;
 
-#ifndef WORLD_END
+#ifdef WORLD_OVERWORLD
     #include "/lib/sky-transmit.glsl"
+#endif
+
+#if OVERWORLD_SKY == SKY_ENHANCED
+    const float SunMultiplyF = 16.0;
+#else
+    const float SunMultiplyF = 8.0;
 #endif
 
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec4 outFinal;
-
 
 void main() {
     #if RENDER_SCALE != 0
@@ -34,33 +39,24 @@ void main() {
         if (any(greaterThan(uv, viewSizeScaled))) return;
     #endif
 
-    vec4 color = texture(gtexture, vIn.texcoord);
-
-    color *= vIn.color;
-
+    vec4 color = texture(gtexture, vIn.texcoord) * vIn.color;
     color.rgb = RGBToLinear(color.rgb);
 
-    #if OVERWORLD_SKY == SKY_VANILLA
+    #ifdef WORLD_OVERWORLD
         if (renderStage == MC_RENDER_STAGE_SUN) {
-            color.rgb *= 8.0;
+            color.rgb *= SunMultiplyF;
         }
 
-//        color = saturate(color);
-    #endif
-
-    #if OVERWORLD_SKY == SKY_ENHANCED
-        if (renderStage == MC_RENDER_STAGE_SUN) {
-            color.rgb *= 16.0;
-        }
-
-        #ifndef WORLD_END
-//        if (renderStage == MC_RENDER_STAGE_SUN || renderStage == MC_RENDER_STAGE_MOON) {
+        #if OVERWORLD_SKY == SKY_ENHANCED
             vec3 localViewDir = normalize(vIn.localPos);
             color.rgb *= sampleSkyTransmit(cameraPosition.y, localViewDir.y);
-//        }
-        #endif
 
-        color.rgb *= 1.0 - rainStrength;
+            color.rgb *= 1.0 - rainStrength;
+        #endif
+    #endif
+
+    #ifdef WORLD_END
+        color.rgb *= 0.05;
     #endif
 
     outFinal = color;

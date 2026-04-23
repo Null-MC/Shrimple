@@ -187,7 +187,11 @@ uniform float dhFarPlane;
 #endif
 
 #ifdef SHADOWS_ENABLED
-    #include "/lib/shadow-sample.glsl"
+    #if LIGHTING_RESOLUTION > 0
+        #include "/lib/shadow-sample-pixelated.glsl"
+    #else
+        #include "/lib/shadow-sample.glsl"
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
@@ -208,6 +212,16 @@ void main() {
         vec3 localGeoNormal = normalize(vIn.localNormal);
     #else
         vec3 localGeoNormal = OctDecode(unpackUnorm2x16(vIn.localNormal));
+    #endif
+
+    vec3 localPos = vIn.localPos;
+    #if LIGHTING_RESOLUTION > 0
+        vec3 snapOffset = fract(cameraPosition);
+
+        localPos = (localPos + snapOffset) * LIGHTING_RESOLUTION;
+        localPos += 0.99*localGeoNormal;
+        localPos = floor(localPos) + 0.5;
+        localPos = localPos / LIGHTING_RESOLUTION - snapOffset;
     #endif
 
     #ifdef RENDER_TERRAIN
@@ -272,7 +286,7 @@ void main() {
         color.rgb = mix(color.rgb, entityColor.rgb, entityColor.a);
 
         if (entityId == BLOCK_PHYMOD_SNOW) {
-            vec3 pixelPos = floor((vIn.localPos + cameraPosition) * 16.0) / 16.0;
+            vec3 pixelPos = floor((localPos + cameraPosition) * 16.0) / 16.0;
             float noise = hash33(pixelPos).x;
             color.rgb *= noise * 0.06 + 0.94;
         }
@@ -312,10 +326,10 @@ void main() {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (blockId == BLOCK_WATER) {
-            vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
+            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
             float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
-            vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
-            wavePos.z += vIn.localPos.y - vIn.waveHeight;
+            vec3 wavePos = vec3(localPos.xz, waveHeight);
+            wavePos.z += localPos.y - vIn.waveHeight;
 
             vec3 dX = dFdx(wavePos);
             vec3 dY = dFdy(wavePos);
@@ -355,6 +369,8 @@ void main() {
             #ifndef WATER_TEXTURE_ENABLED
                 albedo = vec3(0.0);//RGBToLinear(vIn.color.rgb);
                 color.a = Water_f0;
+            #else
+//                color.a = _pow2(color.a);
             #endif
 
             specularData = vec4(0.98, Water_f0, 0.0, 0.0);
@@ -377,7 +393,7 @@ void main() {
 
     float cloudShadowF = 1.0;
     #ifdef SHADOW_CLOUDS
-        cloudShadowF = SampleCloudShadow(vIn.localPos, localSkyLightDir);
+        cloudShadowF = SampleCloudShadow(localPos, localSkyLightDir);
     #endif
 
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
@@ -389,43 +405,50 @@ void main() {
     #ifdef SHADOWS_ENABLED
         vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
 
-        vec3 shadowPos = vIn.localPos;
+        vec3 shadowPos = localPos;
         shadowPos += 0.08 * localGeoNormal;
-        shadowPos = mul3(shadowModelView, shadowPos);
-//        shadowPos.z += 0.20 * shadowViewGeoNormal.z;
-//        shadowPos.z += 0.032 * viewDist;
 
-        #ifdef MATERIAL_PBR_ENABLED
-            shadowPos.z += sss;
-        #endif
-
-        shadowPos = (shadowProjection * vec4(shadowPos, 1.0)).xyz;
-
-        float shadowLength = length(shadowPos.xy);
-        float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);
-//        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
-        shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
-        shadowCoverageF = 1.0 - shadowCoverageF;
-
-        distort(shadowPos.xy);
-        shadowPos = shadowPos * 0.5 + 0.5;
-
-        // TODO: this needs to move somewhere else and apply to diffuse only
-//        float shadow_geoNoL = dot(localGeoNormal, localSkyLightDir);
-//        #ifdef MATERIAL_PBR_ENABLED
-//            shadow_geoNoL = mix(shadow_geoNoL, 1.0, sss);
-//            shadow_geoNoL = pow(saturate(shadow_geoNoL), 0.2);
-//        #endif
-
-        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-            shadow = SampleShadowColor(shadowPos);
-            shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
-            shadow *= cloudShadowF; // * shadow_geoNoL
+        #if LIGHTING_RESOLUTION > 0
+            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                shadow = SampleShadowColor(shadowPos, localGeoNormal);
+            #else
+                shadowF = SampleShadow(shadowPos, localGeoNormal);
+            #endif
         #else
-            shadowF = SampleShadow(shadowPos);
-            shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
-            shadowF *= cloudShadowF; // * shadow_geoNoL
+            vec3 shadowViewPos = mul3(shadowModelView, shadowPos);
+            vec3 shadowViewNormal = mat3(shadowModelView) * localGeoNormal;
+            vec2 shadowScreenPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xy;
+            shadowViewPos.z += GetShadowBiasF(shadowScreenPos, shadowViewNormal.z);
+
+            #ifdef MATERIAL_PBR_ENABLED
+                shadowViewPos.z += sss;
+            #endif
+
+            shadowPos = (shadowProjection * vec4(shadowViewPos, 1.0)).xyz;
+
+            float shadowLength = length(shadowPos.xy);
+            float shadowCoverageF = smoothstep(0.98, 0.92, shadowLength);
+    //        shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
+            shadowCoverageF *= smoothstep(0.98, 0.92, abs(shadowPos.z));
+            shadowCoverageF = 1.0 - shadowCoverageF;
+
+            distort(shadowPos.xy);
+            shadowPos = shadowPos * 0.5 + 0.5;
+
+            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                shadow = SampleShadowColor(shadowPos);
+                shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
+            #else
+                shadowF = SampleShadow(shadowPos);
+                shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
+            #endif
         #endif
+    #endif
+
+    #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+        shadow *= cloudShadowF; // * shadow_geoNoL
+    #else
+        shadowF *= cloudShadowF; // * shadow_geoNoL
     #endif
 
     #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
@@ -435,7 +458,7 @@ void main() {
     #ifndef PHOTONICS_HAND_LIGHT_ENABLED
         #ifdef LIGHTING_HAND
             vec3 handLightPos = GetHandLightPosition();
-            float handDist = distance(vIn.localPos, handLightPos);
+            float handDist = distance(localPos, handLightPos);
         #endif
 
         #if defined(LIGHTING_HAND) && !defined(LIGHTING_COLORED)
@@ -447,7 +470,7 @@ void main() {
     #endif
 
     #ifdef LIGHTING_COLORED
-        vec3 voxelPos = GetVoxelPosition(vIn.localPos);
+        vec3 voxelPos = GetVoxelPosition(localPos);
         float lpvFade = GetVoxelFade(voxelPos);
     #endif
 
@@ -483,7 +506,7 @@ void main() {
         diffuseFinal = blockLight + MinAmbientF;
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = shadow * GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = shadow * GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
 
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
             #ifdef MATERIAL_PBR_ENABLED
@@ -553,7 +576,7 @@ void main() {
 
             const float lightRadius = 0.5;
             float att = GetLightAttenuation(handDist, lightRange, lightRadius);
-            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+            vec3 handLightDir = normalize(handLightPos - localPos);
             float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
 
             diffuseFinal += att * hand_NoLm * lightColor;
@@ -569,7 +592,7 @@ void main() {
 
             const float lightRadius = 0.5;
             float att = GetLightAttenuation(handDist, lightRange, lightRadius);
-            vec3 handLightDir = normalize(handLightPos - vIn.localPos);
+            vec3 handLightDir = normalize(handLightPos - localPos);
             float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
 
             diffuseFinal += att * hand_NoLm * lightColor;

@@ -21,6 +21,8 @@ layout(r16f) uniform writeonly image2D IMG_SSAO;
 
 shared float sharedOcclusion[20*20];
 shared float sharedDepthL[20*20];
+shared float sharedGaussian[3];
+//shared float sharedGaussianY[3];
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_DEPTH;
@@ -46,7 +48,8 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     if (i_shared >= (20*20)) return;
 
     ivec2 uv = uv_base + ivec2(i_shared % 20, i_shared / 20);
-    sharedOcclusion[i_shared] = texelFetch(TEX_SSAO, uv, 0).r;
+    float occlusion = texelFetch(TEX_SSAO, uv, 0).r;
+    sharedOcclusion[i_shared] = RGBToLinear(occlusion);
 
     #ifdef LOD_ENABLED
         float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
@@ -62,20 +65,20 @@ float Gaussian(const in float sigma, const in float x) {
     return exp(_pow2(x) / (-2.0 * _pow2(sigma)));
 }
 
-float BilateralGaussianBlur() {
-    const float g_sigmaXY = 1.6;
-    const float g_sigmaV = 0.2;
+const float g_sigmaXY = 1.6;
+const float g_sigmaV = 0.2;
 
+float BilateralGaussianBlur() {
     ivec2 luv = ivec2(gl_LocalInvocationID.xy) + 2;
     float depthL = sharedDepthL[getSharedIndex(luv)];
 
     float accum = 0.0;
     float total = 0.0;
     for (int iy = -2; iy <= 2; iy++) {
-        float fy = Gaussian(g_sigmaXY, iy);
+        float fy = sharedGaussian[abs(iy)];
 
         for (int ix = -2; ix <= 2; ix++) {
-            float fx = Gaussian(g_sigmaXY, ix);
+            float fx = sharedGaussian[abs(ix)];
 
             int shared_i = getSharedIndex(luv + ivec2(ix, iy));
             float sampleOcclusion = sharedOcclusion[shared_i];
@@ -84,7 +87,7 @@ float BilateralGaussianBlur() {
             float depthDiff = abs(sampleDepthL - depthL);
             float fv = Gaussian(g_sigmaV, depthDiff);
 
-            float weight = fx*fy*fv;
+            float weight = fx * fy * fv;
             accum += weight * sampleOcclusion;
             total += weight;
         }
@@ -102,6 +105,9 @@ void main() {
 
     copyToShared(uv_base, i_base + 0);
     copyToShared(uv_base, i_base + 1);
+
+    int i = int(gl_LocalInvocationIndex);
+    if (i < 3) sharedGaussian[i] = Gaussian(g_sigmaXY, i);
 
     memoryBarrierShared();
     barrier();
@@ -123,5 +129,6 @@ void main() {
         occlusion = BilateralGaussianBlur();
     }
 
+    occlusion = LinearToRGB(occlusion);
     imageStore(IMG_SSAO, uv, vec4(occlusion));
 }

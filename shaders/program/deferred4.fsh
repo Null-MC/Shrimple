@@ -179,5 +179,5 @@ void main() {
         }
     }
 
-    outOcclusion = occlusion;
+    outOcclusion = LinearToRGB(occlusion);
 }

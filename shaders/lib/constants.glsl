@@ -36,18 +36,15 @@
 #define TEX_FINAL colortex0
 #define IMG_FINAL colorimg0
 #define TEX_TRANSLUCENT_FINAL colortex1
-#define TEX_TRANSLUCENT_TINT colortex2
+
 #define TEX_VELOCITY colortex3
 
 #define TEX_GB_COLOR colortex4
 #define TEX_GB_NORMALS colortex5
 #define TEX_GB_SPECULAR colortex6
 
-//#define TEX_ALBEDO_SPECULAR colortex3
-//#define TEX_NORMAL colortex4
 #define IMG_SSAO colorimg7
 #define TEX_SSAO colortex7
-//#define TEX_META colortex8
 
 #define TEX_BLOOM_TILES texBloomTiles
 #define IMG_BLOOM_TILES imgBloomTiles
