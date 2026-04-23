@@ -318,7 +318,10 @@ void main() {
 
             vec3 dX = dFdx(wavePos);
             vec3 dY = dFdy(wavePos);
-            localTexNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
+            vec3 waterNormal = normalize(cross(normalize(dY), normalize(dX))).xzy;// * sign(localGeoNormal.y);
+
+            float len = lengthSq(waterNormal);
+            if (len > 0.0) localTexNormal = waterNormal;
         }
     #endif
 
