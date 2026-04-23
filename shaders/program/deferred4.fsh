@@ -67,7 +67,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     float ao = 0.0;
     int sampleCount = 0;
     float radius = rStep;
-    for (int i = 0; i < SSAO_SAMPLES; i++) {
+    for (int i = 1; i <= SSAO_SAMPLES; i++) {
         vec2 offset = vec2(
             sin(rotatePhase),
             cos(rotatePhase)
@@ -108,7 +108,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     }
 
     ao /= max(sampleCount, 1);
-    ao = pow(ao, 0.4);
+    ao = pow(ao, 0.35);
 
     return ao * (1.0 - SSAO_MinLight);
 }

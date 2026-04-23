@@ -234,6 +234,7 @@ void main() {
         bounds.mip = mip;
 
         // TODO: this fixes sign text, but why?
+        if (all(lessThan(atlasSize, vec2(1.e-8)))) skipParallax = true;
 //        if (saturate(bounds.atlasTileSize) == bounds.atlasTileSize)
 //            skipParallax = true;
 
