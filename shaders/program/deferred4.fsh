@@ -12,7 +12,7 @@
 
 #define TEX_DEPTH depthtex1
 
-const float SSAO_Bias = 0.08;
+const float SSAO_Bias = 0.04;
 const float SSAO_MinLight = 0.0;
 
 in vec2 v_texcoord;
@@ -45,7 +45,8 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
     float dither = InterleavedGradientNoise(seed);
 
-    float max_radius = length(viewPos) * 0.04;
+    float max_radius = length(viewPos) * 0.08;
+    max_radius = min(max_radius, 4.0);
 
     float rotatePhase = dither * (PI * 2.0);
     const float rStep = max_radius / float(SSAO_SAMPLES);
@@ -64,7 +65,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             0.0, 0.0, -1.0, 0.0);
     #endif
 
-    float ao = 0.0;
+    float accumLitF = 0.0;
     int sampleCount = 0;
     float radius = rStep;
     for (int i = 1; i <= SSAO_SAMPLES; i++) {
@@ -76,7 +77,7 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         radius += rStep;
         rotatePhase += GoldenAngle;
 
-        vec3 sampleViewPos = viewPos + vec3(offset, -0.1);
+        vec3 sampleViewPos = viewPos + vec3(offset, -0.02);
 
         vec3 sampleNdcPos = project(MAT_PROJ, sampleViewPos);
         vec3 sampleScreenPos = ndcToScreen(sampleNdcPos);
@@ -92,7 +93,11 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
             bool isSky = sampleScreenPos.z >= 1.0;
         #endif
 
-        if (isSky) continue;
+        if (isSky) {
+            accumLitF += 1.0;
+//            sampleCount++;
+            continue;
+        }
 
         sampleNdcPos = screenToNdc(sampleScreenPos);
         sampleViewPos = project(MAT_PROJ_INV, sampleNdcPos);
@@ -101,16 +106,19 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_Bias, 0.0);
-        sampleNoLm /= (1.0 + sampleDist);
-        ao += sampleNoLm;
-        sampleCount++;
+//        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_Bias, 0.0);
+//        float sampleLit = 1.0 - sampleNoLm;
+        float sampleOcclusion = step(0.04, dot(viewNormal, sampleNormal));
+//        sampleOcclusion *= 1.0 - saturate(sampleDist / max_radius);
+//        sampleOcclusion *= 1.0 / (_pow2(sampleDist) + 1.0);
+        accumLitF += 1.0 - sampleOcclusion;
+//        sampleCount++;
     }
 
-    ao /= max(sampleCount, 1);
-    ao = pow(ao, 0.35);
+//    ao /= SSAO_SAMPLES;
+//    ao = pow(ao, 0.35);
 
-    return ao * (1.0 - SSAO_MinLight);
+    return accumLitF / SSAO_SAMPLES;// * (1.0 - SSAO_MinLight);
 }
 
 
@@ -175,7 +183,7 @@ void main() {
             vec3 viewTexNormal = OctDecode(normalData.zw);
 
             occlusion = GetSpiralOcclusion(viewPos, viewTexNormal);
-            occlusion = saturate(1.0 - occlusion);
+            occlusion = saturate(occlusion);
         }
     }
 

@@ -67,7 +67,9 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
     #ifdef WORLD_NETHER
         return fogColorL;
     #elif defined(WORLD_END)
-        return skyColorL;
+        return 3.0 * skyColorL;
+//        const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
+//        return EndSkyLightColor;
     #else
         #if OVERWORLD_SKY == SKY_ENHANCED
             return GetEnhancedSkyFogColor(localSunDir, localViewDir, rainF, skyDayF);

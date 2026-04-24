@@ -133,7 +133,7 @@ void main() {
     vec4 color = textureLod(gtexture, texcoord, mip);
     vec2 lmcoord = vIn.lmcoord;
 
-    #ifdef RENDER_TERRAIN
+    #if defined(RENDER_TERRAIN) && SSAO_MODE != SSAO_FULL
         float occlusion = vIn.color.a;
     #else
         float occlusion = 1.0;

@@ -81,21 +81,13 @@ void main() {
 
         int lpvId = blockId;
         if (!isRenderTerrain) {
-//            if (lightRange > 0) {
-            lpvId = currentRenderedItemId;
-//                originPos = localPos;
-//            }
+            lpvId = entityId;
+
+            if (currentRenderedItemId > 0)
+                lpvId = currentRenderedItemId;
         }
 
-//        vec3 lightColor;
-//        float lightRange;
-//        GetBlockColorRange(lpvId, lightColor, lightRange);
-
         if (isRenderTerrain) {
-//            #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
-//                if (lightRange > 0.0) ignoreBlock = true;
-//            #endif
-
             if (!ignoreBlock && (gl_VertexID % 4) == 0) {
                 originPos = localPos + at_midBlock.xyz / 64.0;
             }
@@ -106,13 +98,12 @@ void main() {
             GetBlockColorRange(lpvId, lightColor, lightRange);
 
             if (lightRange > 0) {
-//                lpvId = currentRenderedItemId;
                 originPos = localPos;
             }
         }
 
         ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
-        if (IsInVoxelBounds(voxelPos)) {
+        if (IsInVoxelBounds(voxelPos) && lpvId > 0) {
             imageStore(imgVoxels, voxelPos, uvec4(lpvId));
         }
     #endif

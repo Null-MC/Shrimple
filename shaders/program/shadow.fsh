@@ -45,11 +45,11 @@ void main() {
 //            if (v_blockId == BLOCK_WATER)
 //                outColor.a = outColor.a*0.2 + 0.8;
         #endif
-    #endif
 
-    #ifndef WATER_TEXTURE_ENABLED
-        if (v_blockId == BLOCK_WATER)
-            outColor.a = 0.2;
+        #ifndef WATER_TEXTURE_ENABLED
+            if (v_blockId == BLOCK_WATER)
+                outColor.a = 0.2;
+        #endif
     #endif
 
     #ifndef RENDER_SOLID

@@ -1,6 +1,11 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#ifndef OVERWORLD
+    #undef SHADOWS_ENABLED
+    #undef SHADOW_CLOUDS
+#endif
+
 #define TEX_DEPTH depthtex0
 
 //#define PH_USE_CUSTOM_ALPHA
@@ -99,9 +104,17 @@ void load_fragment_variables(out vec3 albedo, out vec3 world_pos, out vec3 world
 }
 
 vec3 get_sky_color(ivec2 uv, vec3 worldPos, vec3 normal) {
-    vec3 fogColorL = RGBToLinear(fogColor);
-    vec3 skyColorL = RGBToLinear(skyColor);
-    return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, normal, weatherStrength, skyDayF);
+    #ifdef END
+//        return 3.0 * RGBToLinear(skyColor);
+        const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
+        return EndSkyLightColor;
+    #elif defined(NETHER)
+        return vec3(0.0);
+    #else
+        vec3 fogColorL = RGBToLinear(fogColor);
+        vec3 skyColorL = RGBToLinear(skyColor);
+        return GetSkyFogColor(skyColorL, fogColorL, sunLocalDir, normal, weatherStrength, skyDayF);
+    #endif
 }
 
 bool is_in_world() {

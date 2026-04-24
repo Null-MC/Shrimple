@@ -429,9 +429,9 @@ void main() {
                         specularFinal += SampleLightSpecular(albedo, localTexNormal, skySpecularLightDir, -localViewDir, skyLight_NoLm, roughL, specularData.g) * skyLightColor;
                     }
                 #endif
-            #elif defined(WORLD_END)
-                const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
-                diffuseFinal += _pow3(lmcoord.y) * EndSkyLightColor;
+            #elif defined(WORLD_END) && !defined(PHOTONICS_GI_ENABLED)
+//                const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
+//                diffuseFinal += _pow3(lmcoord.y) * EndSkyLightColor;
             #endif
         #else
             #ifdef PHOTONICS_GI_ENABLED
@@ -478,7 +478,7 @@ void main() {
             if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
         #endif
 
-        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && defined(WORLD_OVERWORLD)
+        #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && !defined(WORLD_NETHER)
             bool skip_GI = false;
             #ifdef PHOTONICS_GI_ENABLED
                 if (!isLod) skip_GI = true;
@@ -486,7 +486,13 @@ void main() {
 
             if (!skip_GI) {
                 diffuseFinal *= occlusion * 0.5 + 0.5;
-                diffuseFinal += (lmcoord.y * occlusion * AmbientLightF) * SampleSkyIrradiance(localTexNormal);
+
+                #ifdef WORLD_OVERWORLD
+                    diffuseFinal += (lmcoord.y * occlusion * AmbientLightF) * SampleSkyIrradiance(localTexNormal);
+                #else
+                    const vec3 EndSkyLightColor = pow(vec3(0.769, 0.569, 0.812), vec3(2.2));
+                    diffuseFinal += _pow2(lmcoord.y) * occlusion * EndSkyLightColor;
+                #endif
             }
             else {
                 diffuseFinal *= occlusion;

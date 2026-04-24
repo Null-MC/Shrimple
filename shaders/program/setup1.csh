@@ -77,6 +77,8 @@ void main() {
 
     switch (blockId) {
         case ENTITY_BLAZE:
+        case ENTITY_FLAMES:
+        case ENTITY_SPECTRAL_ARROW:
             mixWeight = 1.0;
             color = color_Fire;
             range = 8;
