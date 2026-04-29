@@ -557,8 +557,10 @@ void main() {
         #ifdef LIGHTING_SPECULAR
             float NoV = dot(localTexNormal, -localViewDir);
 
-            float smoothL = 1.0 - roughness; //roughL;
-            smoothL = _pow2(smoothL);
+            float smoothL = 1.0 - roughL;
+            float smoothness = 1.0 - roughness;
+//            float smoothL = 1.0 - roughness; //roughL;
+//            smoothL = _pow2(smoothL);
 
             #ifdef MATERIAL_PBR_ENABLED
                 LazanyiF lF = mat_f0_lazanyi(albedo, specularData.g);
@@ -579,7 +581,7 @@ void main() {
                 vec3 reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), reflectLocalDir);
                 reflectColor *= _pow2(lmcoord.y);
 
-                specularFinal += smoothL * F * reflectColor;
+                specularFinal += smoothness * F * reflectColor;
             #endif
 
             // apply metal tint

@@ -29,7 +29,7 @@ uniform sampler2D TEX_BLOOM_TILES;
     uniform sampler2D TEX_DEST;
 
     uniform sampler2D depthtex0;
-    uniform sampler2D texBlurTiles;
+//    uniform sampler2D texBlurTiles;
 #endif
 
 uniform vec2 viewSize;
@@ -98,35 +98,35 @@ void main() {
     #if BLOOM_TILE == 0
         bloom *= EffectBloomStrengthF;
 
-        if (isEyeInWater == 1 || blindness > 0.0) {
-            float depth = texelFetch(depthtex0, uv, 0).r;
-            depth = linearizeDepth(depth, nearPlane, farPlane);
-
-            float waterBlur = 2.0 * saturate(depth * 0.025) * float(isEyeInWater == 1);
-            float blindBlur = 3.0 * blindness;
-            float blurTileF = max(waterBlur, blindBlur);
-
-            int blurTile = int(ceil(blurTileF));
-
-            vec2 blurBoundsMin, blurBoundsMax;
-            GetBloomTileInnerBounds(blurTile, blurBoundsMin, blurBoundsMax);
-            vec2 blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
-
-            vec3 color_blurred = texture(texBlurTiles, blur_tex).rgb;
-
-            if (blurTileF > 1.0) {
-                int blurTileMin = blurTile-1;
-                GetBloomTileInnerBounds(blurTileMin, blurBoundsMin, blurBoundsMax);
-                blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
-
-                vec3 color_blurred2 = texture(texBlurTiles, blur_tex).rgb;
-
-                color = mix(color_blurred2, color_blurred, blurTileF - blurTileMin);
-            }
-            else {
-                color = mix(color, color_blurred, blurTileF);
-            }
-        }
+//        if (isEyeInWater == 1 || blindness > 0.0) {
+//            float depth = texelFetch(depthtex0, uv, 0).r;
+//            depth = linearizeDepth(depth, nearPlane, farPlane);
+//
+//            float waterBlur = 2.0 * saturate(depth * 0.025) * float(isEyeInWater == 1);
+//            float blindBlur = 3.0 * blindness;
+//            float blurTileF = max(waterBlur, blindBlur);
+//
+//            int blurTile = int(ceil(blurTileF));
+//
+//            vec2 blurBoundsMin, blurBoundsMax;
+//            GetBloomTileInnerBounds(blurTile, blurBoundsMin, blurBoundsMax);
+//            vec2 blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
+//
+//            vec3 color_blurred = texture(texBlurTiles, blur_tex).rgb;
+//
+//            if (blurTileF > 1.0) {
+//                int blurTileMin = blurTile-1;
+//                GetBloomTileInnerBounds(blurTileMin, blurBoundsMin, blurBoundsMax);
+//                blur_tex = mix(blurBoundsMin, blurBoundsMax, texcoord);
+//
+//                vec3 color_blurred2 = texture(texBlurTiles, blur_tex).rgb;
+//
+//                color = mix(color_blurred2, color_blurred, blurTileF - blurTileMin);
+//            }
+//            else {
+//                color = mix(color, color_blurred, blurTileF);
+//            }
+//        }
     #endif
 
     color += bloom;

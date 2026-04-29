@@ -142,9 +142,9 @@ void main() {
 
         vec3 screenPos = vec3(v_texcoord, depth);
 
-        #ifdef TAA_ENABLED
-             screenPos.xy -= taa_offset;
-        #endif
+//        #ifdef TAA_ENABLED
+//             screenPos.xy -= taa_offset;
+//        #endif
 
         vec3 ndcPos = screenToNdc(screenPos);
 

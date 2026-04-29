@@ -150,9 +150,6 @@ option.LIGHTING_COLORED=Colored
 option.LIGHTING_HAND=Hand Light
 option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players hand will also cast light onto the world.
 
-option.LIGHTING_VOXEL_SIZE=Voxel Size
-suffix.LIGHTING_VOXEL_SIZE=m
-
 option.LIGHTING_SPECULAR=Specular
 option.LIGHTING_SPECULAR.comment=Allows light to reflect from smooth or metal blocks.
 
@@ -167,6 +164,15 @@ suffix.LIGHTING_MIN=%
 option.LIGHTING_RESOLUTION=Pixel Res
 value.LIGHTING_RESOLUTION.0=Off
 suffix.LIGHTING_RESOLUTION=x
+
+
+screen.LIGHTING_ADV=Advanced
+
+option.LIGHTING_VOXEL_SIZE=Voxel Size
+suffix.LIGHTING_VOXEL_SIZE=m
+
+option.LIGHTING_FLOODFILL_RANGE=FloodFill Range
+suffix.LIGHTING_FLOODFILL_RANGE=m
 
 
 screen.SHADOWS=Shadows
@@ -204,6 +210,7 @@ option.BLOOM_ENABLED=Enabled
 
 option.BLOOM_STRENGTH=Strength
 suffix.BLOOM_STRENGTH=%
+value.BLOOM_STRENGTH.25=Fable
 
 option.BLOOM_LEVELS=Levels
 

@@ -12,7 +12,7 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 #endif
 
 const float LpvFalloff = 0.998;
-const float LpvBlockRange = 16.0; // [8 10 12 14 16 18 20 22 24 26 28 30 32]
+//const float LpvBlockRange = LIGHTING_FLOODFILL_RANGE;
 
 
 shared uint voxelSharedData[10*10*10];
@@ -50,7 +50,7 @@ vec3 toExp2(const in vec3 color) {
     float lum_now = luminance(color);
     if (lum_now < EPSILON) return color;
 
-    float lum_tgt = exp2(lum_now * LpvBlockRange) - 1.0;
+    float lum_tgt = exp2(lum_now * LIGHTING_FLOODFILL_RANGE) - 1.0;
     return color * (lum_tgt / lum_now);
 }
 
@@ -58,7 +58,7 @@ vec3 fromExp2(const in vec3 color) {
     float lum_now = luminance(color);
     if (lum_now < EPSILON) return color;
 
-    float lum_tgt = log2(lum_now + 1.0) / LpvBlockRange;
+    float lum_tgt = log2(lum_now + 1.0) / LIGHTING_FLOODFILL_RANGE;
     return color * (lum_tgt / lum_now);
 }
 

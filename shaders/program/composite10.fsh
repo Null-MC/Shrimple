@@ -480,7 +480,9 @@ void main() {
                 float F = F_schlick(NoV, f0, 1.0);
             #endif
 
-            reflectColor *= F * _pow2(smoothness);
+//            float roughL = _pow2(roughness);
+//            float smoothL = 1.0 - roughL;
+            reflectColor *= F * smoothness;
 
 //            reflectColor = vec3(3,0,0);
         }

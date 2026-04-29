@@ -91,6 +91,8 @@ void main() {
             const float eta = (1.0 / 1.33);
             vec3 geoLocalNormal = OctDecode(normalData.xy);
             vec3 texViewNormal = OctDecode(normalData.zw);
+
+            if (all(greaterThan(normalData.xy, vec2(0.0)))) {
             vec3 geoViewNormal = mat3(gbufferModelView) * geoLocalNormal;
             texViewNormal = normalize(texViewNormal*1.02 - geoViewNormal);
 
@@ -111,6 +113,7 @@ void main() {
             refract_uv /= max(length(refract_uv), 1.0);
 
             coord += refract_uv * 0.02 * vec2(viewWidth / viewHeight, 1.0);
+            }
         }
 
         vec3 src = texture(TEX_FINAL, coord).rgb;

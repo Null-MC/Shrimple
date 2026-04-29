@@ -22,7 +22,7 @@ layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 #endif
 
 layout(rgba16f) uniform writeonly image2D IMG_BLOOM_TILES;
-layout(rgba16f) uniform writeonly image2D imgBlurTiles;
+//layout(rgba16f) uniform writeonly image2D imgBlurTiles;
 
 shared vec3 sharedCenter[17*17];
 shared vec3 sharedNeighbor[18*18];
@@ -119,5 +119,5 @@ void main() {
     vec2 outputPos = GetBloomTileInnerPosition(BLOOM_TILE);
     ivec2 output_uv = local_uv + ivec2(outputPos * viewSize + EPSILON);
     imageStore(IMG_BLOOM_TILES, output_uv, vec4(color, 1.0));
-    imageStore(imgBlurTiles, output_uv, vec4(color, 1.0));
+//    imageStore(imgBlurTiles, output_uv, vec4(color, 1.0));
 }
