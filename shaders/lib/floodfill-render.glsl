@@ -18,7 +18,7 @@ vec4 _SampleFloodFill(const in vec3 lpvPos, const in int frame) {
 
 vec3 SampleFloodFill(const in vec3 lpvPos) {
     vec3 lpvSample = _SampleFloodFill(lpvPos, frameCounter).rgb;
-    return lpvSample * 24.0;
+    return lpvSample * 6.0;
 }
 
 vec3 SampleFloodFill(const in vec3 lpvPos, const in float brightness) {

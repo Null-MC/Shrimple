@@ -216,7 +216,8 @@ void main() {
     }
 
     if (lightRange > 0.0) {
-        vec3 newLight = lightColor * (lightRange / 15.0);
+        float lum = luminance(lightColor);
+        vec3 newLight = lightColor * ((lightRange / 15.0) / lum);
         colorFinal.rgb += toExp2(newLight);
     }
 
