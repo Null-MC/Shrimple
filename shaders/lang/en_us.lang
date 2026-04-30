@@ -174,6 +174,9 @@ suffix.LIGHTING_VOXEL_SIZE=m
 option.LIGHTING_FLOODFILL_RANGE=FloodFill Range
 suffix.LIGHTING_FLOODFILL_RANGE=m
 
+option.LIGHTING_FLOODFILL_ENTITIES=Entity Lights
+option.LIGHTING_FLOODFILL_ENTITIES.comment=Enables lighting from entities and dropped items.
+
 
 screen.SHADOWS=Shadows
 

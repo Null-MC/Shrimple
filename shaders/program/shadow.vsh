@@ -80,18 +80,21 @@ void main() {
         vec3 originPos = vec3(-9999.0);
 
         int lpvId = blockId;
+        #ifdef LIGHTING_FLOODFILL_ENTITIES
         if (!isRenderTerrain) {
             lpvId = entityId;
 
             if (currentRenderedItemId > 0)
                 lpvId = currentRenderedItemId;
         }
+        #endif
 
         if (isRenderTerrain) {
             if (!ignoreBlock && (gl_VertexID % 4) == 0) {
                 originPos = localPos + at_midBlock.xyz / 64.0;
             }
         }
+        #ifdef LIGHTING_FLOODFILL_ENTITIES
         else if (entityId != ENTITY_PLAYER_CURRENT) {
             vec3 lightColor;
             float lightRange;
@@ -101,6 +104,7 @@ void main() {
                 originPos = localPos;
             }
         }
+        #endif
 
         ivec3 voxelPos = ivec3(GetVoxelPosition(originPos));
         if (IsInVoxelBounds(voxelPos) && lpvId > 0) {

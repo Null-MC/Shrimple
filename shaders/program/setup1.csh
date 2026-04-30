@@ -28,13 +28,13 @@ const vec3 color_Candle = vec3(230, 144, 76);
 const vec3 color_CopperBulb = vec3(230, 204, 128);
 const vec3 color_CopperLantern = vec3(107, 227, 191);
 const vec3 color_CopperTorch = vec3(126, 230, 25);
-const vec3 color_Fire = vec3(220, 152, 89);
+const vec3 color_Fire = vec3(245, 117, 66);
 const vec3 color_Furnace = vec3(196, 159, 114);
 const vec3 color_RedstoneTorch = vec3(232, 59, 21);
 const vec3 color_RespawnAnchor = vec3(99, 17, 165);
 const vec3 color_SeaPickle = vec3(72, 100, 54);
 const vec3 color_SoulFire = vec3(25, 184, 229);
-const vec3 color_Torch = vec3(245, 117, 66);
+//const vec3 color_Torch = vec3(245, 117, 66);
 
 const vec3 color_CandleBlack = vec3(51, 51, 51);
 const vec3 color_CandleBlue = vec3(0, 66, 255);
@@ -331,8 +331,7 @@ void main() {
             color = vec3(244, 237, 223);
             range = 14;
             break;
-        case BLOCK_CAMPFIRE_LIT_N_S:
-        case BLOCK_CAMPFIRE_LIT_W_E:
+        case BLOCK_CAMPFIRE_LIT:
         case BLOCK_FIRE:
             mixWeight = 1.0;
             color = color_Fire;
@@ -347,6 +346,7 @@ void main() {
             range = 15;
             break;
         case BLOCK_FROGLIGHT_VERDANT:
+        case ITEM_FROGLIGHT_VERDANT:
             color = vec3(118, 195, 104);
             range = 15;
             break;
@@ -383,7 +383,7 @@ void main() {
             break;
         case BLOCK_LAVA:
             mixWeight = 0.0;
-            color = vec3(color_Torch);
+            color = vec3(color_Fire);
             range = 15;
             break;
 //        case BLOCK_LIGHTING_ROD:
@@ -580,7 +580,7 @@ void main() {
             break;
         case BLOCK_TORCH:
             mixWeight = 1.0;
-            color = vec3(color_Torch);
+            color = vec3(color_Fire);
             range = 12;
             break;
         case BLOCK_TRAPDOOR_BOTTOM:
@@ -1089,12 +1089,12 @@ void main() {
 
     switch (blockId) {
         case ITEM_TORCH:
-            color = vec3(color_Torch);
+            color = color_Fire;
             range = 12;
             mixWeight = 1.0;
             break;
         case ITEM_COPPER_TORCH:
-            color = vec3(color_CopperTorch);
+            color = color_CopperTorch;
             range = 14;
             mixWeight = 1.0;
             break;

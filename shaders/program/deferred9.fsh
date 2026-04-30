@@ -531,6 +531,7 @@ void main() {
                 vec3 handLightDir = normalize(handLightPos - localPos);
                 float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
 
+                att *= 12.0;
                 diffuseFinal += att * hand_NoLm * lightColor;
                 #ifdef LIGHTING_SPECULAR
                     specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
@@ -547,6 +548,7 @@ void main() {
                 vec3 handLightDir = normalize(handLightPos - localPos);
                 float hand_NoLm = max(dot(localTexNormal, handLightDir), 0.0);
 
+                att *= 12.0;
                 diffuseFinal += att * hand_NoLm * lightColor;
                 #ifdef LIGHTING_SPECULAR
                     specularFinal += att * SampleLightSpecular(albedo, localTexNormal, handLightDir, -localViewDir, hand_NoLm, roughL, specularData.g) * lightColor;
