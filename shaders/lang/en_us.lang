@@ -56,6 +56,9 @@ option.OVERWORLD_SKY=Sky/Fog
 value.OVERWORLD_SKY.0=Vanilla
 value.OVERWORLD_SKY.1=Enhanced
 
+option.OVERWORLD_SUN_TEMP=Sun Temp
+suffix.OVERWORLD_SUN_TEMP=°k
+
 option.OVERWORLD_NIGHT_BRIGHTNESS=Night Brightness
 suffix.OVERWORLD_NIGHT_BRIGHTNESS=%
 

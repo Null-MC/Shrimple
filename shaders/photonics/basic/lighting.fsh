@@ -36,7 +36,11 @@ vec3 ph_sun_direction = ph_signed_nudge(sun_direction);
 #include "/photonics/common/ph_lighting_common.glsl"
 
 vec3 ph_sample_direct_lighting(vec3 position, vec3 normal, vec3 mapped_normal, Light light) {
-    ray.origin = position + normal * ray_normal_scale;
+    position += normal * ray_normal_scale;
+//    vec3 localPos = position - rt_camera_position;
+//    position -= localPos * 0.016;
+
+    ray.origin = position;
 
     vec3 to_light = light.position - ray.origin;
     ray.direction = normalize(to_light);
@@ -57,7 +61,7 @@ vec3 ph_sample_direct_lighting(vec3 position, vec3 normal, vec3 mapped_normal, L
 
     ray_target = ivec3(light.position);
     RAY_ITERATION_COUNT = 20;
-    trace_ray(ray, true);
+    trace_ray(ray, true, true);
     RAY_ITERATION_COUNT = 100;
 
 //    if (!ray.result_hit) return vec3(0f);

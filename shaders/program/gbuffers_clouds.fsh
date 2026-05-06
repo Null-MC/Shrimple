@@ -49,6 +49,8 @@ uniform int vxRenderDistance;
 uniform float dhNearPlane;
 uniform float dhFarPlane;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/sampling/depth.glsl"
 #include "/lib/octohedral.glsl"
 #include "/lib/oklab.glsl"
@@ -101,7 +103,7 @@ void main() {
         color.a = mix(0.64, 0.96, rainStrength);
 
         vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
-        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+        vec3 skyLightColor = GetSkyLightColor(vIn.localPos, localSkyLightDir.y);
         float NoLm = dot(localNormal, localSkyLightDir) * 0.4 + 0.6;
         color.rgb *= 0.1 * NoLm * skyLightColor;
 

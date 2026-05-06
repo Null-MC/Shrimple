@@ -274,7 +274,7 @@ void main() {
 
         vec3 skyLight = vec3(0.0);
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, localSkyLightDir.y);
             float skyLight_NoLm = max(dot(localSkyLightDir, localTexNormal), 0.0);
 
 //            #ifdef MATERIAL_PBR_ENABLED

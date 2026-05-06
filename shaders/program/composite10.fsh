@@ -99,6 +99,10 @@ uniform float dhFarPlane;
     #include "/lib/material/lazanyi.glsl"
 #endif
 
+#ifdef LOD_ENABLED
+    #include "/lib/lod-projection.glsl"
+#endif
+
 #if defined(PHOTONICS_REFLECT_ENABLED)
     #include "/photonics/photonics.glsl"
 
@@ -145,11 +149,7 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
     vec3 dest_viewPos = 0.1 * viewDist * viewDir + viewPos;
 
     #ifdef LOD_ENABLED
-        mat4 matProj = mat4(
-            gbufferProjection[0][0], 0.0, 0.0, 0.0,
-            0.0, gbufferProjection[1][1], 0.0, 0.0,
-            0.0, 0.0, 0.0, -1.0,
-            0.0, 0.0, near, 0.0);
+        mat4 matProj = GetLodProjection(gbufferProjection, near);
     #endif
 
     vec3 dest_clipPos = project(MAT_PROJ, dest_viewPos);
@@ -209,11 +209,7 @@ void main() {
 //        }
 
         #ifdef LOD_ENABLED
-            mat4 matProjInv = mat4(
-                gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-                0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-                0.0, 0.0, 0.0, 1.0/near,
-                0.0, 0.0, -1.0, 0.0);
+            mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
         #endif
 
         vec3 viewPos = project(MAT_PROJ_INV, ndcPos);
@@ -339,7 +335,7 @@ void main() {
 
                         vec3 skyLight = vec3(0.0);
                         #ifdef WORLD_OVERWORLD
-                            vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, localSkyLightDir.y);
+                            vec3 skyLightColor = GetSkyLightColor(hitLocalPos, localSkyLightDir.y);
                             float skyLight_NoLm = max(dot(localSkyLightDir, hitLocalNormal), 0.0);
 
                             skyLight = skyLight_NoLm * shadow * skyLightColor;

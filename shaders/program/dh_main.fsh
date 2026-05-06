@@ -253,7 +253,7 @@ void main() {
         diffuseFinal = blockLight + MinAmbientF;
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = shadow * GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = shadow * GetSkyLightColor(vIn.localPos, localSkyLightDir.y);
 
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
 //            #ifdef MATERIAL_PBR_ENABLED

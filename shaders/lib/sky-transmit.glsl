@@ -1,5 +1,5 @@
 const float groundRadiusMM = 10.360;
-const float atmosphereRadiusMM = 10.388;
+const float atmosphereRadiusMM = 10.398;
 
 const float sea_level = 62.0;
 const float sky_level = 962.0;
@@ -17,7 +17,7 @@ const float mieAbsorptionBase = 4.4;
         uv.x = lightDir_y * 0.5 + 0.5;
         uv.y = (world_y - sea_level) / (sky_level - sea_level);
 
-        uv = uv / 0.3 - 1.5;
+//        uv = uv / 0.3 - 1.5;
 
         return texture(texSkyTransmit, saturate(uv)).rgb;
     }

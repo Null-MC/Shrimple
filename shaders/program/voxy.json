@@ -77,5 +77,11 @@
     #endif
     "lightmap": "sampler2D",
     "depthtex0": "sampler2D"
+  },
+  "ssbos": {
+    -1:"",
+    0:"{
+      vec3 skyLightColor;
+    }"
   }
 }

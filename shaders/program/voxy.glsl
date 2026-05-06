@@ -153,7 +153,7 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
         diffuseFinal = blockLight + MinAmbientF;
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = shadowF * GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = shadowF * GetSkyLightColor(localPos, localSkyLightDir.y);
 
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
 //            #ifdef MATERIAL_PBR_ENABLED

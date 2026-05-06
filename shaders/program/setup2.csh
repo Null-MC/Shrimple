@@ -14,6 +14,8 @@ shared float sharedBuffer[20*20];
 
 uniform sampler2D texClouds;
 
+#include "/lib/sampling/gaussian.glsl"
+
 
 int getSharedIndex(const in ivec2 uv) {
     return uv.y * 20 + uv.x;
@@ -30,10 +32,6 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     sharedBuffer[i_shared] = 1.0 - texture(texClouds, texcoord).r;
 }
 
-float Gaussian(const in float sigma, const in float x) {
-    return exp(_pow2(x) / (-2.0 * _pow2(sigma)));
-}
-
 float GaussianBlur() {
     const float g_sigma = 1.6;
 
@@ -42,10 +40,10 @@ float GaussianBlur() {
     float accum = 0.0;
     float total = 0.0;
     for (int iy = -2; iy <= 2; iy++) {
-        float fy = Gaussian(g_sigma, iy);
+        float fy = gaussian(g_sigma, iy);
 
         for (int ix = -2; ix <= 2; ix++) {
-            float fx = Gaussian(g_sigma, ix);
+            float fx = gaussian(g_sigma, ix);
 
             int shared_i = getSharedIndex(luv + ivec2(ix, iy));
             float sampleColor = sharedBuffer[shared_i];

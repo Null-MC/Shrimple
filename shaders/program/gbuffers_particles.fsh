@@ -81,6 +81,8 @@ uniform int textureFilteringMode;
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
 #include "/lib/ign.glsl"
@@ -203,7 +205,7 @@ void main() {
         #endif
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = GetSkyLightColor(vIn.localPos, localSkyLightDir.y);
             vec3 skyLight = shadow * skyLightColor;
 
             #ifndef SHADOWS_ENABLED

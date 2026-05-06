@@ -16,6 +16,8 @@ const int colortex7Format = R8;
 const int colortex8Format = R8UI;
 const vec4 colortex8ClearColor = vec4(0.0,0.0,0.0,0.0);
 
+const int colortex9Format = RGBA16F;
+
 const int shadowcolor0Format = RGBA8;
 */
 
@@ -25,6 +27,7 @@ const float sunPathRotation = 20; // [-60 -55 -50 -45 -40 -35 -30 -25 -20 -15 -1
 #define WIND_ENABLED
 
 #define OVERWORLD_SKY 0 // [0 1]
+#define OVERWORLD_SUN_TEMP 6600 // [1600 2600 3600 4600 5600 6600 7600 8600 9600 10600 11600 12600]
 #define OVERWORLD_NIGHT_BRIGHTNESS 12.0 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10 12 14 16 18 20 22 24 26 28 30]
 
 #define NETHER_BRIGHTNESS 12 // [0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0 1.2 1.4 1.6 1.8 2.0 2.2 2.4 2.6 2.8 3.0 3.2 3.4 3.6 3.8 4.0 4.5 5.0 5.5 6.0 6.5 7.0 7.5 8.0 8.5 9.0 9.5 10 12 14 16 18 20 22 24 26 28 30]
@@ -265,11 +268,6 @@ const float AmbientLightF = SHADOW_AMBIENT * 0.01;
 
 #if defined(TAA_ENABLED) && defined(WIND_ENABLED)
     #define VELOCITY_ENABLED
-#endif
-
-
-#ifdef PHOTONICS_GI_ENABLED
-    const float ambientOcclusionLevel = 0.2;
 #endif
 
 

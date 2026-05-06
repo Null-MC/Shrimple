@@ -37,6 +37,7 @@ uniform vec2 viewSizeScaled;
 uniform vec2 taa_offset = vec2(0.0);
 
 #include "/lib/sampling/depth.glsl"
+#include "/lib/sampling/gaussian.glsl"
 #include "/lib/ssao.glsl"
 
 
@@ -61,10 +62,6 @@ void copyToShared(const in ivec2 uv_base, const in uint i_shared) {
     sharedDepthL[i_shared] = depthL;
 }
 
-float Gaussian(const in float sigma, const in float x) {
-    return exp(_pow2(x) / (-2.0 * _pow2(sigma)));
-}
-
 const float g_sigmaXY = 1.6;
 const float g_sigmaV = 0.2;
 
@@ -85,7 +82,7 @@ float BilateralGaussianBlur() {
             float sampleDepthL = sharedDepthL[shared_i];
 
             float depthDiff = abs(sampleDepthL - depthL);
-            float fv = Gaussian(g_sigmaV, depthDiff);
+            float fv = gaussian(g_sigmaV, depthDiff);
 
             float weight = fx * fy * fv;
             accum += weight * sampleOcclusion;
@@ -107,7 +104,7 @@ void main() {
     copyToShared(uv_base, i_base + 1);
 
     int i = int(gl_LocalInvocationIndex);
-    if (i < 3) sharedGaussian[i] = Gaussian(g_sigmaXY, i);
+    if (i < 3) sharedGaussian[i] = gaussian(g_sigmaXY, i);
 
     memoryBarrierShared();
     barrier();

@@ -35,6 +35,10 @@ uniform vec2 taa_offset = vec2(0.0);
 #include "/lib/octohedral.glsl"
 #include "/lib/ign.glsl"
 
+#ifdef LOD_ENABLED
+    #include "/lib/lod-projection.glsl"
+#endif
+
 
 float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     vec2 seed = gl_FragCoord.xy;
@@ -52,17 +56,8 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
     const float rStep = max_radius / float(SSAO_SAMPLES);
 
     #ifdef LOD_ENABLED
-        mat4 matProj = mat4(
-            gbufferProjection[0][0], 0.0, 0.0, 0.0,
-            0.0, gbufferProjection[1][1], 0.0, 0.0,
-            0.0, 0.0, 0.0, -1.0,
-            0.0, 0.0, near, 0.0);
-
-        mat4 matProjInv = mat4(
-            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0/near,
-            0.0, 0.0, -1.0, 0.0);
+        mat4 matProj = GetLodProjection(gbufferProjection, near);
+        mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
     #endif
 
     float accumLitF = 0.0;
@@ -151,11 +146,7 @@ void main() {
         // don't fix hand depth, not needed
 
         #ifdef LOD_ENABLED
-            mat4 matProjInv = mat4(
-                gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-                0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-                0.0, 0.0, 0.0, 1.0/near,
-                0.0, 0.0, -1.0, 0.0);
+            mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
         #endif
 
         vec3 viewPos = project(MAT_PROJ_INV, ndcPos);

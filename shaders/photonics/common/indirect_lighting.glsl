@@ -68,7 +68,7 @@ vec3 ph_sample_indirect_impl() {
         #endif
     }
     else {
-        vec3 hitAlbedo = ray.result_color;
+        vec3 hitAlbedo = RGBToLinear(ray.result_color);
         vec3 hitLocalPos = ray.result_position - rt_camera_position;
         vec3 hitLocalNormal = ray.result_normal;
         vec3 hitEmission = 8.0 * lightEmittance;
@@ -94,9 +94,10 @@ vec3 ph_sample_indirect_impl() {
 
                 if (!ray.result_hit && !ray_iteration_bound_reached) {
                     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, sunLocalDir.y, abs(sunLocalDir.y));
+                        vec3 skyLightColor = GetSkyLightColor(hitLocalPos, abs(sunLocalDir.y));
                     #else
-                        vec3 skyLightColor = RGBToLinear(texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb);
+                        vec3 skyLightColor = texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb;
+                        skyLightColor = RGBToLinear(skyLightColor);
                     #endif
                     sample_color += skyLightColor * result_tint_color;
 

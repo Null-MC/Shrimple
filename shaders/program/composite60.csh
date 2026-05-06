@@ -1,10 +1,19 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#ifdef LOD_ENABLED
+    #define TEX_DEPTH texDepthLod_trans
+    #define MAT_PROJ_INV matProjInv
+    #define MAT_PROJ_LAST matProjLast
+#else
+    #define TEX_DEPTH depthtex0
+    #define MAT_PROJ_INV gbufferProjectionInverse
+    #define MAT_PROJ_LAST gbufferPreviousProjection
+#endif
+
 
 layout (local_size_x = 16, local_size_y = 16) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
-
 
 #if RENDER_SCALE == 0
     shared vec3 sharedBuffer[18*18];
@@ -12,20 +21,13 @@ const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 layout(rgba16f) uniform writeonly image2D imgTAA;
 
+uniform sampler2D TEX_DEPTH;
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_VELOCITY;
 uniform usampler2D TEX_GB_SPECULAR;
 uniform sampler2D texTAA_prev;
-uniform sampler2D depthtex0;
 
-#ifdef DISTANT_HORIZONS
-    uniform sampler2D dhDepthTex1;
-#endif
-
-#ifdef VOXY
-    uniform sampler2D vxDepthTexTrans;
-#endif
-
+uniform float near;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
@@ -34,12 +36,9 @@ uniform mat4 gbufferPreviousProjection;
 uniform vec3 previousCameraPosition;
 uniform vec2 viewSize;
 
-uniform mat4 dhProjection;
-uniform mat4 dhProjectionInverse;
-uniform mat4 vxProj;
-uniform mat4 vxProjInv;
-
-#include "/lib/sampling/linear.glsl"
+#ifdef LOD_ENABLED
+    #include "/lib/lod-projection.glsl"
+#endif
 
 
 const float TAA_RejectionStrength = 0.1;
@@ -64,26 +63,20 @@ const int TAA_MaxAccumFrames = 8;
     }
 #endif
 
-#ifdef DISTANT_HORIZONS
-    #define LOD_PROJ_INV dhProjectionInverse
-    #define LOD_PROJ_LAST dhProjection
-#elif defined(VOXY)
-    #define LOD_PROJ_INV vxProjInv
-    #define LOD_PROJ_LAST vxProj
-#else
-    #define LOD_PROJ_INV gbufferProjectionInverse
-    #define LOD_PROJ_LAST gbufferPreviousProjection
-#endif
-
-vec3 reproject(const in vec3 ndcPos, const bool isHand, const in bool isLod) {
+vec3 reproject(const in vec3 ndcPos, const bool isHand) {
     if (isHand) return ndcPos;
 
-    vec3 viewPos = project(isLod ? LOD_PROJ_INV : gbufferProjectionInverse, ndcPos);
+    #ifdef LOD_ENABLED
+        mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
+        mat4 matProjLast = GetLodProjection(gbufferPreviousProjection, near);
+    #endif
+
+    vec3 viewPos = project(MAT_PROJ_INV, ndcPos);
     vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
 
     vec3 localPosPrev = localPos + cameraPosition - previousCameraPosition;
 
-    #if defined(TAA_ENABLED) && defined(WIND_ENABLED)
+    #ifdef VELOCITY_ENABLED
 //        ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
 //        localPosPrev -= texelFetch(TEX_VELOCITY, uv, 0).xyz;
         vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
@@ -91,14 +84,14 @@ vec3 reproject(const in vec3 ndcPos, const bool isHand, const in bool isLod) {
     #endif
 
     vec3 viewPosPrev = mul3(gbufferPreviousModelView, localPosPrev);
-    return project(isLod ? LOD_PROJ_LAST : gbufferPreviousProjection, viewPosPrev);
+    return project(MAT_PROJ_LAST, viewPosPrev);
 }
 
 
 void main() {
     #if RENDER_SCALE == 0
         uint i_base = gl_LocalInvocationIndex * 2u;
-        ivec2 uv_base = ivec2(gl_WorkGroupID.xy) * 16 - 1;
+        ivec2 uv_base = ivec2(gl_WorkGroupID.xy * gl_WorkGroupSize.xy) - 1;
 
         copyToShared(uv_base, i_base + 0);
         copyToShared(uv_base, i_base + 1);
@@ -111,28 +104,14 @@ void main() {
     ivec2 uv_out = ivec2(gl_GlobalInvocationID.xy);
 
     if (all(lessThan(uv_out, viewSize))) {
-        float depthNow = texelFetch(depthtex0, uv_in, 0).r;
-        bool isLod = false;
-
+        float depth = texelFetch(TEX_DEPTH, uv_in, 0).r;
         uint metaData = texelFetch(TEX_GB_SPECULAR, uv_in, 0).g;
         uint matId = uint(unpackUnorm4x8(metaData).a * 255.0 + 0.5);
         bool isHand = matId == MAT_HAND;
 
-        #ifdef DISTANT_HORIZONS
-            if (depthNow == 1.0) {
-                depthNow = texelFetch(dhDepthTex1, uv_in, 0).r;
-                isLod = true;
-            }
-        #elif defined(VOXY)
-            if (depthNow == 1.0) {
-                depthNow = texelFetch(vxDepthTexTrans, uv_in, 0).r;
-                isLod = true;
-            }
-        #endif
-
         vec2 texcoord = (uv_out + 0.5) / viewSize;
-        vec3 ndcPos = vec3(texcoord, depthNow) * 2.0 - 1.0;
-        vec3 ndcPosPrev = reproject(ndcPos, isHand, isLod);
+        vec3 ndcPos = screenToNdc(vec3(texcoord, depth));
+        vec3 ndcPosPrev = reproject(ndcPos, isHand);
         vec2 texcoord_prev = ndcPosPrev.xy * 0.5 + 0.5;
 
         #ifdef TAA_SHARPEN_HISTORY

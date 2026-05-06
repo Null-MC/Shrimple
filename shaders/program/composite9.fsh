@@ -59,6 +59,10 @@ uniform int vxRenderDistance;
     #include "/lib/octohedral.glsl"
 #endif
 
+#ifdef LOD_ENABLED
+    #include "/lib/lod-projection.glsl"
+#endif
+
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 outFinal;
@@ -122,11 +126,7 @@ void main() {
     #endif
 
     #ifdef LOD_ENABLED
-        mat4 matProjInv = mat4(
-            gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-            0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-            0.0, 0.0, 0.0, 1.0/near,
-            0.0, 0.0, -1.0, 0.0);
+        mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
     #endif
 
     vec3 transNdcPos = screenToNdc(vec3(v_texcoord, depthTranslucent));

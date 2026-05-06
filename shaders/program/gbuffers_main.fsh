@@ -125,6 +125,8 @@ uniform int textureFilteringMode;
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
 #include "/lib/oklab.glsl"
@@ -506,7 +508,7 @@ void main() {
         diffuseFinal = blockLight + MinAmbientF;
 
         #ifdef WORLD_OVERWORLD
-            vec3 skyLightColor = shadow * GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
+            vec3 skyLightColor = shadow * GetSkyLightColor(localPos, localSkyLightDir.y);
 
             float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
             #ifdef MATERIAL_PBR_ENABLED

@@ -8,8 +8,8 @@ shadowcomp		floodfill propagation
 prepare1		fog/sky color [nether only]
 
 deferred1       opaque LOD depth merge
-deferred4      voxy/DH SSAO
-deferred5      voxy/DH SSAO apply
+deferred4       voxy/DH SSAO
+deferred5       voxy/DH SSAO apply
 deferred9       opaque final
 
 composite1      depth merge translucent
@@ -18,6 +18,9 @@ composite10     reflections
 
 composite60	    taa resolve
 composite61     taa sharpen /CAS
+
+composite64     blur H
+composite65     blur V
 
 composite70		bloom downscale 1/2
 composite71		bloom downscale 1/4

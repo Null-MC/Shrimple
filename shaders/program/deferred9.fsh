@@ -98,6 +98,8 @@ uniform vec2 taa_offset = vec2(0.0);
 uniform float dhFarPlane;
 uniform int vxRenderDistance;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/ign.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"
@@ -107,6 +109,10 @@ uniform int vxRenderDistance;
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/sampling/linear.glsl"
 #include "/lib/lighting/attenuation.glsl"
+
+#ifdef LOD_ENABLED
+    #include "/lib/lod-projection.glsl"
+#endif
 
 #if defined(MATERIAL_PBR_ENABLED) || defined(LIGHTING_SPECULAR)
     #include "/lib/fresnel.glsl"
@@ -201,11 +207,7 @@ void main() {
         #endif
 
         #ifdef LOD_ENABLED
-            mat4 matProjInv = mat4(
-                gbufferProjectionInverse[0][0], 0.0, 0.0, 0.0,
-                0.0, gbufferProjectionInverse[1][1], 0.0, 0.0,
-                0.0, 0.0, 0.0, 1.0/near,
-                0.0, 0.0, -1.0, 0.0);
+            mat4 matProjInv = GetLodProjectionInverse(gbufferProjectionInverse, near);
         #endif
 
         vec3 screenPos = vec3(v_texcoord, depth);
@@ -405,7 +407,7 @@ void main() {
             diffuseFinal = blockLight + MinAmbientF;
 
             #ifdef WORLD_OVERWORLD
-                vec3 skyLightColor = shadow * GetSkyLightColor(localPos, sunLocalDir.y, localSkyLightDir.y);
+                vec3 skyLightColor = shadow * GetSkyLightColor(localPos, localSkyLightDir.y);
 
                 float skyLight_NoLm = dot(localSkyLightDir, localTexNormal);
                 #ifdef MATERIAL_PBR_ENABLED
@@ -439,7 +441,7 @@ void main() {
                     lmcoord.y = shadowF;
                 #else
 //                    lmcoord.y = _pow3(lmcoord.y);
-                    lmcoord.y = 0.5 * _pow3(lmcoord.y);
+                    lmcoord.y = pow5(lmcoord.y);
                 #endif
             #endif
 
@@ -474,10 +476,6 @@ void main() {
             #endif
         #endif
 
-        #if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
-            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
-        #endif
-
         #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED && !defined(WORLD_NETHER)
             bool skip_GI = false;
             #ifdef PHOTONICS_GI_ENABLED
@@ -499,6 +497,10 @@ void main() {
             }
         #else
             diffuseFinal *= occlusion;
+        #endif
+
+        #if defined(PHOTONICS_BLOCK_LIGHT_ENABLED) || defined(PHOTONICS_GI_ENABLED)
+            if (!isLod) diffuseFinal += texture(texPhotonicsIndirect, v_texcoord).rgb;
         #endif
 
 //        #if SSAO_MODE != SSAO_FULL

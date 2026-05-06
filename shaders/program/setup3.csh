@@ -70,7 +70,7 @@ void main() {
     if (any(greaterThanEqual(uv, BufferSize))) return;
 
     vec2 texcoord = vec2(uv) / vec2(BufferSize);
-    texcoord.x = (texcoord.x+1.5)*0.3;
+//    texcoord.x = (texcoord.x+1.5)*0.3;
 
     float height = mix(groundRadiusMM, atmosphereRadiusMM, texcoord.y);
 
