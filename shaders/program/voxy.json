@@ -82,6 +82,6 @@
     -1:"",
     0:"{
       vec3 skyLightColor;
-    }"
+    } scene"
   }
 }

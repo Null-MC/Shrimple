@@ -10,7 +10,6 @@ colortex6		    RG32UI 	    1.0		deferred specular, meta
 
 colortex7		    R8		    1.0		SSAO
 
-colortex9		    RGB16F	    1.0		Blur
 
 
 ### CUSTOM IMAGES

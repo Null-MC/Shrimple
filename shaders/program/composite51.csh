@@ -1,7 +1,7 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
-#define TEX_SOURCE colortex9
+#define TEX_SOURCE texBlurred
 
 #ifdef LOD_ENABLED
     #define TEX_DEPTH texDepthLod_trans
@@ -15,30 +15,16 @@
 layout (local_size_x = 1, local_size_y = 128) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-const int sharedSize = 128+33;
+const int sharedSize = 128+32;
 shared vec3 sharedColor[sharedSize];
-shared float sharedDepth[sharedSize];
 
-layout(rgba16f) uniform writeonly image2D IMG_FINAL;
+layout(rgba16f) uniform writeonly image2D imgBlurred;
 
 uniform sampler2D TEX_SOURCE;
-uniform sampler2D TEX_DEPTH;
 
-uniform float near;
-uniform float farPlane;
-uniform float nearPlane;
-uniform int isEyeInWater;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
-uniform vec3 cameraPosition;
 uniform vec2 viewSize;
 
 #include "/lib/sampling/gaussian.glsl"
-
-#ifndef LOD_ENABLED
-    #include "/lib/sampling/depth.glsl"
-#endif
-
 #include "/lib/blur_shared.glsl"
 
 
@@ -57,8 +43,8 @@ void main() {
     if (any(greaterThanEqual(uv, viewSize))) return;
 
     int base_i = int(gl_LocalInvocationID.y) + 16;
-    float center_depth = sharedDepth[base_i];
-    vec3 color = SampleBlur(center_depth, base_i);
+    vec3 color = SampleBlur(base_i);
 
-    imageStore(IMG_FINAL, uv, vec4(color, 1.0));
+    uv.y += int(viewSize.y);
+    imageStore(imgBlurred, uv, vec4(color, 1.0));
 }

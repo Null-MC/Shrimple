@@ -17,7 +17,11 @@ uniform mat4 gbufferModelViewInverse;
 
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-    const float SkyDayBrightness = 12.0;
+    #ifdef SHADOWS_ENABLED
+        const float SkyDayBrightness = 12.0;
+    #else
+        const float SkyDayBrightness = 8.0;
+    #endif
 
     vec3 GetSkyLightColor(const in float localSunLightDir_y, const in float localSkyLightDir_y) {
         #ifndef WORLD_NETHER

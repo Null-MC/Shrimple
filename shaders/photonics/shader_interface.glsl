@@ -47,6 +47,8 @@ uniform vec2 taa_offset = vec2(0.0);
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/octohedral.glsl"
 
 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED

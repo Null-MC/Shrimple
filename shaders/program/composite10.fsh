@@ -84,6 +84,8 @@ uniform vec2 taa_offset = vec2(0.0);
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/ign.glsl"
 #include "/lib/oklab.glsl"
 #include "/lib/octohedral.glsl"

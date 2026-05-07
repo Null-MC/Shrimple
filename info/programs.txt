@@ -16,11 +16,12 @@ composite1      depth merge translucent
 composite9      translucent overlay
 composite10     reflections
 
+composite50     blur H
+composite51     blur V
+composite52     blur composite
+
 composite60	    taa resolve
 composite61     taa sharpen /CAS
-
-composite64     blur H
-composite65     blur V
 
 composite70		bloom downscale 1/2
 composite71		bloom downscale 1/4

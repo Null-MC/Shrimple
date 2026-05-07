@@ -156,8 +156,8 @@ option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players han
 option.LIGHTING_SPECULAR=Specular
 option.LIGHTING_SPECULAR.comment=Allows light to reflect from smooth or metal blocks.
 
-option.SHADOW_AMBIENT=Ambient
-suffix.SHADOW_AMBIENT=%
+option.LIGHTING_AMBIENT=Ambient
+suffix.LIGHTING_AMBIENT=%
 
 option.REFRACT_ENABLED=Refraction
 
@@ -234,10 +234,16 @@ option.SSAO_SAMPLES=Sample Count
 
 screen.POST=Post-Processing
 
-option.TONEMAP_ENABLED=Tone Mapping
+
+screen.POST_TONEMAP=Tone Map
+
+option.TONEMAP_ENABLED=Enabled
+
+option.POST_CONTRAST=Contrast
+suffix.POST_CONTRAST=%
 
 
-screen.TAA=TAA
+screen.POST_TAA=TAA
 
 option.TAA_ENABLED=Enabled
 
