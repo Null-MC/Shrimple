@@ -76,6 +76,8 @@ uniform float frameTimeCounter;
 uniform vec2 taa_offset = vec2(0.0);
 
 
+#include "/lib/buffers/scene.glsl"
+
 #include "/lib/blocks.glsl"
 #include "/lib/sampling/lightmap.glsl"
 #include "/lib/octohedral.glsl"
@@ -154,9 +156,9 @@ void main() {
         #ifdef WIND_ENABLED
             if (blockId > 0 && blockId < 256*256) {
             #ifdef VELOCITY_ENABLED
-                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, velocity, windTime, windTimeLast);
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, velocity, scene.WavingAnimF, scene.WavingAnimLastF);
             #else
-                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, windTime);
+                vec3 windOffset = GetWindWavingOffset(vOut.localPos, midBlockOffset, blockId, scene.WavingAnimF);
             #endif
 
             vOut.localPos += windOffset;

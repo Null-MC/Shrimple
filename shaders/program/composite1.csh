@@ -8,7 +8,16 @@
 #endif
 
 layout (local_size_x = 16, local_size_y = 16) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+
+#if RENDER_SCALE == 3
+    const vec2 workGroupsRender = vec2(0.25, 0.25);
+#elif RENDER_SCALE == 2
+    const vec2 workGroupsRender = vec2(0.50, 0.50);
+#elif RENDER_SCALE == 1
+    const vec2 workGroupsRender = vec2(0.75, 0.75);
+#else
+    const vec2 workGroupsRender = vec2(1.00, 1.00);
+#endif
 
 
 layout(r32f) uniform writeonly image2D imgDepthLod_trans;

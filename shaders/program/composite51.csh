@@ -13,7 +13,16 @@
 
 
 layout (local_size_x = 1, local_size_y = 128) in;
-const vec2 workGroupsRender = vec2(1.0, 1.0);
+
+#if RENDER_SCALE == 3
+    const vec2 workGroupsRender = vec2(0.125, 0.125);
+#elif RENDER_SCALE == 2
+    const vec2 workGroupsRender = vec2(0.250, 0.250);
+#elif RENDER_SCALE == 1
+    const vec2 workGroupsRender = vec2(0.375, 0.375);
+#else
+    const vec2 workGroupsRender = vec2(0.500, 0.500);
+#endif
 
 const int sharedSize = 128+32;
 shared vec3 sharedColor[sharedSize];
@@ -22,10 +31,18 @@ layout(rgba16f) uniform writeonly image2D imgBlurred;
 
 uniform sampler2D TEX_SOURCE;
 
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 #include "/lib/sampling/gaussian.glsl"
 #include "/lib/blur_shared.glsl"
+
+void copyToShared(in ivec2 uv, const in int i_shared) {
+    if (i_shared >= sharedSize) return;
+
+    uv = clamp(uv, ivec2(0), ivec2(viewSizeScaled)/2-1);
+
+    sharedColor[i_shared] = texelFetch(TEX_SOURCE, uv, 0).rgb;
+}
 
 
 void main() {
@@ -40,11 +57,11 @@ void main() {
     barrier();
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    if (any(greaterThanEqual(uv, viewSize))) return;
+    if (any(greaterThanEqual(uv, viewSizeScaled))) return;
 
     int base_i = int(gl_LocalInvocationID.y) + 16;
     vec3 color = SampleBlur(base_i);
 
-    uv.y += int(viewSize.y);
+    uv.y += int(viewSizeScaled.y)/2;
     imageStore(imgBlurred, uv, vec4(color, 1.0));
 }

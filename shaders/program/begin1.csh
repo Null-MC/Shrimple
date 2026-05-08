@@ -11,6 +11,7 @@ uniform vec3 cameraPosition;
 uniform float weatherStrength;
 uniform vec3 shadowLightPosition;
 uniform mat4 gbufferModelViewInverse;
+uniform float frameTime;
 
 #include "/lib/buffers/scene.glsl"
 #include "/lib/lighting/blackbody.glsl"
@@ -54,5 +55,12 @@ void main() {
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         scene.skyLightColor = GetSkyLightColor(sunLocalDir.y, localSkyLightDir.y);
+    #endif
+
+    #ifdef WIND_ENABLED
+        scene.WavingAnimLastF = scene.WavingAnimF;
+
+        float wavingSpeed = mix(1.2, 4.0, weatherStrength) * frameTime;
+        scene.WavingAnimF = mod(scene.WavingAnimF + wavingSpeed, PI * 1000.0);
     #endif
 }

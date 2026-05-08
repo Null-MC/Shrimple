@@ -29,7 +29,7 @@ uniform float blindness;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 uniform vec3 cameraPosition;
-uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
 
 #ifndef LOD_ENABLED
     #include "/lib/sampling/depth.glsl"
@@ -38,13 +38,13 @@ uniform vec2 viewSize;
 
 void main() {
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    if (any(greaterThanEqual(uv, viewSize))) return;
+    if (any(greaterThanEqual(uv, viewSizeScaled))) return;
 
     float depth = texelFetch(TEX_DEPTH, uv, 0).r;
     vec3 src = texelFetch(TEX_SOURCE, uv, 0).rgb;
 
-    ivec2 uv_blur = uv;
-    uv_blur.y += int(viewSize.y);
+    ivec2 uv_blur = uv / 2;
+    uv_blur.y += int(viewSizeScaled.y)/2;
     vec3 blurred = texelFetch(texBlurred, uv_blur, 0).rgb;
 
     #ifdef LOD_ENABLED
@@ -53,7 +53,7 @@ void main() {
         depth = linearizeDepth(fma(depth, 2.0, -1.0), nearPlane, farPlane);
     #endif
 
-    const float waterBlurRate = 0.120;
+    const float waterBlurRate = 0.080;
     const float airBlurRate = 0.0;// 0.002;
     float rate = isEyeInWater == 1 ? waterBlurRate : airBlurRate;
     float blurF = saturate(depth * rate);
