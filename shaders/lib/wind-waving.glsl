@@ -46,7 +46,7 @@ vec2 GetWindStrength(vec2 wind, float midBlockY, float waveBottom, float waveTop
     float waveHeightF = 0.5 - midBlockY;
     float waveStrength = mix(waveBottom, waveTop, waveHeightF);
     waveStrength = _pow2(waveStrength);
-    return waveStrength * wind;
+    return waveStrength * wind * mix(0.8, 1.6, weatherStrength);
 }
 
 vec3 GetWindWavingOffset(const in vec3 localPos, const in vec3 midBlock, const in int blockId, inout vec3 velocity, const in float time, const in float timeLast) {

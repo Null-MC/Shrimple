@@ -6,6 +6,8 @@ in vec2 texcoord;
 
 uniform float skyDayF;
 uniform vec3 skyColor;
+uniform float fogStart;
+uniform float fogEnd;
 uniform vec3 fogColor;
 uniform vec3 sunLocalDir;
 uniform float weatherDensity;

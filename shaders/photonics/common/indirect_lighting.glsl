@@ -1,3 +1,7 @@
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    uniform sampler3D texSkyIrradiance;
+#endif
+
 #ifdef SHADOW_CLOUDS
     uniform sampler2D texCloudShadow;
 #endif
@@ -9,6 +13,10 @@
 uniform vec3 shadowLightPosition;
 uniform float cloudHeight;
 uniform float cloudTime;
+
+#if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+    #include "/lib/sky-irradiance.glsl"
+#endif
 
 #ifdef SHADOW_CLOUDS
     #include "/lib/cloud-shadows.glsl"
@@ -27,7 +35,7 @@ uniform float cloudTime;
 vec3 sample_cosine_weighted_hemisphere() {
     vec2 u = vec2(rand_next_float(), rand_next_float());
     float r = sqrt(u.x);
-    float theta = 6.28318530718 * u.y;
+    float theta = (2.0 * PI) * u.y;
 
     return vec3(r * cos(theta), r * sin(theta), sqrt(max(0.0, 1.0 - u.x)));
 }
@@ -81,6 +89,7 @@ vec3 ph_sample_indirect_impl() {
 
         #ifdef PHOTONICS_GI_ENABLED
             vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
+            float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
 
             #ifdef SHADOWS_ENABLED
                 // trace sun
@@ -99,7 +108,8 @@ vec3 ph_sample_indirect_impl() {
                         vec3 skyLightColor = texture(texLightmap, LightMapTex(vec2(0.0, 1.0))).rgb;
                         skyLightColor = RGBToLinear(skyLightColor);
                     #endif
-                    sample_color += skyLightColor * result_tint_color;
+
+                    sample_color += skyLightColor * result_tint_color * max(dot(hitLocalNormal, localSkyLightDir), 0.0);
 
                     #ifdef SHADOW_CLOUDS
                         float cloudShadow = SampleCloudShadow(hitLocalPos, localSkyLightDir);
@@ -108,16 +118,17 @@ vec3 ph_sample_indirect_impl() {
                 }
             #else
                 #if LIGHTING_MODE == LIGHTING_MODE_VANILLA
-                    float hitSkyLevel = saturate(get_result_sky_light(hitLocalNormal) / 15.0);
 //                    hitSkyLevel = _pow3(hitSkyLevel);
-                    vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, hitSkyLevel))).rgb;
+                    vec3 lmcolor = texture(texLightmap, LightMapTex(vec2(0.0, pow5(hitSkyLevel)))).rgb;
 
                     float oldLighting = GetOldLighting(hitLocalNormal);
                     sample_color += oldLighting * RGBToLinear(lmcolor);
                 #endif
             #endif
 
-            // other lighting
+            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
+                sample_color += _pow3(hitSkyLevel) * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
+            #endif
 
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
                 #if PHOTONICS_GI_BLOCK_SAMPLES > 0

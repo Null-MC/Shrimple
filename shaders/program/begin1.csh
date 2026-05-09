@@ -60,7 +60,7 @@ void main() {
     #ifdef WIND_ENABLED
         scene.WavingAnimLastF = scene.WavingAnimF;
 
-        float wavingSpeed = mix(1.2, 4.0, weatherStrength) * frameTime;
+        float wavingSpeed = mix(1.2, 2.0, weatherStrength) * frameTime;
         scene.WavingAnimF = mod(scene.WavingAnimF + wavingSpeed, PI * 1000.0);
     #endif
 }

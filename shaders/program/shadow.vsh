@@ -31,6 +31,7 @@ uniform int blockEntityId;
 uniform int currentRenderedItemId;
 uniform float frameTimeCounter;
 uniform float windTime;
+uniform float weatherStrength;
 uniform mat4 shadowModelView;
 uniform mat4 shadowModelViewInverse;
 uniform mat4 gbufferModelViewInverse;

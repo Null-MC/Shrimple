@@ -1,11 +1,4 @@
-//void copyToShared(in ivec2 uv, const in int i_shared) {
-//    if (i_shared >= sharedSize) return;
-//
-//    // TODO: needs diff clamp bounds for vertical pass!
-//    uv = clamp(uv, ivec2(0), ivec2(viewSizeScaled)-1);
-//
-//    sharedColor[i_shared] = texelFetch(TEX_SOURCE, uv, 0).rgb;
-//}
+
 
 vec3 SampleBlur(const in int base_i) {
     const float sigma_xy = 7.0;

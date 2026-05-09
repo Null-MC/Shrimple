@@ -65,6 +65,7 @@ uniform float far;
 uniform ivec2 atlasSize;
 uniform float windTime;
 uniform float windTimeLast;
+uniform float weatherStrength;
 uniform int heldBlockLightValue;
 uniform int heldBlockLightValue2;
 uniform mat4 gbufferModelView;
