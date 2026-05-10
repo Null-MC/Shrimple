@@ -4,6 +4,7 @@
 in vec2 texcoord;
 
 
+uniform float far;
 uniform float skyDayF;
 uniform vec3 skyColor;
 uniform float fogStart;

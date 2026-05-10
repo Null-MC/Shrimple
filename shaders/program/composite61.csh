@@ -205,7 +205,7 @@ void main() {
     #if TAA_SHARPNESS != 0
         // preload shared memory
         uint i_base = gl_LocalInvocationIndex * 2u;
-        ivec2 uv_base = ivec2(gl_WorkGroupID.xy) * 16 - 1;
+        ivec2 uv_base = ivec2(gl_WorkGroupID.xy * gl_WorkGroupSize.xy) - 1;
 
         copyToShared(uv_base, i_base + 0);
         copyToShared(uv_base, i_base + 1);
@@ -215,20 +215,20 @@ void main() {
     #endif
 
     ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-    if (all(lessThan(uv, viewSize))) {
-        vec3 outFinal, outPrev;
-        #if TAA_SHARPNESS != 0
-            const float sharpnessF = TAA_SHARPNESS * 0.01;
-            const float peak = -1.0 / mix(8.0, 5.0, sharpnessF);
+    if (any(greaterThanEqual(uv, viewSize))) return;
 
-            apply_CAS(peak, outFinal, outPrev);
-        #else
-            outPrev = outFinal = texelFetch(texTAA, uv, 0).rgb;
-        #endif
+    vec3 outFinal, outPrev;
+    #if TAA_SHARPNESS != 0
+        const float sharpnessF = TAA_SHARPNESS * 0.01;
+        const float peak = -1.0 / mix(8.0, 5.0, sharpnessF);
 
-        outFinal = max(outFinal, vec3(0.0));
+        apply_CAS(peak, outFinal, outPrev);
+    #else
+        outPrev = outFinal = texelFetch(texTAA, uv, 0).rgb;
+    #endif
 
-        imageStore(IMG_FINAL, uv, vec4(outFinal, 1.0));
-        imageStore(imgTAA_prev, uv, vec4(outPrev, 1.0));
-    }
+    outFinal = max(outFinal, vec3(0.0));
+
+    imageStore(IMG_FINAL, uv, vec4(outFinal, 1.0));
+    imageStore(imgTAA_prev, uv, vec4(outPrev, 1.0));
 }

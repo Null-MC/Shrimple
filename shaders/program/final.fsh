@@ -24,9 +24,11 @@ uniform sampler2D TEX_FINAL;
 uniform vec2 viewSize;
 uniform int frameCounter;
 uniform float rainStrength;
+uniform float nearPlane;
 uniform float farPlane;
 uniform float far2;
 uniform float far3;
+uniform float centerDepthSmooth;
 
 #include "/lib/sampling/bayer.glsl"
 #include "/lib/octohedral.glsl"
@@ -35,9 +37,10 @@ uniform float far3;
     #include "/lib/sampling/linear.glsl"
 #endif
 
-#if defined(DEBUG_FAR)
-    #include "/lib/text.glsl"
-#endif
+//#if defined(DEBUG_FAR)
+//    #include "/lib/sampling/depth.glsl"
+//    #include "/lib/text.glsl"
+//#endif
 
 
 void main() {
@@ -72,6 +75,18 @@ void main() {
 
         endText(color);
     #endif
+
+//    beginText(ivec2(gl_FragCoord.xy * 0.5), ivec2(4, viewSize.y/2 - 24));
+//
+//    text.bgCol = vec4(0.0, 0.0, 0.0, 0.6);
+//    text.fgCol = vec4(1.0, 1.0, 1.0, 1.0);
+//
+//    printString((_C, _D, _S, _colon, _space, _space));
+//    printFloat(linearizeDepth(centerDepthSmooth*2.0 - 1.0, nearPlane, farPlane));
+//    printLine();
+//
+//    endText(color);
+
 
     vec2 tex, tex2;
     #if DEBUG_VIEW == DEBUG_VIEW_SKY

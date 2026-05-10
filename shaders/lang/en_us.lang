@@ -210,6 +210,15 @@ option.SSR_COARSE_STEPS=Coarse Steps
 option.SSR_REFINE_STEPS=Refine Steps
 
 
+screen.EFFECT_BLUR=Blur/DOF
+
+option.EFFECT_BLUR_WATER=Water Blur
+
+option.EFFECT_BLUR_DOF=Depth of Field
+
+option.EFFECT_BLUR_BLINDNESS=Blindness
+
+
 screen.EFFECT_BLOOM=Bloom
 
 option.BLOOM_ENABLED=Enabled

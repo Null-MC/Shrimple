@@ -16,6 +16,8 @@ const int colortex7Format = R8;
 const int colortex8Format = R8UI;
 const vec4 colortex8ClearColor = vec4(0.0,0.0,0.0,0.0);
 
+const int colortex9Format = RGBA16F;
+
 const int shadowcolor0Format = RGBA8;
 */
 
@@ -94,6 +96,12 @@ const float shadowDistance = 100; // [25 50 75 100 125 150 200 250 300 350 400 4
 #define SSR_ENABLED
 #define SSR_COARSE_STEPS 32 // [8 12 16 20 24 28 32 36 40 48 52 56 60 64]
 #define SSR_REFINE_STEPS 8 // [2 4 6 8 10 12 14 16]
+
+#define EFFECT_BLUR_RADIUS 20 // [8 12 16 20 24 28 32 36 40 44 48 52 56 60 64]
+#define EFFECT_BLUR_SAMPLES 16 // [8 12 16 20 24 28 32 36 40 44 48 52 56 60 64]
+#define EFFECT_BLUR_WATER
+#define EFFECT_BLUR_DOF
+#define EFFECT_BLUR_BLINDNESS
 
 #define TONEMAP_ENABLED
 #define POST_CONTRAST 75 // [5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100 105 110 115 120 125 130 135 140 145 150 155 160 165 170 175 180 185 190 195 200]

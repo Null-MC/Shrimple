@@ -46,6 +46,9 @@
 #define IMG_SSAO colorimg7
 #define TEX_SSAO colortex7
 
+#define IMG_BLURRED colorimg9
+#define TEX_BLURRED colortex9
+
 #define TEX_BLOOM_TILES texBloomTiles
 #define IMG_BLOOM_TILES imgBloomTiles
 
