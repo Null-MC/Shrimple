@@ -212,6 +212,11 @@ option.SSR_REFINE_STEPS=Refine Steps
 
 screen.EFFECT_BLUR=Blur/DOF
 
+option.EFFECT_BLUR_SAMPLES=Sample Count
+
+option.EFFECT_BLUR_RADIUS=Max Radius
+suffix.EFFECT_BLUR_RADIUS= px
+
 option.EFFECT_BLUR_WATER=Water Blur
 
 option.EFFECT_BLUR_DOF=Depth of Field
