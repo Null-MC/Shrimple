@@ -1,4 +1,4 @@
-By ShrikerChestTree pre1
+By ShrikerChestTree pre1-fix
 profile.VANILLA=Ванила
 profile.VANILLA_PLUS=Ванила+
 profile.ENHANCED=Улучшенный
@@ -57,7 +57,7 @@ option.OVERWORLD_SKY=Небо/Туман
 value.OVERWORLD_SKY.0=Ванила
 value.OVERWORLD_SKY.1=Улучшенный
 
-option.OVERWORLD_SUN_TEMP=Темп Солнца
+option.OVERWORLD_SUN_TEMP=Темп. Солнца
 suffix.OVERWORLD_SUN_TEMP=°k
 
 option.OVERWORLD_NIGHT_BRIGHTNESS=Яркость Ночью
