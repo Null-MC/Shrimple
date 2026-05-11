@@ -1,4 +1,4 @@
-By ShrikerChestTree pre1-fix2
+By ShrikerChestTree pre1-fix3
 profile.VANILLA=Ванила
 profile.VANILLA_PLUS=Ванила+
 profile.ENHANCED=Улучшенный
@@ -166,7 +166,7 @@ option.LIGHTING_MIN=Минимум
 suffix.LIGHTING_MIN=%
 
 option.LIGHTING_RESOLUTION=Разр. Пикселей
-value.LIGHTING_RESOLUTION.0=Выкл.
+value.LIGHTING_RESOLUTION.0=Выкл
 suffix.LIGHTING_RESOLUTION=x
 
 
@@ -240,7 +240,7 @@ screen.EFFECT_SSAO=SSAO
 screen.EFFECT_SSAO.comment=Screen-Space Ambient Occlusion. For Voxy or Distant Horizons chunks only!
 
 option.SSAO_MODE=Режим
-value.SSAO_MODE.0=Выкл.
+value.SSAO_MODE.0=Выкл
 value.SSAO_MODE.1=Только LOD
 value.SSAO_MODE.2=Полный
 
