@@ -1,0 +1,302 @@
+profile.VANILLA=Vanilla
+profile.VANILLA_PLUS=Vanilla+
+profile.ENHANCED=Enhanced
+
+
+screen.DEBUG=Shrimple
+screen.DEBUG.comment=An internal collection of development related settings. Not for regular users!
+
+option.DEBUG_VIEW=Debug View
+value.DEBUG_VIEW.0=None
+value.DEBUG_VIEW.1=Sky
+value.DEBUG_VIEW.2=Shadow
+value.DEBUG_VIEW.3=GBuffer
+value.DEBUG_VIEW.4=SSAO
+value.DEBUG_VIEW.5=Bloom
+
+option.DEBUG_WHITEWORLD=White-World
+option.DEBUG_WHITEWORLD.comment=Makes all textures white, for inspecting lighting alone.
+
+
+option.RENDER_SCALE=Render Scale
+value.RENDER_SCALE.0=100%
+value.RENDER_SCALE.1=75%
+value.RENDER_SCALE.2=50%
+value.RENDER_SCALE.3=25%
+
+
+screen.WORLD=World
+
+option.WIND_ENABLED=Wind Waving
+
+
+screen.WORLD_OUTLINE=Block Selection
+
+option.BLOCK_OUTLINE_TYPE=Type
+value.BLOCK_OUTLINE_TYPE.0=None
+value.BLOCK_OUTLINE_TYPE.1=Solid
+value.BLOCK_OUTLINE_TYPE.2=Caution
+
+option.BLOCK_OUTLINE_WIDTH=Width
+suffix.BLOCK_OUTLINE_WIDTH=px
+
+option.BLOCK_OUTLINE_EMISSION=Emission
+suffix.BLOCK_OUTLINE_EMISSION=%
+
+option.BLOCK_OUTLINE_COLOR_R=Color Red
+
+option.BLOCK_OUTLINE_COLOR_G=Color Green
+
+option.BLOCK_OUTLINE_COLOR_B=Color Blue
+
+
+screen.WORLD_OVERWORLD=Overworld
+
+option.OVERWORLD_SKY=Sky/Fog
+value.OVERWORLD_SKY.0=Vanilla
+value.OVERWORLD_SKY.1=Enhanced
+
+option.OVERWORLD_SUN_TEMP=Sun Temp
+suffix.OVERWORLD_SUN_TEMP=°k
+
+option.OVERWORLD_NIGHT_BRIGHTNESS=Night Brightness
+suffix.OVERWORLD_NIGHT_BRIGHTNESS=%
+
+
+screen.WORLD_NETHER=Nether
+
+option.NETHER_BRIGHTNESS=Brightness
+suffix.NETHER_BRIGHTNESS=%
+
+
+screen.WORLD_END=End
+
+
+screen.WATER=Water
+
+option.WATER_WAVE_ENABLED=Waves
+
+option.WATER_TEXTURE_ENABLED=Texture
+
+option.WATER_FOG_FIX=Fog Fix
+option.WATER_FOG_FIX.comment=Applies fog to water when camera is not in water.
+
+option.WATER_COLOR_OVERRIDE=Custom Color
+option.WATER_COLOR_OVERRIDE.comment=Replaces the vanilla water colors with custom colors, to avoid mismatches between surface and fog colors.
+
+
+screen.MATERIAL=Materials/PBR
+
+option.MATERIAL_FORMAT=Format
+option.MATERIAL_FORMAT.comment=The PBR format of the resource pack being used.
+value.MATERIAL_FORMAT.0=Default
+value.MATERIAL_FORMAT.1=Old PBR
+value.MATERIAL_FORMAT.2=Lab PBR
+
+option.MATERIAL_GLASS_TINT=Glass Tinting
+option.MATERIAL_GLASS_TINT.comment=Allows stained glass to apply multiplicative blending to the scene behind it.
+
+option.MATERIAL_WETNESS=Wetness
+
+
+screen.MATERIAL_PARALLAX=Parallax
+screen.MATERIAL_PARALLAX.comment=Allows per-pixel displacement of texture data. Requires a resource pack with PBR /POM support.
+
+option.MATERIAL_PARALLAX_ENABLED=Enabled
+
+option.MATERIAL_PARALLAX_TYPE=Type
+value.MATERIAL_PARALLAX_TYPE.0=Basic
+value.MATERIAL_PARALLAX_TYPE.1=Sharp
+value.MATERIAL_PARALLAX_TYPE.2=Smooth
+
+option.MATERIAL_PARALLAX_DEPTH=Depth
+option.MATERIAL_PARALLAX_DEPTH.comment=The amount of displacement into a block.
+suffix.MATERIAL_PARALLAX_DEPTH=%
+
+option.MATERIAL_PARALLAX_SAMPLES=Sample Count
+option.MATERIAL_PARALLAX_SAMPLES.comment=The number of samples to take when calculating displacement. Higher values will increase quality but lower performance.
+
+option.MATERIAL_PARALLAX_ENTITIES=Entities
+option.MATERIAL_PARALLAX_ENTITIES.comment=Allows parallax displacement to be applied to entities. May cause issues with mods that don't provide proper geometry data.
+
+option.MATERIAL_PARALLAX_CUTOUT=Cutout
+
+option.MATERIAL_PARALLAX_OPTIMIZE=Optimize
+option.MATERIAL_PARALLAX_OPTIMIZE.comment=Improves the quality of parallax by reducing the trace range to optimal values. Disable if you see artifacts/issues!
+
+
+option.MATERIAL_FORMAT_POROSITY=Porosity Format
+value.MATERIAL_FORMAT_POROSITY.-1=Disabled
+value.MATERIAL_FORMAT_POROSITY.0=Default
+value.MATERIAL_FORMAT_POROSITY.1=Old PBR / Generated
+value.MATERIAL_FORMAT_POROSITY.2=Lab PBR
+
+
+screen.MATERIAL_EMISSION=Emission
+screen.MATERIAL_EMISSION.comment=The visible brightness of PBR textures.
+
+option.MATERIAL_EMISSION_SCALE=Scale
+suffix.MATERIAL_EMISSION_SCALE=x
+
+option.MATERIAL_EMISSION_POWER=Curve
+suffix.MATERIAL_EMISSION_POWER=%
+
+
+screen.LIGHTING=Lighting
+
+option.LIGHTING_MODE=Mode
+value.LIGHTING_MODE.0=Vanilla
+value.LIGHTING_MODE.1=Enhanced
+
+option.LIGHTING_COLORED=Colored
+
+option.LIGHTING_HAND=Hand Light
+option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players hand will also cast light onto the world.
+
+option.LIGHTING_SPECULAR=Specular
+option.LIGHTING_SPECULAR.comment=Allows light to reflect from smooth or metal blocks.
+
+option.LIGHTING_AMBIENT=Ambient
+suffix.LIGHTING_AMBIENT=%
+
+option.REFRACT_ENABLED=Refraction
+
+option.LIGHTING_MIN=Minimum
+suffix.LIGHTING_MIN=%
+
+option.LIGHTING_RESOLUTION=Pixel Res
+value.LIGHTING_RESOLUTION.0=Off
+suffix.LIGHTING_RESOLUTION=x
+
+
+screen.LIGHTING_ADV=Advanced
+
+option.LIGHTING_VOXEL_SIZE=Voxel Size
+suffix.LIGHTING_VOXEL_SIZE=m
+
+option.LIGHTING_FLOODFILL_RANGE=FloodFill Range
+suffix.LIGHTING_FLOODFILL_RANGE=m
+
+option.LIGHTING_FLOODFILL_ENTITIES=Entity Lights
+option.LIGHTING_FLOODFILL_ENTITIES.comment=Enables lighting from entities and dropped items.
+
+
+screen.SHADOWS=Shadows
+
+option.SHADOWS_ENABLED=Enabled
+
+option.sunPathRotation=Rotation
+
+option.SHADOW_RESOLUTION=Resolution
+
+option.shadowDistance=Distance
+suffix.shadowDistance=m
+
+option.SHADOW_PCF_SAMPLES=Sample Count
+
+option.SHADOW_CLOUDS=Cloud Shadows
+
+
+screen.EFFECTS=Effects
+
+
+screen.EFFECT_SSR=SSR
+screen.EFFECT_SSR.comment=Screen-Space Reflections
+
+option.SSR_ENABLED=Enabled
+
+option.SSR_COARSE_STEPS=Coarse Steps
+
+option.SSR_REFINE_STEPS=Refine Steps
+
+
+screen.EFFECT_BLUR=Blur/DOF
+
+option.EFFECT_BLUR_SAMPLES=Sample Count
+
+option.EFFECT_BLUR_RADIUS=Max Radius
+suffix.EFFECT_BLUR_RADIUS= px
+
+option.EFFECT_BLUR_WATER=Water Blur
+
+option.EFFECT_BLUR_DOF=Depth of Field
+
+option.EFFECT_BLUR_BLINDNESS=Blindness
+
+
+screen.EFFECT_BLOOM=Bloom
+
+option.BLOOM_ENABLED=Enabled
+
+option.BLOOM_STRENGTH=Strength
+suffix.BLOOM_STRENGTH=%
+value.BLOOM_STRENGTH.25=Fable
+
+option.BLOOM_LEVELS=Levels
+
+
+screen.EFFECT_SSAO=SSAO
+screen.EFFECT_SSAO.comment=Screen-Space Ambient Occlusion. For Voxy or Distant Horizons chunks only!
+
+option.SSAO_MODE=Mode
+value.SSAO_MODE.0=Off
+value.SSAO_MODE.1=LOD Only
+value.SSAO_MODE.2=Full
+
+option.SSAO_SAMPLES=Sample Count
+
+
+screen.POST=Post-Processing
+
+
+screen.POST_TONEMAP=Tone Map
+
+option.TONEMAP_ENABLED=Enabled
+
+option.POST_CONTRAST=Contrast
+suffix.POST_CONTRAST=%
+
+
+screen.POST_TAA=TAA
+
+option.TAA_ENABLED=Enabled
+
+option.TAA_SHARPNESS=Sharpening
+suffix.TAA_SHARPNESS=%
+
+
+screen.MODS=Mods
+
+
+screen.MOD_PHOTONICS=Photonics
+
+option.PHOTONICS_SHADOW_ENABLED=Shadows
+option.PHOTONICS_SHADOW_ENABLED.comment=Replaces standard shadow-maps with ray-traced shadows using Photonics.
+
+option.PHOTONICS_REFLECT_ENABLED=Reflections
+option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
+
+option.PHOTONICS_BLOCK_TINT_ENABLED=Tinting
+option.PHOTONICS_BLOCK_TINT_ENABLED.comment=Allows traced lighting & reflections to be tinted from translucent blocks, like stained glass.
+
+option.PHOTONICS_HAND_LIGHT_ENABLED=Hand Light
+option.PHOTONICS_HAND_LIGHT_ENABLED.comment=Enables RT shadows from light held in-hand.
+
+option.PHOTONICS_BLOCK_LIGHT_ENABLED=Block Light
+option.PHOTONICS_BLOCK_LIGHT_ENABLED.comment=Enables RT shadows from lights placed in the world.
+
+option.PHOTONICS_GI_ENABLED=Global Illumination
+option.PHOTONICS_GI_ENABLED.comment=Enables bounced lighting calculations to simulate global illumination.
+
+option.PHOTONICS_SHRIMPLE_COLORS=Shrimple Colors
+option.PHOTONICS_SHRIMPLE_COLORS.comment=Replace photonics light colors with Shrimples built-in colors.
+
+screen.MOD_PH_ADV=Advanced Options
+
+option.PHOTONICS_RESTIR_ENABLED=ReSTIR
+
+option.PHOTONICS_RESTIR_GI_ENABLED=ReSTIR + GI
+option.PHOTONICS_RESTIR_GI_ENABLED.comment=Enables full-resolution GI using ReSTIR pass. Only works when ReSTIR is enabled.
+
+option.PHOTONICS_GI_BLOCK_SAMPLES=GI Block RT Samples
+option.PHOTONICS_GI_BLOCK_SAMPLES.comment=The maximum number of block-lights to sample for GI for each pixel.
