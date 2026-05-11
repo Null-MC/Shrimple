@@ -1,4 +1,4 @@
-By ShrikerChestTree pre1-fix
+By ShrikerChestTree pre1-fix2
 profile.VANILLA=Ванила
 profile.VANILLA_PLUS=Ванила+
 profile.ENHANCED=Улучшенный
@@ -19,7 +19,7 @@ option.DEBUG_WHITEWORLD=Белый-мир
 option.DEBUG_WHITEWORLD.comment=Makes all textures white, for inspecting lighting alone.
 
 
-option.RENDER_SCALE=Размер Рендера
+option.RENDER_SCALE=Размер рендера
 value.RENDER_SCALE.0=100%
 value.RENDER_SCALE.1=75%
 value.RENDER_SCALE.2=50%
@@ -53,14 +53,14 @@ option.BLOCK_OUTLINE_COLOR_B=Цвет Синего
 
 screen.WORLD_OVERWORLD=Верхний мир
 
-option.OVERWORLD_SKY=Небо/Туман
+option.OVERWORLD_SKY=Небо/туман
 value.OVERWORLD_SKY.0=Ванила
 value.OVERWORLD_SKY.1=Улучшенный
 
 option.OVERWORLD_SUN_TEMP=Темп. Солнца
 suffix.OVERWORLD_SUN_TEMP=°k
 
-option.OVERWORLD_NIGHT_BRIGHTNESS=Яркость Ночью
+option.OVERWORLD_NIGHT_BRIGHTNESS=Яркость ночью
 suffix.OVERWORLD_NIGHT_BRIGHTNESS=%
 
 
@@ -79,10 +79,10 @@ option.WATER_WAVE_ENABLED=Волны
 
 option.WATER_TEXTURE_ENABLED=Текстура
 
-option.WATER_FOG_FIX=Фикс Тумана
+option.WATER_FOG_FIX=Фикс тумана
 option.WATER_FOG_FIX.comment=Applies fog to water when camera is not in water.
 
-option.WATER_COLOR_OVERRIDE=Кастомный Цвет
+option.WATER_COLOR_OVERRIDE=Кастомный цвет
 option.WATER_COLOR_OVERRIDE.comment=Replaces the vanilla water colors with custom colors, to avoid mismatches between surface and fog colors.
 
 
@@ -129,7 +129,7 @@ option.MATERIAL_PARALLAX_OPTIMIZE.comment=Improves the quality of parallax by re
 option.MATERIAL_FORMAT_POROSITY=Формат пористости
 value.MATERIAL_FORMAT_POROSITY.-1=Отключён
 value.MATERIAL_FORMAT_POROSITY.0=По умолчанию
-value.MATERIAL_FORMAT_POROSITY.1=Old PBR / Сгенерированный
+value.MATERIAL_FORMAT_POROSITY.1=Old PBR / сгенерированный
 value.MATERIAL_FORMAT_POROSITY.2=Lab PBR
 
 
