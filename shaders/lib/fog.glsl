@@ -4,14 +4,14 @@
     #define FOG_HORIZON_F 0.02
 #endif
 
-const vec3 colorSkyDay     = pow(vec3(0.294, 0.467, 0.788), vec3(2.2));
-const vec3 colorFogDay     = pow(vec3(0.482, 0.576, 0.671), vec3(2.2));
+const vec3 colorSkyDay     = pow(vec3(0.267, 0.478, 0.655), vec3(2.2));
+const vec3 colorFogDay     = pow(vec3(0.718, 0.714, 0.725), vec3(2.2));
 
 const vec3 colorSkyNight   = pow(vec3(0.106, 0.090, 0.149), vec3(2.2));
 const vec3 colorFogNight   = pow(vec3(0.169, 0.220, 0.322), vec3(2.2));
 
-const vec3 colorSkyHorizon = pow(vec3(0.290, 0.243, 0.529), vec3(2.2));
-const vec3 colorFogHorizon = pow(vec3(0.980, 0.533, 0.118), vec3(2.2));
+const vec3 colorSkyHorizon = pow(vec3(0.173, 0.290, 0.451), vec3(2.2));
+const vec3 colorFogHorizon = pow(vec3(0.851, 0.522, 0.271), vec3(2.2));
 
 const vec3 colorRainSky = pow(vec3(0.557, 0.580, 0.671), vec3(2.2));
 const vec3 colorRainFog = pow(vec3(0.329, 0.329, 0.388), vec3(2.2));
@@ -40,6 +40,14 @@ float GetSkyHorizonF(const in float localSunDirY) {
         skyColorLab = mix(skyColorLab, LinearToLab(colorRainSky), rainStrength);
 
         return LabToLinear(skyColorLab) * mix(0.04, 1.0, skyDayF);
+//        vec3 skyColorLab = mix(colorSkyNight, colorSkyDay, skyDayF);
+//
+//        float horizonF = GetSkyHorizonF(localSunDir.y);
+//        skyColorLab = mix(skyColorLab, colorSkyHorizon, horizonF);
+//
+//        skyColorLab = mix(skyColorLab, colorRainSky, rainStrength);
+//
+//        return skyColorLab * mix(0.04, 1.0, skyDayF);
     }
 
     vec3 GetEnhancedSkyFogColor(const in vec3 localSunDir, const in vec3 localViewDir, const in float rainStrength, const in float skyDayF) {

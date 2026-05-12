@@ -44,6 +44,7 @@ float getBlurSize(float depth, float focusPoint, float focusScale) {
 
     #ifdef EFFECT_BLUR_DOF
         coc = clamp((1.0 / focusPoint - 1.0 / depth) * focusScale, -1.0, 1.0);
+        coc = abs(coc);
     #endif
 
     #ifdef EFFECT_BLUR_WATER
@@ -57,7 +58,7 @@ float getBlurSize(float depth, float focusPoint, float focusScale) {
         coc = max(coc, blindness * smoothstep(8.0, 12.0, depth));
     #endif
 
-    coc = abs(coc) * EFFECT_BLUR_RADIUS;
+    coc *= EFFECT_BLUR_RADIUS;
 
     return coc;
 }
@@ -117,7 +118,7 @@ void main() {
     #endif
 
     float focusPoint = linearizeDepth(centerDepthSmooth, nearPlane, farPlane);
-    float focusScale = min(8.0 / focusPoint, focusPoint);
+    float focusScale = min(float(EFFECT_DOF_STRENGTH) / focusPoint, focusPoint);
 
     ivec2 uv = ivec2(gl_FragCoord.xy);
     outBlurSize = SampleDof(uv, focusPoint, focusScale);

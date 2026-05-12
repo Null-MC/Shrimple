@@ -219,9 +219,12 @@ suffix.EFFECT_BLUR_RADIUS= px
 
 option.EFFECT_BLUR_WATER=Water Blur
 
+option.EFFECT_BLUR_BLINDNESS=Blindness
+
 option.EFFECT_BLUR_DOF=Depth of Field
 
-option.EFFECT_BLUR_BLINDNESS=Blindness
+option.EFFECT_DOF_STRENGTH=DOF Strength
+suffix.EFFECT_DOF_STRENGTH=x
 
 
 screen.EFFECT_BLOOM=Bloom
