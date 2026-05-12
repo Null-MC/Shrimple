@@ -16,9 +16,8 @@ uniform float nearPlane;
 uniform float farPlane;
 uniform vec2 viewSize;
 uniform float centerDepthSmooth;
-uniform int isEyeInWater;
 uniform int frameCounter;
-
+uniform int isEyeInWater = 0;
 uniform float blindness = 0.0;
 
 #include "/lib/sampling/depth.glsl"
@@ -110,6 +109,13 @@ vec4 SampleDof(const in ivec2 uv, const in float focusPoint, const in float focu
 layout(location = 0) out vec4 outBlurSize;
 
 void main() {
+    #ifndef EFFECT_BLUR_DOF
+        bool skip = true;
+        if (isEyeInWater == 1) skip = false;
+        if (blindness > 0.0) skip = false;
+        if (skip) return;
+    #endif
+
     float focusPoint = linearizeDepth(centerDepthSmooth, nearPlane, farPlane);
     float focusScale = min(8.0 / focusPoint, focusPoint);
 

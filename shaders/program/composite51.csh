@@ -24,6 +24,8 @@ layout(rgba16f) uniform writeonly image2D IMG_FINAL;
 uniform sampler2D TEX_SOURCE;
 
 uniform vec2 viewSizeScaled;
+uniform int isEyeInWater = 0;
+uniform float blindness = 0.0;
 
 
 int getSharedIndex(const in ivec2 uv) {
@@ -66,6 +68,13 @@ vec3 SampleBlur() {
 
 
 void main() {
+    #ifndef EFFECT_BLUR_DOF
+        bool skip = true;
+        if (isEyeInWater == 1) skip = false;
+        if (blindness > 0.0) skip = false;
+        if (skip) return;
+    #endif
+
     int pre_i = int(gl_LocalInvocationIndex) * 2;
     ivec2 pre_uv = ivec2(gl_WorkGroupID.xy * gl_WorkGroupSize.xy) - 3;
 
