@@ -1,4 +1,4 @@
-By ShrikerChestTree pre2
+By ShrikerChestTree pre2fix1
 profile.VANILLA=Ванила
 profile.VANILLA_PLUS=Ванила+
 profile.ENHANCED=Улучшенный
@@ -250,7 +250,7 @@ option.SSAO_SAMPLES=Кол-во выборок
 screen.POST=Post-Processing
 
 
-screen.POST_TONEMAP=Тон. Кор. (Tone Map)
+screen.POST_TONEMAP=Тон. кор. (Tone Map)
 
 option.TONEMAP_ENABLED=Включён
 
