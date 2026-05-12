@@ -1,4 +1,4 @@
-By ShrikerChestTree pre1-fix3
+By ShrikerChestTree pre2
 profile.VANILLA=Ванила
 profile.VANILLA_PLUS=Ванила+
 profile.ENHANCED=Улучшенный
@@ -8,18 +8,18 @@ screen.DEBUG=Shrimple (перев. ShrikerChestTree)
 screen.DEBUG.comment=An internal collection of development related settings. Not for regular users!
 
 option.DEBUG_VIEW=Дебаг
-value.DEBUG_VIEW.0=Ничего
+value.DEBUG_VIEW.0=Отсутствует
 value.DEBUG_VIEW.1=Небо
 value.DEBUG_VIEW.2=Тень
 value.DEBUG_VIEW.3=GBuffer
 value.DEBUG_VIEW.4=SSAO
-value.DEBUG_VIEW.5=Блюм
+value.DEBUG_VIEW.5=Свечение
 
 option.DEBUG_WHITEWORLD=Белый-мир
 option.DEBUG_WHITEWORLD.comment=Makes all textures white, for inspecting lighting alone.
 
 
-option.RENDER_SCALE=Размер рендера
+option.RENDER_SCALE=Разрешение рендеринга
 value.RENDER_SCALE.0=100%
 value.RENDER_SCALE.1=75%
 value.RENDER_SCALE.2=50%
@@ -31,24 +31,24 @@ screen.WORLD=Мир
 option.WIND_ENABLED=Ветер
 
 
-screen.WORLD_OUTLINE=Выделение Блока
+screen.WORLD_OUTLINE=Выделение блока
 
 option.BLOCK_OUTLINE_TYPE=Тип
 value.BLOCK_OUTLINE_TYPE.0=Невидимый
 value.BLOCK_OUTLINE_TYPE.1=Сплошной
 value.BLOCK_OUTLINE_TYPE.2=Сигнальный
 
-option.BLOCK_OUTLINE_WIDTH=Размер
+option.BLOCK_OUTLINE_WIDTH=Толщина
 suffix.BLOCK_OUTLINE_WIDTH=px
 
-option.BLOCK_OUTLINE_EMISSION=Излучение (Emission)
+option.BLOCK_OUTLINE_EMISSION=Самосвечение (Emission)
 suffix.BLOCK_OUTLINE_EMISSION=%
 
-option.BLOCK_OUTLINE_COLOR_R=Цвет Красного
+option.BLOCK_OUTLINE_COLOR_R=Цвет красного
 
-option.BLOCK_OUTLINE_COLOR_G=Цвет Зелёного
+option.BLOCK_OUTLINE_COLOR_G=Цвет зелёного
 
-option.BLOCK_OUTLINE_COLOR_B=Цвет Синего
+option.BLOCK_OUTLINE_COLOR_B=Цвет синего
 
 
 screen.WORLD_OVERWORLD=Верхний мир
@@ -94,7 +94,7 @@ value.MATERIAL_FORMAT.0=По умолчанию
 value.MATERIAL_FORMAT.1=Old PBR
 value.MATERIAL_FORMAT.2=Lab PBR
 
-option.MATERIAL_GLASS_TINT=Тонировка стекла
+option.MATERIAL_GLASS_TINT=Смешивание стекла
 option.MATERIAL_GLASS_TINT.comment=Allows stained glass to apply multiplicative blending to the scene behind it.
 
 option.MATERIAL_WETNESS=Сырость
@@ -114,7 +114,7 @@ option.MATERIAL_PARALLAX_DEPTH=Глубина
 option.MATERIAL_PARALLAX_DEPTH.comment=The amount of displacement into a block.
 suffix.MATERIAL_PARALLAX_DEPTH=%
 
-option.MATERIAL_PARALLAX_SAMPLES=Кол-во образцов
+option.MATERIAL_PARALLAX_SAMPLES=Кол-во выборок
 option.MATERIAL_PARALLAX_SAMPLES.comment=The number of samples to take when calculating displacement. Higher values will increase quality but lower performance.
 
 option.MATERIAL_PARALLAX_ENTITIES=Сущности
@@ -133,13 +133,13 @@ value.MATERIAL_FORMAT_POROSITY.1=Old PBR / сгенерированный
 value.MATERIAL_FORMAT_POROSITY.2=Lab PBR
 
 
-screen.MATERIAL_EMISSION=Излучение (Emission)
+screen.MATERIAL_EMISSION=Самосвечение (Emission)
 screen.MATERIAL_EMISSION.comment=The visible brightness of PBR textures.
 
-option.MATERIAL_EMISSION_SCALE=Размер
+option.MATERIAL_EMISSION_SCALE=Множитель
 suffix.MATERIAL_EMISSION_SCALE=x
 
-option.MATERIAL_EMISSION_POWER=Кривность
+option.MATERIAL_EMISSION_POWER=Кривая
 suffix.MATERIAL_EMISSION_POWER=%
 
 
@@ -154,7 +154,7 @@ option.LIGHTING_COLORED=Цветной
 option.LIGHTING_HAND=Свет от руки
 option.LIGHTING_HAND.comment=Light emitting blocks/items held in the players hand will also cast light onto the world.
 
-option.LIGHTING_SPECULAR=Блеск
+option.LIGHTING_SPECULAR=Блик
 option.LIGHTING_SPECULAR.comment=Allows light to reflect from smooth or metal blocks.
 
 option.LIGHTING_AMBIENT=Окружение
@@ -165,7 +165,7 @@ option.REFRACT_ENABLED=Преломление
 option.LIGHTING_MIN=Минимум
 suffix.LIGHTING_MIN=%
 
-option.LIGHTING_RESOLUTION=Разр. Пикселей
+option.LIGHTING_RESOLUTION=Разр. пикселей
 value.LIGHTING_RESOLUTION.0=Выкл
 suffix.LIGHTING_RESOLUTION=x
 
@@ -175,7 +175,7 @@ screen.LIGHTING_ADV=Расширенный
 option.LIGHTING_VOXEL_SIZE=Размер вокселя
 suffix.LIGHTING_VOXEL_SIZE=м.
 
-option.LIGHTING_FLOODFILL_RANGE=Размер FloodFill
+option.LIGHTING_FLOODFILL_RANGE=Диапозон FloodFill
 suffix.LIGHTING_FLOODFILL_RANGE=м.
 
 option.LIGHTING_FLOODFILL_ENTITIES=Свет существ
@@ -186,16 +186,16 @@ screen.SHADOWS=Тени
 
 option.SHADOWS_ENABLED=Включён
 
-option.sunPathRotation=Вращение
+option.sunPathRotation=Поворот
 
 option.SHADOW_RESOLUTION=Разрешение
 
 option.shadowDistance=Расстояние
 suffix.shadowDistance=м.
 
-option.SHADOW_PCF_SAMPLES=Кол-во образцов
+option.SHADOW_PCF_SAMPLES=Кол-во выборок
 
-option.SHADOW_CLOUDS=Тени облака
+option.SHADOW_CLOUDS=Тени от облаков
 
 
 screen.EFFECTS=Эффекты
@@ -213,7 +213,7 @@ option.SSR_REFINE_STEPS=Точность
 
 screen.EFFECT_BLUR=Блюр/DOF
 
-option.EFFECT_BLUR_SAMPLES=Кол-во образцов
+option.EFFECT_BLUR_SAMPLES=Кол-во выборок
 
 option.EFFECT_BLUR_RADIUS=Макс. радиус
 suffix.EFFECT_BLUR_RADIUS= px
@@ -225,7 +225,7 @@ option.EFFECT_BLUR_DOF=Глубина резкости (DOF)
 option.EFFECT_BLUR_BLINDNESS=Слепота
 
 
-screen.EFFECT_BLOOM=Блюм
+screen.EFFECT_BLOOM=Свечение
 
 option.BLOOM_ENABLED=Включён
 
@@ -244,13 +244,13 @@ value.SSAO_MODE.0=Выкл
 value.SSAO_MODE.1=Только LOD
 value.SSAO_MODE.2=Полный
 
-option.SSAO_SAMPLES=Кол-во образцов
+option.SSAO_SAMPLES=Кол-во выборок
 
 
 screen.POST=Post-Processing
 
 
-screen.POST_TONEMAP=Тон карты (Tone Map)
+screen.POST_TONEMAP=Тон. Кор. (Tone Map)
 
 option.TONEMAP_ENABLED=Включён
 
@@ -277,13 +277,13 @@ option.PHOTONICS_SHADOW_ENABLED.comment=Replaces standard shadow-maps with ray-t
 option.PHOTONICS_REFLECT_ENABLED=Отражения
 option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
 
-option.PHOTONICS_BLOCK_TINT_ENABLED=Тонирование
+option.PHOTONICS_BLOCK_TINT_ENABLED=Окрашивание
 option.PHOTONICS_BLOCK_TINT_ENABLED.comment=Allows traced lighting & reflections to be tinted from translucent blocks, like stained glass.
 
 option.PHOTONICS_HAND_LIGHT_ENABLED=Свет от руки
 option.PHOTONICS_HAND_LIGHT_ENABLED.comment=Enables RT shadows from light held in-hand.
 
-option.PHOTONICS_BLOCK_LIGHT_ENABLED=Свет блока
+option.PHOTONICS_BLOCK_LIGHT_ENABLED=Свет от блока
 option.PHOTONICS_BLOCK_LIGHT_ENABLED.comment=Enables RT shadows from lights placed in the world.
 
 option.PHOTONICS_GI_ENABLED=Глобальное освещение (GI)
@@ -299,5 +299,5 @@ option.PHOTONICS_RESTIR_ENABLED=ReSTIR
 option.PHOTONICS_RESTIR_GI_ENABLED=ReSTIR + GI
 option.PHOTONICS_RESTIR_GI_ENABLED.comment=Enables full-resolution GI using ReSTIR pass. Only works when ReSTIR is enabled.
 
-option.PHOTONICS_GI_BLOCK_SAMPLES=RT образцы GI блока
+option.PHOTONICS_GI_BLOCK_SAMPLES=RT выборки GI блока
 option.PHOTONICS_GI_BLOCK_SAMPLES.comment=The maximum number of block-lights to sample for GI for each pixel.
