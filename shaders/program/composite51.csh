@@ -52,9 +52,10 @@ vec3 SampleBlur() {
             ivec2 sampleOffset = ivec2(ix, iy);
             int shared_i = getSharedIndex(luv + sampleOffset);
             vec4 sampleColorSize = sharedColorSize[shared_i];
+            float centerSize = abs(sampleColorSize.w) * EFFECT_BLUR_RADIUS;
 
             float radius = length(sampleOffset);
-            float weight = smoothstep(radius-0.5, radius+0.5, sampleColorSize.w);
+            float weight = smoothstep(radius-0.5, radius+0.5, centerSize);
 
             accum += weight * sampleColorSize.rgb;
             total += weight;

@@ -7,10 +7,7 @@ out VertexData {
 } vOut;
 
 uniform mat4 gbufferModelViewInverse;
-
-#ifdef TAA_ENABLED
-    uniform vec2 taa_offset = vec2(0.0);
-#endif
+uniform vec2 taa_offset = vec2(0.0);
 
 
 void main() {

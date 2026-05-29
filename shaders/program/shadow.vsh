@@ -136,8 +136,7 @@ void main() {
 
             #ifdef WATER_WAVE_ENABLED
                 if (blockId == BLOCK_WATER) {
-                    vec2 waterWorldPos = localPos.xz + cameraPosition.xz;
-                    float waveHeight = wave_fbm(waterWorldPos, 8);
+                    float waveHeight = WaterWave_Vertex(localPos);
 
                     float viewDist = length(localPos);
                     float waveFadeF = smoothstep(0.0, 2.0, viewDist);

@@ -15,6 +15,7 @@ uniform vec2 viewSize;
 uniform int renderStage;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 gbufferProjection;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferProjectionInverse;
 uniform vec2 taa_offset = vec2(0.0);
@@ -54,8 +55,14 @@ void main() {
     if (gl_VertexID % 2 != 0) lineOffset = -lineOffset;
     gl_Position = vec4((ndc1 + vec3(lineOffset, 0.0)) * linePosStart.w, linePosStart.w);
 
-    vec3 viewPos = project(gbufferProjectionInverse * gl_Position);
-    vOut.localPos = mul3(gbufferModelViewInverse, viewPos);
+    vec4 viewPos = gbufferProjectionInverse * gl_Position;
+    viewPos.xyz /= viewPos.w;
+
+    viewPos.z += 0.004;
+    gl_Position = gbufferProjection * viewPos;
+    viewPos.xyz *= viewPos.w;
+
+    vOut.localPos = mul3(gbufferModelViewInverse, viewPos.xyz);
 
     #ifdef TAA_ENABLED
         gl_Position.xy += taa_offset * (2.0 * gl_Position.w);

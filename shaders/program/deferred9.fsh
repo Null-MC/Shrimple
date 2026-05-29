@@ -275,7 +275,7 @@ void main() {
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
                     shadow = SampleShadowColor(shadowPos, localGeoNormal);
                 #else
-                    shadowF = SampleShadow(shadowPos, localGeoNormal);
+                    shadowF = SampleShadowF(shadowPos, localGeoNormal);
                 #endif
             #else
 //                vec3 shadowViewGeoNormal = mat3(shadowModelView) * localGeoNormal;
@@ -310,7 +310,7 @@ void main() {
                     shadow = SampleShadowColor(shadowPos);
                     shadow = mix(shadow, vec3(pow4(lmcoord.y)), shadowCoverageF);
                 #else
-                    shadowF = SampleShadow(shadowPos);
+                    shadowF = SampleShadowF(shadowPos);
                     shadowF = mix(shadowF, pow4(lmcoord.y), shadowCoverageF);
                 #endif
             #endif

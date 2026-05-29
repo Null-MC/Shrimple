@@ -141,8 +141,7 @@ void main() {
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
             if (blockId == BLOCK_WATER) {
-                vec2 waterWorldPos = (vOut.localPos.xz + cameraPosition.xz) / WaterNormalScale;
-                float waveHeight = wave_fbm(waterWorldPos, 8);
+                float waveHeight = WaterWave_Vertex(vOut.localPos);
 
                 float viewDist = length(viewPos);
                 float waveFadeF = smoothstep(0.0, 2.0, viewDist);

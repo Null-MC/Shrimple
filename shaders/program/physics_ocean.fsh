@@ -220,7 +220,7 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        shadow = SampleShadows(shadowPos);
+        shadow = SampleShadowF(shadowPos);
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 

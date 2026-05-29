@@ -180,7 +180,7 @@ void main() {
             shadow = SampleShadowColor(shadowPos);
             shadow *= cloudShadowF;
         #else
-            shadowF = SampleShadows(shadowPos);
+            shadowF = SampleShadowF(shadowPos);
             shadowF *= cloudShadowF;
         #endif
     #endif

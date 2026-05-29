@@ -19,6 +19,7 @@ uniform float centerDepthSmooth;
 uniform int frameCounter;
 uniform int isEyeInWater = 0;
 uniform float blindness = 0.0;
+uniform vec2 taa_offset = vec2(0.0);
 
 #include "/lib/sampling/depth.glsl"
 #include "/lib/ign.glsl"
@@ -39,13 +40,12 @@ mat2 GetRandomRotation(const in float dither) {
     return mat2(c, -s, s, c);
 }
 
-float getBlurSize(float depth, float focusPoint, float focusScale) {
-    float coc = 0.0;
+float getBlurCoc(float depth, float focusPoint, float focusScale) {
+    return clamp((1.0 / focusPoint - 1.0 / depth) * focusScale, -1.0, 1.0);
+}
 
-    #ifdef EFFECT_BLUR_DOF
-        coc = clamp((1.0 / focusPoint - 1.0 / depth) * focusScale, -1.0, 1.0);
-        coc = abs(coc);
-    #endif
+float getBlurFar(float depth, float focusPoint, float focusScale) {
+    float coc = 0.0;
 
     #ifdef EFFECT_BLUR_WATER
         if (isEyeInWater == 1) {
@@ -58,36 +58,79 @@ float getBlurSize(float depth, float focusPoint, float focusScale) {
         coc = max(coc, blindness * smoothstep(8.0, 12.0, depth));
     #endif
 
-    coc *= EFFECT_BLUR_RADIUS;
-
     return coc;
 }
 
-vec4 SampleDof(const in ivec2 uv, const in float focusPoint, const in float focusScale) {
+//float getBlurSize(float depth, float focusPoint, float focusScale) {
+//    float coc_near = 0.0;
+//    float coc_far = getBlurFar();
+//
+//    #ifdef EFFECT_BLUR_DOF
+//        float coc = getBlurCoc(depth, focusPoint, focusScale);
+////        coc = abs(coc);
+//
+//        coc_near = min(coc_near, coc);
+//        coc_far = max(coc_far, coc);
+//    #endif
+//
+//    coc *= EFFECT_BLUR_RADIUS;
+//
+//    return coc;
+//}
+
+struct BlurData {
+    vec3 near;
+    float coc;
+    vec3 far;
+    float distF;
+};
+
+BlurData SampleDof(const in ivec2 uv, const in float focusPoint, const in float focusScale) {
     float centerDepth = texelFetch(TEX_DEPTH, uv, 0).r;
     centerDepth = linearizeDepth(centerDepth, nearPlane, farPlane);
 
-    float centerSize = getBlurSize(centerDepth, focusPoint, focusScale);
-    vec3 color = vec3(0.0);//texelFetch(TEX_SOURCE, uv, 0).rgb;
+    BlurData result;
+
+//    float centerSize = getBlurSize(centerDepth, focusPoint, focusScale);
+    result.coc = getBlurCoc(centerDepth, focusPoint, focusScale);
+    float centerSize = abs(result.coc) * EFFECT_BLUR_RADIUS;
+
+//    vec3 color = vec3(0.0);//texelFetch(TEX_SOURCE, uv, 0).rgb;
+    result.near = vec3(0.0);
+    result.far = vec3(0.0);
 
     vec2 texelSize = 1.0 / viewSize;
     vec2 texcoord = (uv + 0.5) / viewSize;
+
+    #ifdef TAA_ENABLED
+        texcoord += taa_offset;
+    #endif
 
     float dither = GetDither();
     mat2 rotation = GetRandomRotation(dither);
 
     float total = 0.0;
+//    float total_near = 0.0;
+//    float total_far = 0.0;
+
     for (int i = 0; i < EFFECT_BLUR_SAMPLES; i++) {
         float radius = sqrt(float(i + dither) / EFFECT_BLUR_SAMPLES) * EFFECT_BLUR_RADIUS;
 
         float ang = i * GoldenAngle;
         vec2 tc = rotation * vec2(cos(ang), sin(ang)) * texelSize * radius + texcoord;
+
+        ivec2 uv = ivec2(tc * viewSize);
+        uv = clamp(uv, ivec2(0), ivec2(viewSize)-1);
+
         vec3 sampleColor = textureLod(TEX_SOURCE, tc, 0).rgb;
+//        vec3 sampleColor = texelFetch(TEX_SOURCE, uv, 0).rgb;
 
         float sampleDepth = texture(TEX_DEPTH, tc).r;
+//        float sampleDepth = texelFetch(TEX_DEPTH, uv, 0).r;
         sampleDepth = linearizeDepth(sampleDepth, nearPlane, farPlane);
 
-        float sampleSize = getBlurSize(sampleDepth, focusPoint, focusScale);
+        float sampleCoc = getBlurCoc(sampleDepth, focusPoint, focusScale);
+        float sampleSize = abs(sampleCoc) * EFFECT_BLUR_RADIUS;
 
         if (sampleDepth > centerDepth) {
             sampleSize = clamp(sampleSize, 0.0, centerSize*2.0);
@@ -95,19 +138,27 @@ vec4 SampleDof(const in ivec2 uv, const in float focusPoint, const in float focu
 
         float m = smoothstep(radius-0.5, radius+0.5, sampleSize);
 //        color += mix(color/(i+1), sampleColor, m);
-        color += m * sampleColor;
+
+//        if (result.coc < 0.0) m *= sampleCoc + 1.0;
+//        if (sampleCoc < 0.0) m *= sampleCoc + 1.0;
+
+//        if (result.coc > 0.0) m *= 1.0 - sampleCoc;
+//        if (sampleCoc > 0.0) m *= 1.0 - sampleCoc;
+
+        result.near += m * sampleColor;
         total += m;
     }
 
-    if (total > EPSILON) color /= total;
-    else color = texelFetch(TEX_SOURCE, uv, 0).rgb;
+    if (total > EPSILON) result.near /= total;
+    else result.near = texelFetch(TEX_SOURCE, uv, 0).rgb;
 
-    return vec4(color, centerSize);
+    return result;
 }
 
 
-/* RENDERTARGETS: 9 */
-layout(location = 0) out vec4 outBlurSize;
+/* RENDERTARGETS: 9,10 */
+layout(location = 0) out vec4 outBlurNear;
+layout(location = 1) out vec4 outBlurFar;
 
 void main() {
     #ifndef EFFECT_BLUR_DOF
@@ -121,5 +172,8 @@ void main() {
     float focusScale = min(float(EFFECT_DOF_STRENGTH) / focusPoint, focusPoint);
 
     ivec2 uv = ivec2(gl_FragCoord.xy);
-    outBlurSize = SampleDof(uv, focusPoint, focusScale);
+    BlurData result = SampleDof(uv, focusPoint, focusScale);
+
+    outBlurNear = vec4(result.near, result.coc);
+    outBlurFar = vec4(result.far, result.distF);
 }

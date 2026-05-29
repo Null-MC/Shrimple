@@ -328,8 +328,7 @@ void main() {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (blockId == BLOCK_WATER) {
-            vec2 waterWorldPos = (localPos.xz + cameraPosition.xz);
-            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
+            float waveHeight = WaterWave_Fragment(localPos);
             vec3 wavePos = vec3(localPos.xz, waveHeight);
             wavePos.z += localPos.y - vIn.waveHeight;
 
@@ -414,7 +413,7 @@ void main() {
             #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
                 shadow = SampleShadowColor(shadowPos, localGeoNormal);
             #else
-                shadowF = SampleShadow(shadowPos, localGeoNormal);
+                shadowF = SampleShadowF(shadowPos, localGeoNormal);
             #endif
         #else
             vec3 shadowViewPos = mul3(shadowModelView, shadowPos);
@@ -441,7 +440,7 @@ void main() {
                 shadow = SampleShadowColor(shadowPos);
                 shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
             #else
-                shadowF = SampleShadow(shadowPos);
+                shadowF = SampleShadowF(shadowPos);
                 shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
             #endif
         #endif

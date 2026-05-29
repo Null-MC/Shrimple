@@ -27,7 +27,7 @@ vec2 GetShadowSampleOffset(const in mat2 rotation, const in int i) {
     return (rotation * pcfDiskOffset) * ShadowPixelRadius;
 }
 
-float SampleShadows(const in vec3 shadowPos) {
+float SampleShadowF(const in vec3 shadowPos) {
     #if SHADOW_PCF_SAMPLES > 1
         mat2 rotation = GetRandomShadowRotation();
     #endif

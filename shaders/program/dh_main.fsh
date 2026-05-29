@@ -166,8 +166,7 @@ void main() {
         #endif
 
         #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TRANSLUCENT)
-            vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
-            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
+            float waveHeight = WaterWave_Fragment(vIn.localPos);
             vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
             wavePos.z += vIn.localPos.y;
 
@@ -225,7 +224,7 @@ void main() {
             shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
             shadow *= cloudShadowF; // * shadow_geoNoL
         #else
-            shadowF = SampleShadow(shadowPos);
+            shadowF = SampleShadowF(shadowPos);
             shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
             shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif

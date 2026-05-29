@@ -191,8 +191,7 @@ void main() {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         if (blockId == BLOCK_WATER) {
-            vec2 waterWorldPos = (vIn.localPos.xz + cameraPosition.xz);
-            float waveHeight = wave_fbm(waterWorldPos / WaterNormalScale, 12);
+            float waveHeight = WaterWave_Fragment(vIn.localPos);
             vec3 wavePos = vec3(vIn.localPos.xz, waveHeight);
             wavePos.z += vIn.localPos.y - vIn.waveHeight;
 

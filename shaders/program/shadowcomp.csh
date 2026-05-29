@@ -37,6 +37,10 @@ uniform mat4 gbufferPreviousModelView;
 #include "/lib/sampling/block-mask.glsl"
 
 
+float avg(const in vec3 val) {
+    return sumOf(val) / 3.0;
+}
+
 bool IsLightBlock(const in uint blockId) {
 //    #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
 //        return blockId == BLOCK_LAVA
@@ -47,7 +51,7 @@ bool IsLightBlock(const in uint blockId) {
 }
 
 vec3 toExp2(const in vec3 color) {
-    float lum_now = luminance(color);
+    float lum_now = avg(color);
     if (lum_now < EPSILON) return color;
 
     float lum_tgt = exp2(lum_now * LIGHTING_FLOODFILL_RANGE) - 1.0;
@@ -55,22 +59,29 @@ vec3 toExp2(const in vec3 color) {
 }
 
 vec3 fromExp2(const in vec3 color) {
-    float lum_now = luminance(color);
+    float lum_now = avg(color);
     if (lum_now < EPSILON) return color;
 
     float lum_tgt = log2(lum_now + 1.0) / LIGHTING_FLOODFILL_RANGE;
     return color * (lum_tgt / lum_now);
 }
 
-vec4 GetLpvValue(in ivec3 texcoord) {
-    if (!IsInVoxelBounds(texcoord)) return vec4(0.0);
+vec4 GetLpvValue(in ivec3 voxelPos) {
+    if (!IsInVoxelBounds(voxelPos)) return vec4(0.0);
 
     if (frameCounter % 2 == 0)
-        texcoord.z += LIGHTING_VOXEL_SIZE;
+        voxelPos.z += LIGHTING_VOXEL_SIZE;
 
-    vec4 color = imageLoad(imgFloodFill, texcoord);
+    vec4 color = imageLoad(imgFloodFill, voxelPos);
     color.rgb = RGBToLinear(color.rgb);
+    color.rgb = toExp2(color.rgb);
     return color;
+}
+
+uint GetVoxelBlock(const in ivec3 voxelPos) {
+    if (!IsInVoxelBounds(voxelPos)) return 0u;
+
+    return texelFetch(texVoxels, voxelPos, 0).r;
 }
 
 const ivec3 lpvFlatten = ivec3(1, 10, 100);
@@ -130,32 +141,13 @@ vec3 mixNeighboursDirect(const in ivec3 fragCoord, const in uint mask) {
 //    return LabToLinear(cf);
 }
 
-void copyToShared(const in ivec3 imgCoordOffset, const in uint i) {
-    ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
-    ivec3 pos = workGroupOffset + ivec3(i / lpvFlatten) % 10;
+void copyToShared(const in ivec3 workGroupOffset, const in ivec3 imgCoordOffset, const in uint i) {
+    ivec3 voxelPos = workGroupOffset + ivec3(i / lpvFlatten) % 10;
 
-    ivec3 lpvPos = imgCoordOffset + pos;
-    vec4 color = GetLpvValue(lpvPos);
-    color.rgb = toExp2(color.rgb);
-    lpvBuffer[i] = color;
-
-    uint blockId = 0u;
-    if (IsInVoxelBounds(pos))
-        blockId = texelFetch(texVoxels, pos, 0).r;
-
-    voxelSharedData[i] = blockId;
+    lpvBuffer[i] = GetLpvValue(voxelPos + imgCoordOffset);
+    voxelSharedData[i] = GetVoxelBlock(voxelPos);
 }
 
-void PopulateShared() {
-    uint i1 = uint(gl_LocalInvocationIndex) * 2u;
-    if (i1 >= 1000u) return;
-
-    uint i2 = i1 + 1u;
-    ivec3 imgCoordOffset = GetVoxelFrameOffset();
-
-    copyToShared(imgCoordOffset, i1);
-    copyToShared(imgCoordOffset, i2);
-}
 
 void main() {
     uvec3 chunkPos = gl_WorkGroupID * gl_WorkGroupSize;
@@ -163,10 +155,11 @@ void main() {
 
     uint i_base = uint(gl_LocalInvocationIndex) * 2u;
     if (i_base < 1000u) {
+        ivec3 workGroupOffset = ivec3(gl_WorkGroupID * gl_WorkGroupSize) - 1;
         ivec3 imgCoordOffset = GetVoxelFrameOffset();
 
-        copyToShared(imgCoordOffset, i_base);
-        copyToShared(imgCoordOffset, i_base + 1u);
+        copyToShared(workGroupOffset, imgCoordOffset, i_base);
+        copyToShared(workGroupOffset, imgCoordOffset, i_base + 1u);
     }
 
     memoryBarrierShared();
@@ -216,7 +209,7 @@ void main() {
     }
 
     if (lightRange > 0.0) {
-        float lum = luminance(lightColor);
+        float lum = avg(lightColor);
         vec3 newLight = lightColor * ((lightRange / 15.0) / lum);
         colorFinal.rgb += toExp2(newLight);
     }
