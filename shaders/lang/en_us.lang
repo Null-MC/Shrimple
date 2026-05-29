@@ -72,6 +72,15 @@ suffix.NETHER_BRIGHTNESS=%
 screen.WORLD_END=End
 
 
+screen.WORLD_STARS=Stars
+
+option.SKY_STARS_FANCY=Fancy
+option.SKY_STARS_FANCY.comment=Replaces the vanilla stars with a custom "fancier" version.
+
+option.SKY_STAR_LAYERS=Layers
+option.SKY_STAR_LAYERS.comment=Adjust the number of layers (density) of stars in the sky. Only applies to "fancy" stars.
+
+
 screen.WATER=Water
 
 option.WATER_WAVE_ENABLED=Waves

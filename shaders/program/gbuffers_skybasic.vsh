@@ -4,6 +4,7 @@
 varying vec4 starData;
 out vec3 localPos;
 
+uniform int renderStage;
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 
@@ -13,6 +14,13 @@ uniform mat4 gbufferModelViewInverse;
 
 
 void main() {
+    #ifdef SKY_STARS_FANCY
+        if (renderStage == MC_RENDER_STAGE_STARS) {
+            gl_Position = vec4(-2.0);
+            return;
+        }
+    #endif
+
     gl_Position = ftransform();
 
     bool is_star = all(greaterThan(gl_Color.rgb, vec3(0.0)));
