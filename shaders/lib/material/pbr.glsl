@@ -1,3 +1,6 @@
+#ifndef __INC_MAT_PBR
+#define __INC_MAT_PBR
+
 #if MATERIAL_FORMAT_POROSITY == 0
     #undef MATERIAL_FORMAT_POROSITY
     #define MATERIAL_FORMAT_POROSITY MATERIAL_FORMAT
@@ -165,3 +168,5 @@ void TransformEmission(inout float emission) {
         emission *= MAT_EmissionScale;
     #endif
 }
+
+#endif

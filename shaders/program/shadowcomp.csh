@@ -21,7 +21,6 @@ shared vec4 lpvBuffer[10*10*10];
 layout(rgba8) uniform image3D imgFloodFill;
 
 uniform usampler3D texVoxels;
-uniform sampler2D texBlockLight;
 uniform usampler2D texBlockMask;
 
 uniform int frameCounter;

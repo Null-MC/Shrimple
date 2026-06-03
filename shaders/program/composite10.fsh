@@ -95,7 +95,10 @@ uniform float dhFarPlane;
 #include "/lib/fog.glsl"
 #include "/lib/water-absorb.glsl"
 #include "/lib/fresnel.glsl"
+
 #include "/lib/material/pbr.glsl"
+
+#include "/lib/hash-noise.glsl"
 
 #ifdef MATERIAL_PBR_ENABLED
     #include "/lib/material/lazanyi.glsl"
@@ -105,8 +108,10 @@ uniform float dhFarPlane;
     #include "/lib/lod-projection.glsl"
 #endif
 
-#if defined(PHOTONICS_REFLECT_ENABLED)
-    #include "/photonics/photonics.glsl"
+#ifdef PHOTONICS_REFLECT_ENABLED
+//    #include "/photonics/photonics.glsl"
+    #include "/photonics/tracing.glsl"
+    #include "/photonics/trace_ray.glsl"
 
     #include "/lib/shadows.glsl"
 
@@ -164,6 +169,26 @@ vec3 projectScreenTrace(const in vec3 viewPos, const in vec3 screenPos, const in
     vec3 screenDir = normalize(dest_screenPos - screenPos);
 
     return projectToScreenBounds(screenPos, screenDir);
+}
+
+vec3 sample_cosine_weighted_hemisphere() {
+    //vec2 u = vec2(rand_next_float(), rand_next_float());
+    vec2 u = hash23(vec3(gl_FragCoord.xy, frameCounter));
+    float r = sqrt(u.x);
+    float theta = (2.0 * PI) * u.y;
+
+    return vec3(r * cos(theta), r * sin(theta), sqrt(max(0.0, 1.0 - u.x)));
+}
+
+vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
+    vec3 up = abs(normal.z) < 0.999
+        ? vec3(0.0, 0.0, 1.0)
+        : vec3(1.0, 0.0, 0.0);
+
+    vec3 tangent = normalize(cross(up, normal));
+    vec3 bitangent = cross(normal, tangent);
+
+    return mat3(tangent, bitangent, normal) * local_dir;
 }
 
 //#ifdef PHOTONICS_REFLECT_ENABLED
@@ -234,7 +259,8 @@ void main() {
             float roughness = mat_roughness_lab(specularData.r);
         #endif
 
-        float smoothness = 1.0 - roughness;
+        float roughL = _pow2(roughness);
+        float smoothness = 1.0 - roughL;
 
         if (smoothness > (16.5/255.0)) {
 //            vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
@@ -243,9 +269,19 @@ void main() {
 
             float lmcoord_y = meta.y;
 
-            vec3 reflectViewDir = normalize(reflect(viewDir, viewTexNormal));
+            #ifdef LIGHTING_REFLECT_ROUGHNESS
+//                uint rnd_state = ph_new_rand_state(gl_FragCoord.xy, frameCounter, 0);
+//                vec3 randomNormal = ph_rand_direction(rnd_state, viewTexNormal);
+                vec3 randomNormal = sample_cosine_weighted_hemisphere();
+                randomNormal = transform_to_world(viewTexNormal, randomNormal);
+                vec3 reflectNormal = normalize(mix(viewTexNormal, randomNormal, roughL));
+            #else
+                vec3 reflectNormal = viewTexNormal;
+            #endif
 
-            bool hit = false;
+            vec3 reflectViewDir = normalize(reflect(viewDir, reflectNormal));
+
+            bool is_hit = false;
             #ifdef PHOTONICS_REFLECT_ENABLED
                 vec3 localPos = mul3(gbufferModelViewInverse, viewPos);
                 vec3 rtPos = localPos + rt_camera_position;
@@ -253,31 +289,32 @@ void main() {
 //                vec3 localNormal = mat3(gbufferModelViewInverse) * viewTexNormal;
                 vec3 localReflectDir = mat3(gbufferModelViewInverse) * reflectViewDir;
 
-                RayJob ray = RayJob(
-                    rtPos + 0.004 * localGeoNormal,
-                    localReflectDir,
-                    vec3(0), vec3(0), vec3(0), false
-                );
+                RayIterator ray;
+                ray.iterations = PHOTONICS_REFLECT_STEPS;
+                ray_iter_set_position(ray, rtPos);
+                ray_iter_set_direction(ray, localReflectDir);
+                ray_iter_offset_position(ray, 0.004 * localGeoNormal);
 
-                RAY_ITERATION_COUNT = PHOTONICS_REFLECT_STEPS;
+                RayResult hit = ray_iter_next(ray);
+                is_hit = ray_result_is_hit(hit);
 
-                trace_ray(ray, true);
+                if (is_hit) {
+                    vec3 hit_position = ray_result_position(hit);
 
-                if (ray.result_hit) {
-                    hit = true;
-                    if (lengthSq(ray.result_position - rtPos) > 0.002) {
-                    vec3 hitAlbedo = RGBToLinear(ray.result_color);
-//                    vec3 hitAlbedo = ray.result_color;
+                    if (lengthSq(hit_position - rtPos) > 0.002) {
+                    VoxelData voxel_data = ray_result_voxel_data(hit);
+                    vec3 hit_albedo = voxel_data_albedo(voxel_data).rgb;
+                    hit_albedo = RGBToLinear(hit_albedo);
 
-                    vec3 hitLocalPos = ray.result_position - rt_camera_position;
-                    vec3 hitLocalNormal = ray.result_normal;
+                    vec3 hitLocalPos = hit_position - rt_camera_position;
+                    vec3 hitLocalNormal = ray_result_normal(hit);
                     float hitViewDist = length(hitLocalPos);
 
                     float traceDist = distance(localPos, hitLocalPos);
                     totalDist += traceDist;
 
-                    float hit_sky = get_result_sky_light(hitLocalNormal) / 15.0;
-                    vec2 lmcoord = vec2(0.0, hit_sky);
+                    float hit_sky = ray_result_skylight(hit) / 15.0;
+                    vec2 hit_lmcoord = vec2(0.0, hit_sky);
 
                     vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 
@@ -299,19 +336,19 @@ void main() {
                         shadow *= pow(saturate(shadow_NoL), 0.2);
 
                         #ifdef PHOTONICS_SHADOW_ENABLED
-                            RayJob ray = RayJob(
-                                hitLocalPos + rt_camera_position + 0.004 * localGeoNormal,
-                                localSkyLightDir,
-                                vec3(0), vec3(0), vec3(0), false
-                            );
+                            RayIterator shadow_ray;
+                            shadow_ray.iterations = 100; // TODO: add setting?
+                            ray_iter_set_position(shadow_ray, hit_position);
+                            ray_iter_offset_position(shadow_ray, 0.004 * localGeoNormal);
+                            ray_iter_set_direction(shadow_ray, localSkyLightDir);
 
-                            RAY_ITERATION_COUNT = 100;
-
-                            trace_ray(ray, true);
+                            RayResult shadow_hit;
+                            vec3 shadow_tint = vec3(1.0);
+                            bool is_hit = trace_ray(shadow_ray, shadow_hit, shadow_tint);
 
 //                            #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                                if (ray.result_hit) shadow = vec3(0.0);
-                                else shadow *= result_tint_color;
+                                if (is_hit) shadow = vec3(0.0);
+                                else shadow *= shadow_tint;
 //                            #else
 //                                if (ray.result_hit) shadowF = 0.0;
 //                            #endif
@@ -323,7 +360,7 @@ void main() {
                     #endif
 
                     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                        lmcoord = _pow3(lmcoord);
+                        hit_lmcoord = _pow3(hit_lmcoord);
 
                         // block lightmap coord not supported
                         vec3 blockLight = vec3(0.0);
@@ -343,22 +380,21 @@ void main() {
                             skyLight = skyLight_NoLm * shadow * skyLightColor;
 
                             #ifndef SHADOWS_ENABLED
-                                skyLight *= lmcoord.y;
+                                skyLight *= hit_lmcoord.y;
                             #endif
 
-                            skyLight += lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
+                            skyLight += hit_lmcoord.y * AmbientLightF * SampleSkyIrradiance(hitLocalNormal);
                         #endif
 
-                        reflectColor = hitAlbedo/PI * (blockLight + skyLight);
+                        reflectColor = 1.0/PI * (blockLight + skyLight);
                     #else
                         #ifdef SHADOWS_ENABLED
-                            lmcoord.y = min(lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
+                            hit_lmcoord.y = min(hit_lmcoord.y, maxOf(shadow) * (1.0 - AmbientLightF) + AmbientLightF);
                         #endif
 
-                        lmcoord.y *= GetOldLighting(hitLocalNormal);
+                        hit_lmcoord.y *= GetOldLighting(hitLocalNormal);
 
-                        lmcoord = LightMapTex(lmcoord);
-                        vec3 lit = texture(texLightmap, lmcoord).rgb;
+                        vec3 lit = texture(texLightmap, LightMapTex(hit_lmcoord)).rgb;
                         lit = RGBToLinear(lit);
 
                         #ifdef LIGHTING_COLORED
@@ -368,10 +404,55 @@ void main() {
                             lit += lpvSample;
                         #endif
 
-                        reflectColor = hitAlbedo * lit;
+                        reflectColor = lit;
                     #endif
 
-                    // TODO: fog
+                    #ifdef MATERIAL_PBR_ENABLED
+                        vec4 hit_specularData = voxel_data_specular(voxel_data);
+
+                        float hit_NoV = dot(hitLocalNormal, -localReflectDir);
+                        LazanyiF hit_lF = mat_f0_lazanyi(hit_albedo, hit_specularData.g);
+                        vec3 hit_F = F_lazanyi(hit_NoV, hit_lF.f0, hit_lF.f82);
+
+                        float hit_roughness = mat_roughness(hit_specularData.r);
+                        float hit_metalness = mat_metalness(hit_specularData.g);
+                        float hit_roughL = _pow2(hit_roughness);
+                        float hit_smoothL = 1.0 - hit_roughL;
+
+                        // apply metal diffuse darkening
+                        reflectColor *= 1.0 - hit_metalness * hit_smoothL;
+
+                        // rough-scatter hack
+                        reflectColor *= 1.0 - hit_F * hit_smoothL;
+
+                        // apply emission
+                        float emission = mat_emission(hit_specularData);
+                        TransformEmission(emission);
+                        reflectColor += emission;
+                    #endif
+
+                    reflectColor *= hit_albedo;
+
+                    #ifdef MATERIAL_PBR_ENABLED
+                        // TODO: reflect in view space to avoid view-bob
+                        float hit_smoothness = 1.0 - hit_roughness;
+                        vec3 hit_reflectLocalDir = normalize(reflect(localReflectDir, hitLocalNormal));
+                        vec3 hit_reflectColor = GetSkyFogWaterColor(RGBToLinear(skyColor), RGBToLinear(fogColor), hit_reflectLocalDir);
+                        hit_reflectColor *= _pow2(hit_lmcoord.y);
+
+//                        if (skyLight_NoLm > 0.0 && dot(hitLocalNormal, localSkyLightDir) > 0.0) {
+//                            vec3 skySpecularLightDir = GetAreaLightDir(hitLocalNormal, hit_reflectLocalDir, localSkyLightDir, 100.0, 8.0);
+//                            skySpecularLightDir = normalize(skySpecularLightDir + 0.1*localSkyLightDir);
+
+                            hit_reflectColor += SampleLightSpecular(hit_albedo, hitLocalNormal, localSkyLightDir, -localReflectDir, skyLight_NoLm, hit_roughL, hit_specularData.g) * skyLight;
+//                        }
+
+                        // apply metal tint
+                        hit_reflectColor *= mix(vec3(1.0), hit_albedo, hit_metalness);
+
+                        reflectColor += hit_smoothness * hit_reflectColor * hit_F;
+                    #endif
+
 //                    float borderFogF = GetBorderFogStrength(viewDist);
                     float envFogF = GetEnvFogStrength(hitViewDist);
                     float fogF = envFogF;//max(borderFogF, envFogF);
@@ -382,7 +463,8 @@ void main() {
 
                     reflectColor = mix(reflectColor, fogColorFinal, fogF);
 
-                    reflectColor *= result_tint_color;
+                    // TODO: refactor for 0.4
+//                    reflectColor *= result_tint_color;
                     }
                 }
             #else
@@ -414,7 +496,7 @@ void main() {
                     #endif
 
                     if (screenDepthL < traceDepthL - 0.02) {
-                        hit = true;
+                        is_hit = true;
                         break;
                     }
 
@@ -422,7 +504,7 @@ void main() {
                     // traceDepthL_prev = traceDepthL;
                 }
 
-                if (hit) {
+                if (is_hit) {
                     traceClipStart = traceClipPos_prev;
                     traceClipEnd = traceClipPos;
 
@@ -457,7 +539,7 @@ void main() {
                 }
             #endif
 
-            if (hit) {
+            if (is_hit) {
                 if (isEyeInWater == 1)
                     reflectColor *= GetWaterAbsorption(totalDist);
             }

@@ -1,6 +1,8 @@
 #include "/lib/constants.glsl"
 #include "/lib/common.glsl"
 
+#define CLAMP_STRICT
+
 #ifdef LOD_ENABLED
     #define TEX_DEPTH texDepthLod_trans
     #define MAT_PROJ_INV matProjInv
@@ -35,6 +37,8 @@ uniform mat4 gbufferPreviousModelView;
 uniform mat4 gbufferPreviousProjection;
 uniform vec3 previousCameraPosition;
 uniform vec2 viewSize;
+uniform vec2 viewSizeScaled;
+uniform vec2 taa_offset = vec2(0.0);
 
 #ifdef LOD_ENABLED
     #include "/lib/lod-projection.glsl"
@@ -53,12 +57,6 @@ const int TAA_MaxAccumFrames = 8;
         if (i_shared >= (18*18)) return;
 
         ivec2 uv = ivec2(i_shared % 18, i_shared / 18) + uv_base;
-
-    //    #if RENDER_SCALE != 0
-    //        uv = ivec2(uv * RENDER_SCALE_F);
-    //    #endif
-
-    //    sharedBuffer[i_shared] = TexelFetchLinearRGB(TEX_FINAL, uv + 0.5, 0).rgb;
         sharedBuffer[i_shared] = texelFetch(TEX_FINAL, uv, 0).rgb;
     }
 #endif
@@ -122,9 +120,10 @@ void main() {
             vec4 lastColor = texture(texTAA_prev, texcoord_prev);
         #endif
 
-        float mixRate = TAA_MaxAccumFrames;//clamp(lastColor.a, 0.0, TAA_MaxAccumFrames);
+//        float mixRate = TAA_MaxAccumFrames;//clamp(lastColor.a, 0.0, TAA_MaxAccumFrames);
 
-        if (saturate(texcoord_prev) != texcoord_prev) mixRate = 0.0;
+//        if (saturate(texcoord_prev) != texcoord_prev) mixRate = 0.0;
+        bool validHistory = all(equal(saturate(texcoord_prev), texcoord_prev));
 
         const ivec2 offsets[] = ivec2[8](
             ivec2(-1,-1),
@@ -144,10 +143,13 @@ void main() {
             vec3 in0 = texture(TEX_FINAL, txs).rgb;
         #endif
 
-        vec3 color_min = in0;
-        vec3 color_max = in0;
-//        vec3 m1 = vec3(0.0);
-//        vec3 m2 = vec3(0.0);
+        #ifdef CLAMP_STRICT
+            vec3 color_min = in0;
+            vec3 color_max = in0;
+        #else
+            vec3 m1 = vec3(0.0);
+            vec3 m2 = vec3(0.0);
+        #endif
 
         for (int i = 0; i < 8; i++) {
             #if RENDER_SCALE == 0
@@ -156,36 +158,56 @@ void main() {
                 vec3 in1 = textureOffset(TEX_FINAL, txs, offsets[i]).rgb;
             #endif
 
-            color_min = min(color_min, in1);
-            color_max = max(color_max, in1);
-//            m1 += in1;
-//            m2 += _pow2(in1);
+            #ifdef CLAMP_STRICT
+                color_min = min(color_min, in1);
+                color_max = max(color_max, in1);
+            #else
+                m1 += in1;
+                m2 += _pow2(in1);
+            #endif
         }
 
-//        // Compute mean and standard deviation
-//        const float weightSum = 9.0;
-//        vec3 mu = m1 / weightSum;
-//        vec3 sigma = sqrt(max((m2 / weightSum) - _pow2(mu), vec3(0.0)));
+        #ifdef CLAMP_STRICT
+            float alpha = 1.0 / (TAA_MaxAccumFrames + 1.0);
+        #else
+            // Compute mean and standard deviation
+            const float weightSum = 9.0;
+            vec3 mu = m1 / weightSum;
+            vec3 sigma = sqrt(max((m2 / weightSum) - _pow2(mu), vec3(0.0)));
+
+            // Clip history color to the local neighborhood standard deviation bounds
+            float gamma = 0.5; // Controls how strict the color clipping is
+            vec3 bMin = mu - gamma * sigma;
+            vec3 bMax = mu + gamma * sigma;
+            vec3 historyColor = clamp(lastColor.rgb, bMin, bMax);
+
+            // 5. Blend Current and History (Temporal Accumulation)
+            // A standard FSR blend factor relies on motion magnitude
+            float motionLength = length(screenVelocity);
+            float alpha = clamp(0.05 + motionLength * 4.0, 0.02, 0.85); // Adjust alpha dynamically
+        #endif
+
+        if (!validHistory) alpha = 1.0;
+
+//        #if RENDER_SCALE != 0
+//            // TODO: weight based on jitter offset?
+//            vec2 tc_in = (uv_in + 0.5 + taa_offset) / viewSizeScaled;
+//            vec2 tc_out = (uv_out + 0.5) / viewSize;
+//            float jitterDist = distance(tc_in, tc_out);
+//            float viewScale = 2.0 * length(1.0/viewSizeScaled);
 //
-//        // Clip history color to the local neighborhood standard deviation bounds
-//        float gamma = 0.5; // Controls how strict the color clipping is
-//        vec3 bMin = mu - gamma * sigma;
-//        vec3 bMax = mu + gamma * sigma;
-//        vec3 historyColor = clamp(lastColor.rgb, bMin, bMax);
-//
-//        // 5. Blend Current and History (Temporal Accumulation)
-//        // A standard FSR blend factor relies on motion magnitude
-//        float motionLength = length(screenVelocity);
-//        float alpha = clamp(0.05 + motionLength * 4.0, 0.02, 0.85); // Adjust alpha dynamically
-//
-//        vec3 colorFinal = mix(historyColor, in0, alpha);
+//            alpha = 1.0 - alpha;
+//            alpha *= max(1.0 - jitterDist/viewScale, 0.0);
+//            alpha = 1.0 - alpha;
+//        #endif
 
+        #ifdef CLAMP_STRICT
+            vec3 antialiased = mix(lastColor.rgb, in0, alpha);
+            vec3 colorFinal = clamp(antialiased, color_min, color_max);
+        #else
+            vec3 colorFinal = mix(historyColor, in0, alpha);
+        #endif
 
-
-
-        vec3 antialiased = mix(lastColor.rgb, in0, 1.0 / (mixRate + 1.0));
-        vec3 colorFinal = clamp(antialiased, color_min, color_max);
-
-        imageStore(imgTAA, uv_out, vec4(colorFinal, mixRate + 1.0));
+        imageStore(imgTAA, uv_out, vec4(colorFinal, alpha + 1.0));
     }
 }

@@ -107,6 +107,8 @@ option.MATERIAL_GLASS_TINT.comment=Allows stained glass to apply multiplicative 
 
 option.MATERIAL_WETNESS=Wetness
 
+option.LIGHTING_REFLECT_ROUGHNESS=Rough Reflections
+
 
 screen.MATERIAL_PARALLAX=Parallax
 screen.MATERIAL_PARALLAX.comment=Allows per-pixel displacement of texture data. Requires a resource pack with PBR /POM support.

@@ -1,3 +1,6 @@
+#ifndef __INC_LIGHTING_ATTENUATION
+#define __INC_LIGHTING_ATTENUATION
+
 float GetLightAttenuation(float lightDist, const in float lightRange, const in float lightRadius) {
     lightDist = max(lightDist - lightRadius, 0.0);
     float lightDistF = 1.0 - saturate(lightDist / lightRange);
@@ -7,3 +10,5 @@ float GetLightAttenuation(float lightDist, const in float lightRange, const in f
 
     return mix(linear, invSq, lightDistF);
 }
+
+#endif
