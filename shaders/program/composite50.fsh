@@ -90,10 +90,14 @@ BlurData SampleDof(const in ivec2 uv, const in float focusPoint, const in float 
     centerDepth = linearizeDepth(centerDepth, nearPlane, farPlane);
 
     BlurData result;
+    result.coc = 0.0;
 
 //    float centerSize = getBlurSize(centerDepth, focusPoint, focusScale);
-    result.coc = getBlurCoc(centerDepth, focusPoint, focusScale);
-    float centerSize = abs(result.coc) * EFFECT_BLUR_RADIUS;
+    #ifdef EFFECT_BLUR_DOF
+        result.coc = getBlurCoc(centerDepth, focusPoint, focusScale);
+    #endif
+
+    float centerSize = max(abs(result.coc), result.distF) * EFFECT_BLUR_RADIUS;
 
 //    vec3 color = vec3(0.0);//texelFetch(TEX_SOURCE, uv, 0).rgb;
     result.near = vec3(0.0);
