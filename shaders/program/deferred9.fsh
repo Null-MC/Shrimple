@@ -51,9 +51,9 @@ uniform usampler2D TEX_GB_SPECULAR;
 #ifdef LIGHTING_COLORED
     uniform sampler3D texFloodFill;
 
-    #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED)
-        uniform sampler2D texBlockLight;
-    #endif
+//    #if defined(LIGHTING_HAND) && !defined(PHOTONICS_HAND_LIGHT_ENABLED) && !defined(PHOTONICS_LIGHT_ENABLED)
+//        uniform sampler2D texBlockLight;
+//    #endif
 #endif
 
 #ifdef SSAO_ENABLED
@@ -110,6 +110,10 @@ uniform int vxRenderDistance;
 #include "/lib/sampling/linear.glsl"
 #include "/lib/lighting/attenuation.glsl"
 
+#ifdef PHOTONICS_LIGHT_ENABLED
+    #include "/photonics/samplers.glsl"
+#endif
+
 #ifdef LOD_ENABLED
     #include "/lib/lod-projection.glsl"
 #endif
@@ -157,14 +161,15 @@ uniform int vxRenderDistance;
     #else
         #include "/lib/shadow-sample.glsl"
     #endif
+
+    #ifdef PHOTONICS_SHADOW_ENABLED
+        #include "/photonics/tracing.glsl"
+        #include "/photonics/trace_ray.glsl"
+    #endif
 #endif
 
 #ifdef SHADOW_CLOUDS
     #include "/lib/cloud-shadows.glsl"
-#endif
-
-#ifdef PHOTONICS_LIGHT_ENABLED
-    #include "/photonics/photonics.glsl"
 #endif
 
 
@@ -316,21 +321,21 @@ void main() {
             #endif
 
             #ifdef PHOTONICS_SHADOW_ENABLED
-                RayJob ray = RayJob(
-                    localPos + rt_camera_position + 0.004 * localGeoNormal,
-                    localSkyLightDir,
-                    vec3(0), vec3(0), vec3(0), false
-                );
+                RayIterator shadow_ray;
+                shadow_ray.iterations = 100; // TODO: add setting?
+                ray_iter_set_position(shadow_ray, localPos + rt_camera_position);
+                ray_iter_offset_position(shadow_ray, 0.004 * localGeoNormal);
+                ray_iter_set_direction(shadow_ray, localSkyLightDir);
 
-                RAY_ITERATION_COUNT = 100;
-
-                trace_ray(ray, true);
+                RayResult shadow_hit;
+                vec3 shadow_tint = vec3(1.0);
+                bool is_hit = trace_ray(shadow_ray, shadow_hit, shadow_tint);
 
                 #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                    if (ray.result_hit) shadow = vec3(0.0);
-                    else shadow *= result_tint_color;
+                    if (is_hit) shadow = vec3(0.0);
+                    else shadow *= shadow_tint;
                 #else
-                    if (ray.result_hit) shadowF = 0.0;
+                    if (is_hit) shadowF = 0.0;
                 #endif
             #endif
         #endif
@@ -514,7 +519,7 @@ void main() {
 //            diffuseFinal *= RGBToLinear(ssao);
 //        #endif
 
-        #ifndef LIGHTING_SPECULAR
+        #ifndef PHOTONICS_SPECULAR_ENABLED
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
                 diffuseFinal += sample_photonics_direct(v_texcoord);
             #endif
@@ -578,6 +583,7 @@ void main() {
                 float F = F_schlick(NoV, f0, 1.0);
             #endif
 
+            // rough-scatter hack
             diffuseFinal *= 1.0 - F * smoothL;
 
             #if !(defined(SSR_ENABLED) || defined(PHOTONICS_REFLECT_ENABLED))
@@ -610,7 +616,7 @@ void main() {
             outFinal = albedo * diffuseFinal + specularFinal;
         #endif
 
-        #ifdef LIGHTING_SPECULAR
+        #ifdef PHOTONICS_SPECULAR_ENABLED
             #ifdef PHOTONICS_BLOCK_LIGHT_ENABLED
                 outFinal += sample_photonics_direct(v_texcoord);
             #endif

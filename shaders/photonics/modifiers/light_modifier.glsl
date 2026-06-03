@@ -1,6 +1,4 @@
 #ifdef PHOTONICS_SHRIMPLE_COLORS
-    uniform sampler2D texBlockLight;
-
     #include "/lib/sampling/block-light.glsl"
 #endif
 

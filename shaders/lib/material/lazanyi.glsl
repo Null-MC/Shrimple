@@ -1,3 +1,6 @@
+#ifndef __INC_MAT_LAZANYI
+#define __INC_MAT_LAZANYI
+
 struct LazanyiF {
     vec3 f0;
     vec3 f82;
@@ -60,3 +63,5 @@ LazanyiF mat_f0_lazanyi(const in vec3 albedo, float specular_g) {
         return LazanyiF(vec3(0.04), vec3(1.00));
     #endif
 }
+
+#endif

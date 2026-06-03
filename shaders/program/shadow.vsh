@@ -16,8 +16,6 @@ in vec4 at_midBlock;
 
 #ifdef VOXEL_ENABLED
     layout(r16ui) uniform writeonly uimage3D imgVoxels;
-
-    uniform sampler2D texBlockLight;
 #endif
 
 #ifdef WIND_ENABLED

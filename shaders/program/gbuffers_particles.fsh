@@ -27,10 +27,6 @@ uniform sampler2D gtexture;
 
 #ifdef LIGHTING_COLORED
     uniform sampler3D texFloodFill;
-
-    #ifdef LIGHTING_HAND
-        uniform sampler2D texBlockLight;
-    #endif
 #endif
 
 #ifdef SHADOWS_ENABLED

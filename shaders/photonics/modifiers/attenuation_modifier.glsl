@@ -34,7 +34,7 @@ vec3 modify_attenuation(
     float NoLm = max(dot(texture_normal, light_dir), 0.0);
     NoLm *= step(EPSILON, dot(geometry_normal, light_dir));
 
-    #ifdef LIGHTING_SPECULAR
+    #ifdef PHOTONICS_SPECULAR_ENABLED
         vec3 localPos = sample_pos - rt_camera_position;
         vec3 localViewDir = normalize(localPos);
 
