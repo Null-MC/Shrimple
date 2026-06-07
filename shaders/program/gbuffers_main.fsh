@@ -210,6 +210,10 @@ void main() {
 	float mip = textureQueryLod(gtexture, texcoord).y;
     vec3 localViewDir = vIn.localPos / viewDist;
 
+    #if RENDER_SCALE != 0
+        mip += log2(RENDER_SCALE_F);
+    #endif
+
     #ifdef RENDER_ENTITY
         vec3 localGeoNormal = normalize(vIn.localNormal);
     #else

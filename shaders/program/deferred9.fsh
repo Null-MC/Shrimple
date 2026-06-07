@@ -197,6 +197,7 @@ void main() {
 
         vec2 lmcoord = meta.xy;
         float occlusion = _pow2(meta.z);
+        uint matId = uint(meta.a * 255.0 + 0.5);
 
         #ifdef MATERIAL_PBR_ENABLED
             float tex_sss = mat_sss(specularData.b);
@@ -377,8 +378,10 @@ void main() {
         #endif
 
         #ifdef SSAO_ENABLED
-            float ssao = texelFetch(TEX_SSAO, uv, 0).r;
-            occlusion *= RGBToLinear(ssao);
+            if (matId != MAT_HAND) {
+                float ssao = texelFetch(TEX_SSAO, uv, 0).r;
+                occlusion *= RGBToLinear(ssao);
+            }
         #endif
 
         bool isLod = false;

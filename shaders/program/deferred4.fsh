@@ -12,9 +12,6 @@
 
 #define TEX_DEPTH depthtex1
 
-const float SSAO_Bias = 0.04;
-const float SSAO_MinLight = 0.0;
-
 in vec2 v_texcoord;
 
 
@@ -90,7 +87,6 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
 
         if (isSky) {
             accumLitF += 1.0;
-//            sampleCount++;
             continue;
         }
 
@@ -101,19 +97,11 @@ float GetSpiralOcclusion(const in vec3 viewPos, const in vec3 viewNormal) {
         float sampleDist = length(diff);
         vec3 sampleNormal = diff / sampleDist;
 
-//        float sampleNoLm = max(dot(viewNormal, sampleNormal) - SSAO_Bias, 0.0);
-//        float sampleLit = 1.0 - sampleNoLm;
         float sampleOcclusion = step(0.04, dot(viewNormal, sampleNormal));
-//        sampleOcclusion *= 1.0 - saturate(sampleDist / max_radius);
-//        sampleOcclusion *= 1.0 / (_pow2(sampleDist) + 1.0);
         accumLitF += 1.0 - sampleOcclusion;
-//        sampleCount++;
     }
 
-//    ao /= SSAO_SAMPLES;
-//    ao = pow(ao, 0.35);
-
-    return accumLitF / SSAO_SAMPLES;// * (1.0 - SSAO_MinLight);
+    return accumLitF / SSAO_SAMPLES;
 }
 
 
@@ -123,16 +111,17 @@ layout(location = 0) out float outOcclusion;
 void main() {
     ivec2 uv = ivec2(gl_FragCoord.xy);
     float occlusion = 1.0;
+    bool hasAO = true;
 
     #ifdef LOD_ENABLED
         float depth = texelFetch(TEX_LOD_DEPTH, uv, 0).r;
-        bool isSky = depth <= 0.0;
+        if (depth <= 0.0) hasAO = false;
     #else
         float depth = texelFetch(TEX_DEPTH, uv, 0).r;
-        bool isSky = depth >= 1.0;
+        if (depth >= 1.0) hasAO = false;
     #endif
 
-    if (!isSky) {
+    if (hasAO) {
         vec4 normalData = texelFetch(TEX_GB_NORMALS, uv, 0);
 
         vec3 screenPos = vec3(v_texcoord, depth);
@@ -164,10 +153,16 @@ void main() {
             viewPos = mul3(gbufferModelView, localPos);
         #endif
 
-        bool hasAO = true;
         #if SSAO_MODE == SSAO_LOD
-            float viewDist = length(viewPos);
-            if (viewDist < dh_clipDistF * far) hasAO = false;
+            #ifdef DISTANT_HORIZONS
+                float viewDist = length(viewPos);
+                if (viewDist < dh_clipDistF * far) hasAO = false;
+            #endif
+
+            #ifdef VOXY
+                float v_depth = texelFetch(TEX_DEPTH, uv, 0).r;
+                if (v_depth < 1.0) hasAO = false;
+            #endif
         #endif
 
         if (hasAO) {

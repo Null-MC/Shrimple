@@ -114,6 +114,8 @@ void main() {
         vec3 ndcPosPrev = reproject(ndcPos, isHand);
         vec2 texcoord_prev = ndcPosPrev.xy * 0.5 + 0.5;
 
+        vec2 screenVelocity = texcoord - texcoord_prev;
+
         #ifdef TAA_SHARPEN_HISTORY
             vec4 lastColor = sample_CatmullRom_RGBA(texTAA_prev, texcoord_prev, viewSize);
         #else
@@ -124,43 +126,66 @@ void main() {
 
         if (saturate(texcoord_prev) != texcoord_prev) mixRate = 0.0;
 
+        const ivec2 offsets[] = ivec2[8](
+            ivec2(-1,-1),
+            ivec2( 0,-1),
+            ivec2( 1,-1),
+            ivec2(-1, 0),
+            ivec2( 1, 0),
+            ivec2(-1, 1),
+            ivec2( 0, 1),
+            ivec2( 1, 1));
+
         #if RENDER_SCALE == 0
             ivec2 luv = ivec2(gl_LocalInvocationID.xy) + 1;
             vec3 in0 = sharedBuffer[getSharedIndex(luv)];
-            vec3 in1 = sharedBuffer[getSharedIndex(luv + ivec2(+1,  0))];
-            vec3 in2 = sharedBuffer[getSharedIndex(luv + ivec2(-1,  0))];
-            vec3 in3 = sharedBuffer[getSharedIndex(luv + ivec2( 0, +1))];
-            vec3 in4 = sharedBuffer[getSharedIndex(luv + ivec2( 0, -1))];
-            vec3 in5 = sharedBuffer[getSharedIndex(luv + ivec2(+1, +1))];
-            vec3 in6 = sharedBuffer[getSharedIndex(luv + ivec2(-1, +1))];
-            vec3 in7 = sharedBuffer[getSharedIndex(luv + ivec2(+1, -1))];
-            vec3 in8 = sharedBuffer[getSharedIndex(luv + ivec2(-1, -1))];
         #else
             vec2 txs = texcoord * RENDER_SCALE_F;
             vec3 in0 = texture(TEX_FINAL, txs).rgb;
-            vec3 in1 = textureOffset(TEX_FINAL, txs, ivec2(+1,  0)).rgb;
-            vec3 in2 = textureOffset(TEX_FINAL, txs, ivec2(-1,  0)).rgb;
-            vec3 in3 = textureOffset(TEX_FINAL, txs, ivec2( 0, +1)).rgb;
-            vec3 in4 = textureOffset(TEX_FINAL, txs, ivec2( 0, -1)).rgb;
-            vec3 in5 = textureOffset(TEX_FINAL, txs, ivec2(+1, +1)).rgb;
-            vec3 in6 = textureOffset(TEX_FINAL, txs, ivec2(-1, +1)).rgb;
-            vec3 in7 = textureOffset(TEX_FINAL, txs, ivec2(+1, -1)).rgb;
-            vec3 in8 = textureOffset(TEX_FINAL, txs, ivec2(-1, -1)).rgb;
         #endif
 
+        vec3 color_min = in0;
+        vec3 color_max = in0;
+//        vec3 m1 = vec3(0.0);
+//        vec3 m2 = vec3(0.0);
+
+        for (int i = 0; i < 8; i++) {
+            #if RENDER_SCALE == 0
+                vec3 in1 = sharedBuffer[getSharedIndex(luv + offsets[i])];
+            #else
+                vec3 in1 = textureOffset(TEX_FINAL, txs, offsets[i]).rgb;
+            #endif
+
+            color_min = min(color_min, in1);
+            color_max = max(color_max, in1);
+//            m1 += in1;
+//            m2 += _pow2(in1);
+        }
+
+//        // Compute mean and standard deviation
+//        const float weightSum = 9.0;
+//        vec3 mu = m1 / weightSum;
+//        vec3 sigma = sqrt(max((m2 / weightSum) - _pow2(mu), vec3(0.0)));
+//
+//        // Clip history color to the local neighborhood standard deviation bounds
+//        float gamma = 0.5; // Controls how strict the color clipping is
+//        vec3 bMin = mu - gamma * sigma;
+//        vec3 bMax = mu + gamma * sigma;
+//        vec3 historyColor = clamp(lastColor.rgb, bMin, bMax);
+//
+//        // 5. Blend Current and History (Temporal Accumulation)
+//        // A standard FSR blend factor relies on motion magnitude
+//        float motionLength = length(screenVelocity);
+//        float alpha = clamp(0.05 + motionLength * 4.0, 0.02, 0.85); // Adjust alpha dynamically
+//
+//        vec3 colorFinal = mix(historyColor, in0, alpha);
+
+
+
+
         vec3 antialiased = mix(lastColor.rgb, in0, 1.0 / (mixRate + 1.0));
+        vec3 colorFinal = clamp(antialiased, color_min, color_max);
 
-        vec3 minColor = min(min(min(min(in0, in1), in2), in3), in4);
-        minColor = min(min(min(min(minColor, in5), in6), in7), in8);
-
-        vec3 maxColor = max(max(max(max(in0, in1), in2), in3), in4);
-        maxColor = max(max(max(max(maxColor, in5), in6), in7), in8);
-
-        vec3 clamped = clamp(antialiased, minColor, maxColor);
-//        vec3 diff = clamped - antialiased;
-//        mixRate *= 1.0 / (dot(diff, diff) * TAA_RejectionStrength + 1.0);
-
-//        clamped = clamped / (1.0 - luminance(clamped));
-        imageStore(imgTAA, uv_out, vec4(clamped, mixRate + 1.0));
+        imageStore(imgTAA, uv_out, vec4(colorFinal, mixRate + 1.0));
     }
 }

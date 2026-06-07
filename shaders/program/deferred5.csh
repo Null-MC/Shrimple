@@ -22,7 +22,6 @@ layout(r16f) uniform writeonly image2D IMG_SSAO;
 shared float sharedOcclusion[20*20];
 shared float sharedDepthL[20*20];
 shared float sharedGaussian[3];
-//shared float sharedGaussianY[3];
 
 uniform sampler2D TEX_FINAL;
 uniform sampler2D TEX_DEPTH;
