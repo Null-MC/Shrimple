@@ -10,6 +10,8 @@ colortex6		    RG32UI 	    1.0		deferred specular, meta
 
 colortex7		    R8		    1.0		SSAO
 
+colortex9		    RGBA16F		1.0		Blur
+
 
 
 ### CUSTOM IMAGES
@@ -21,6 +23,9 @@ imgTAA_prev         RGBA16F     1.0     TAA history
 
 imgDepthLod_opaque  R32F        1.0     LOD merged depth [opaque]
 imgDepthLod_trans   R32F        1.0     LOD merged depth [translucent]
+
+imgReflect
+imgReflectHistory
 
 
 ### CUSTOM TEXTURES

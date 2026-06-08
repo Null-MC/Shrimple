@@ -287,9 +287,6 @@ screen.MOD_PHOTONICS=Photonics
 option.PHOTONICS_SHADOW_ENABLED=Shadows
 option.PHOTONICS_SHADOW_ENABLED.comment=Replaces standard shadow-maps with ray-traced shadows using Photonics.
 
-option.PHOTONICS_REFLECT_ENABLED=Reflections
-option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
-
 option.PHOTONICS_BLOCK_TINT_ENABLED=Tinting
 option.PHOTONICS_BLOCK_TINT_ENABLED.comment=Allows traced lighting & reflections to be tinted from translucent blocks, like stained glass.
 
@@ -304,6 +301,17 @@ option.PHOTONICS_GI_ENABLED.comment=Enables bounced lighting calculations to sim
 
 option.PHOTONICS_SHRIMPLE_COLORS=Shrimple Colors
 option.PHOTONICS_SHRIMPLE_COLORS.comment=Replace photonics light colors with Shrimples built-in colors.
+
+
+screen.MOD_PHOTONICS_REFLECTIONS=Reflections
+
+option.PHOTONICS_REFLECT_ENABLED=Enabled
+option.PHOTONICS_REFLECT_ENABLED.comment=Replaces screen-space reflections with world-space reflections using Photonics ray-tracing.
+
+option.PHOTONICS_REFLECT_BOUNCES=Bounces
+
+option.PHOTONICS_REFLECT_STEPS=Trace Steps
+
 
 screen.MOD_PH_ADV=Advanced Options
 

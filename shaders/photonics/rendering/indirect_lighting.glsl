@@ -84,7 +84,7 @@ void sample_indirect(inout vec3 indirect_color, vec3 sample_rt_pos, vec3 geo_nor
         #ifdef PHOTONICS_GI_ENABLED
             // hit sky
             vec3 playerPos = sample_rt_pos - rt_camera_position;
-            final_color = get_sky_color(playerPos, trace_localDir);
+            final_color = get_sky_color(playerPos, trace_localDir) * 2.0;
         #endif
 
         first_hit = vec3(-1.0);
@@ -92,7 +92,7 @@ void sample_indirect(inout vec3 indirect_color, vec3 sample_rt_pos, vec3 geo_nor
     else {
         VoxelData voxel_data = ray_result_voxel_data(hit);
         vec3 hit_albedo = voxel_data_albedo(voxel_data).rgb;
-        hit_albedo = RGBToLinear(hit_albedo);
+//        hit_albedo = RGBToLinear(hit_albedo);
 
         vec3 hit_position = ray_result_position(hit);
         vec3 hit_localPos = hit_position - rt_camera_position;

@@ -220,11 +220,11 @@ void main() {
         shadowCoverageF *= float(saturate(shadowPos.z) == shadowPos.z);
 
         #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-            shadow = SampleShadowColor(shadowPos);
+            shadow = SampleShadowColor(shadowPos, gl_FragCoord.xy);
             shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
             shadow *= cloudShadowF; // * shadow_geoNoL
         #else
-            shadowF = SampleShadowF(shadowPos);
+            shadowF = SampleShadowF(shadowPos, gl_FragCoord.xy);
             shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
             shadowF *= cloudShadowF; // * shadow_geoNoL
         #endif
