@@ -35,6 +35,7 @@ out VertexData {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         float waveHeight;
+        float waveStrength;
     #endif
 
     #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
@@ -148,6 +149,19 @@ void main() {
                 #ifdef LOD_ENABLED
                     waveFadeF *= smoothstep(dh_clipDistF * far, 0.8 * dh_clipDistF * far, viewDist);
                 #endif
+
+                vOut.waveStrength = 1.0;
+                #ifdef VOXEL_ENABLED
+                    vec3 originPos_up = vOut.localPos + midBlockOffset;
+                    originPos_up.y += 1.0;
+
+                    ivec3 voxelPos_up = ivec3(GetVoxelPosition(originPos_up));
+                    if (IsInVoxelBounds(voxelPos_up)) {
+                        uint voxel_up = texelFetch(texVoxels, voxelPos_up, 0).r;
+                        if (voxel_up == BLOCK_ICE || voxel_up == BLOCK_GLASS) vOut.waveStrength = 0.0;
+                    }
+                #endif
+
                 vOut.waveHeight = (waveHeight*0.5 - 0.4) * waveFadeF;
                 vOut.localPos.y += vOut.waveHeight;
             }

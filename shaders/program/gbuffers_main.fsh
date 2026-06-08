@@ -29,6 +29,7 @@ in VertexData {
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
         float waveHeight;
+        float waveStrength;
     #endif
 
     #if defined(MATERIAL_PBR_ENABLED) || defined(WATER_WAVE_ENABLED)
@@ -331,7 +332,7 @@ void main() {
     #endif
 
     #if defined(WATER_WAVE_ENABLED) && defined(RENDER_TERRAIN) && defined(RENDER_TRANSLUCENT)
-        if (blockId == BLOCK_WATER) {
+        if (blockId == BLOCK_WATER && vIn.waveStrength > 0.5) {
             float waveHeight = WaterWave_Fragment(localPos);
             vec3 wavePos = vec3(localPos.xz, waveHeight);
             wavePos.z += localPos.y - vIn.waveHeight;
