@@ -216,7 +216,7 @@ void main() {
         distort(shadowPos.xy);
         shadowPos = shadowPos * 0.5 + 0.5;
 
-        shadow = SampleShadowF(shadowPos);
+        shadow = SampleShadowF(shadowPos, gl_FragCoord.xy);
 
         float shadow_NoL = dot(localTexNormal, localSkyLightDir);
 

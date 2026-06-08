@@ -14,7 +14,9 @@ deferred9       opaque final
 
 composite1      depth merge translucent
 composite9      translucent overlay
-composite10     reflections
+
+composite21     reflection trace
+composite22     reflection composite
 
 composite50     blur
 composite51     blur smooth & composite

@@ -173,10 +173,10 @@ void main() {
         shadowPos = shadowPos * 0.5 + 0.5;
 
         #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-            shadow = SampleShadowColor(shadowPos);
+            shadow = SampleShadowColor(shadowPos, gl_FragCoord.xy);
             shadow *= cloudShadowF;
         #else
-            shadowF = SampleShadowF(shadowPos);
+            shadowF = SampleShadowF(shadowPos, gl_FragCoord.xy);
             shadowF *= cloudShadowF;
         #endif
     #endif

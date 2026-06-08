@@ -2,8 +2,8 @@ const float ShadowPixelRadius = 1.8 / shadowMapResolution;
 const float ShadowSampleCountInv = 1.0 / SHADOW_PCF_SAMPLES;
 
 
-float GetShadowDither() {
-    vec2 seed = gl_FragCoord.xy;
+float GetShadowDither(vec2 seed) {
+//    vec2 seed = gl_FragCoord.xy;
 
     #ifdef TAA_ENABLED
         seed += vec2(71.83, 83.71) * (frameCounter % 16);
@@ -12,8 +12,8 @@ float GetShadowDither() {
     return InterleavedGradientNoise(seed);
 }
 
-mat2 GetRandomShadowRotation() {
-    float dither = GetShadowDither();
+mat2 GetRandomShadowRotation(const in vec2 seed) {
+    float dither = GetShadowDither(seed);
     float angle = fract(dither) * (PI * 2.0);
     float s = sin(angle), c = cos(angle);
     return mat2(c, -s, s, c);
@@ -27,9 +27,9 @@ vec2 GetShadowSampleOffset(const in mat2 rotation, const in int i) {
     return (rotation * pcfDiskOffset) * ShadowPixelRadius;
 }
 
-float SampleShadowF(const in vec3 shadowPos) {
+float SampleShadowF(const in vec3 shadowPos, const in vec2 pcf_seed) {
     #if SHADOW_PCF_SAMPLES > 1
-        mat2 rotation = GetRandomShadowRotation();
+        mat2 rotation = GetRandomShadowRotation(pcf_seed);
     #endif
 
     float shadow = 0.0;
@@ -54,9 +54,9 @@ float SampleShadowF(const in vec3 shadowPos) {
 }
 
 #ifdef SHADOW_COLORED
-    vec3 SampleShadowColor(const in vec3 shadowPos) {
+    vec3 SampleShadowColor(const in vec3 shadowPos, const in vec2 pcf_seed) {
         #if SHADOW_PCF_SAMPLES > 1
-            mat2 rotation = GetRandomShadowRotation();
+            mat2 rotation = GetRandomShadowRotation(pcf_seed);
         #endif
 
         vec3 shadow = vec3(0.0);
@@ -85,7 +85,7 @@ float SampleShadowF(const in vec3 shadowPos) {
         return max(shadow * ShadowSampleCountInv, 0.0);
     }
 #else
-    vec3 SampleShadowColor(const in vec3 shadowPos) {
-        return vec3(SampleShadows(shadowPos));
+    vec3 SampleShadowColor(const in vec3 shadowPos, const in vec2 pcf_seed) {
+        return vec3(SampleShadows(shadowPos, pcf_seed));
     }
 #endif

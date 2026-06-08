@@ -412,9 +412,9 @@ void main() {
 
         #if LIGHTING_RESOLUTION > 0
             #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                shadow = SampleShadowColor(shadowPos, localGeoNormal);
+                shadow = SampleShadowColor(shadowPos, localGeoNormal, gl_FragCoord.xy);
             #else
-                shadowF = SampleShadowF(shadowPos, localGeoNormal);
+                shadowF = SampleShadowF(shadowPos, localGeoNormal, gl_FragCoord.xy);
             #endif
         #else
             vec3 shadowViewPos = mul3(shadowModelView, shadowPos);
@@ -438,10 +438,10 @@ void main() {
             shadowPos = shadowPos * 0.5 + 0.5;
 
             #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
-                shadow = SampleShadowColor(shadowPos);
+                shadow = SampleShadowColor(shadowPos, gl_FragCoord.xy);
                 shadow = mix(shadow, vec3(pow4(vIn.lmcoord.y)), shadowCoverageF);
             #else
-                shadowF = SampleShadowF(shadowPos);
+                shadowF = SampleShadowF(shadowPos, gl_FragCoord.xy);
                 shadowF = mix(shadowF, pow4(vIn.lmcoord.y), shadowCoverageF);
             #endif
         #endif
