@@ -9,7 +9,7 @@ vec3 GetAreaLightDir(const in vec3 viewNormal, const in vec3 viewDir, const in v
 float D_GGX(const in float NoH, const in float alpha) {
     float a2 = _pow2(alpha);
     float f = (NoH * a2 - NoH) * NoH + 1.0;
-    return a2 / max(PI * f * f, 1.e-7);
+    return a2 / max(PI * f * f, 1.e-5);
 }
 
 float V_Approx(const in float NoL, const in float NoV, const in float alpha) {
@@ -18,7 +18,7 @@ float V_Approx(const in float NoL, const in float NoV, const in float alpha) {
 
     float G_V = NoV / fma(NoV, k_inv, k);
     float G_L = NoL / fma(NoL, k_inv, k);
-    return G_V * G_L;
+    return saturate(G_V * G_L);
 }
 
 vec3 SampleLightSpecular(vec3 albedo, vec3 normal, vec3 lightDir, vec3 viewDir, const in float NoLm, float roughL, float specularG) {

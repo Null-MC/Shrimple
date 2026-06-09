@@ -238,22 +238,21 @@ void main() {
             vec3 lpvSamplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);
         #endif
 
-        #if defined(MATERIAL_WETNESS) && defined(WORLD_OVERWORLD)
-            float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), lmcoord.y);
-            #ifdef VOXEL_ENABLED
-                if (IsInVoxelBounds(lpvSamplePos))
-                    skyExposure *= SampleFloodFill_SkyExposure(lpvSamplePos);
-            #endif
-
-            float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
-//            float porosity = mat_porosity(specularData.rgb);
-            float surfaceWetness = wetness * porosity;
-
-            if (surfaceWetness > 0.0) {
-                albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
-                specularData.r = mix(specularData.r, 1.0, 0.86*surfaceWetness);
-            }
-        #endif
+//        #if defined(MATERIAL_WETNESS) && defined(WORLD_OVERWORLD)
+//            float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), lmcoord.y);
+//            #ifdef VOXEL_ENABLED
+//                if (IsInVoxelBounds(lpvSamplePos))
+//                    skyExposure *= SampleFloodFill_SkyExposure(lpvSamplePos);
+//            #endif
+//
+//            float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
+//            float surfaceWetness = wetness * porosity;
+//
+//            if (surfaceWetness > 0.0) {
+//                albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
+//                specularData.r = mix(specularData.r, 1.0, 0.86*surfaceWetness);
+//            }
+//        #endif
 
         vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
 

@@ -61,9 +61,10 @@ uniform vec3 cameraPosition;
 uniform float frameTimeCounter;
 uniform ivec2 atlasSize;
 uniform vec2 viewSizeScaled;
-
 uniform int vxRenderDistance;
 uniform float dhFarPlane;
+
+uniform float weatherWetness;
 
 #include "/lib/blocks.glsl"
 #include "/lib/entities.glsl"
@@ -237,12 +238,26 @@ void main() {
         }
     #endif
 
+    #if defined(MATERIAL_PBR_ENABLED) && defined(WORLD_OVERWORLD)
+        float skyExposure = smoothstep((13.5/15.0), (14.5/15.0), vIn.lmcoord.y);
+        float wetness = weatherWetness * skyExposure * saturate(unmix(-0.4, 0.1, localTexNormal.y));
+        float porosity = mat_porosity(specularData.rgb);
+        float surfaceWetness = wetness * porosity;
+
+        if (surfaceWetness > 0.0) {
+            vec3 albedo = RGBToLinear(color.rgb);
+            albedo *= exp(-2.0 * surfaceWetness * (1.0 - albedo));
+            color.rgb = LinearToRGB(albedo);
+
+            specularData.r = mix(specularData.r, 1.0, surfaceWetness);
+        }
+    #endif
+
 
     uint matId = 0u;
     #ifdef RENDER_HAND
         matId = MAT_HAND;
     #endif
-
 
     outAlbedo = color;
 

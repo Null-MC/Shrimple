@@ -390,7 +390,7 @@ void main() {
         float surfaceWetness = wetness * porosity;
 
         if (surfaceWetness > 0.0) {
-            albedo *= exp(-3.0 * surfaceWetness * (1.0 - albedo));
+            albedo *= exp(-2.0 * surfaceWetness * (1.0 - albedo));
             specularData.r = mix(specularData.r, 1.0, surfaceWetness);
         }
     #endif
