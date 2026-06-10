@@ -84,7 +84,7 @@ void sample_indirect(inout vec3 indirect_color, vec3 sample_rt_pos, vec3 geo_nor
         #ifdef PHOTONICS_GI_ENABLED
             // hit sky
             vec3 playerPos = sample_rt_pos - rt_camera_position;
-            final_color = get_sky_color(playerPos, trace_localDir);
+            final_color = get_sky_color(playerPos, trace_localDir) * 2.0;
         #endif
 
         first_hit = vec3(-1.0);
