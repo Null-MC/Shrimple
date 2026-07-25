@@ -78,7 +78,7 @@ vec3 reproject(const in vec3 ndcPos, const bool isHand) {
 
     #ifdef VELOCITY_ENABLED
         ivec2 uv_in = ivec2(gl_GlobalInvocationID.xy * RENDER_SCALE_F);
-        localPosPrev -= texelFetch(TEX_VELOCITY, uv_in, 0).xyz;
+        localPosPrev -= texelFetch(TEX_VELOCITY, uv_in, 0).xyz/65000.0;
 
 //        vec2 texcoord = (gl_GlobalInvocationID.xy + 0.5) / viewSize;
 //        localPosPrev -= texture(TEX_VELOCITY, texcoord).xyz;

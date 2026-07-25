@@ -271,7 +271,7 @@ void main() {
 
     #ifdef VELOCITY_ENABLED
         #ifdef RENDER_TERRAIN
-            outVelocity = vIn.velocity;
+            outVelocity = vIn.velocity * 65000.0;
         #else
             outVelocity = vec3(0.0);
         #endif
