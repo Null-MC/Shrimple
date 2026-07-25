@@ -4,8 +4,8 @@
     #define FOG_HORIZON_F 0.02
 #endif
 
-const vec3 colorSkyDay     = pow(vec3(0.267, 0.478, 0.655), vec3(2.2));
-const vec3 colorFogDay     = pow(vec3(0.718, 0.714, 0.725), vec3(2.2));
+const vec3 colorSkyDay     = pow(vec3(0.318, 0.600, 0.831), vec3(2.2));
+const vec3 colorFogDay     = pow(vec3(0.600, 0.725, 0.800), vec3(2.2));
 
 const vec3 colorSkyNight   = pow(vec3(0.106, 0.090, 0.149), vec3(2.2));
 const vec3 colorFogNight   = pow(vec3(0.169, 0.220, 0.322), vec3(2.2));
@@ -88,9 +88,9 @@ vec3 GetSkyFogColor(const in vec3 skyColorL, const in vec3 fogColorL, const in v
         #endif
     #endif
 
-    #if OVERWORLD_SKY == SKY_ENHANCED
-        result *= 2.0;
-    #endif
+//    #if OVERWORLD_SKY == SKY_ENHANCED
+//        result *= 2.0;
+//    #endif
 
     return result;
 }

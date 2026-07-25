@@ -21,7 +21,7 @@ uniform float frameTime;
     #ifdef SHADOWS_ENABLED
         const float SkyDayBrightness = 12.0;
     #else
-        const float SkyDayBrightness = 8.0;
+        const float SkyDayBrightness = 12.0;
     #endif
 
     vec3 GetSkyLightColor(const in float localSunLightDir_y, const in float localSkyLightDir_y) {
@@ -55,6 +55,8 @@ void main() {
     #if LIGHTING_MODE == LIGHTING_MODE_ENHANCED
         vec3 localSkyLightDir = normalize(mat3(gbufferModelViewInverse) * shadowLightPosition);
         scene.skyLightColor = GetSkyLightColor(sunLocalDir.y, localSkyLightDir.y);
+
+        scene.blockLightColor = 4.0 * blackbody(LIGHTING_TEMP);
     #endif
 
     #ifdef WIND_ENABLED

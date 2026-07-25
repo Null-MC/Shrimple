@@ -37,13 +37,15 @@ void voxy_emitFragment(VoxyFragmentParameters parameters) {
     ) * (float(int(parameters.face) & 1) * 2.0 - 1.0);
 
     // TODO: if vanilla lighting, make foliage have "up" normals
-    #ifndef MATERIAL_PBR_ENABLED
+//    #ifndef MATERIAL_PBR_ENABLED
         bool isGrass = parameters.customId == BLOCK_GRASS_SHORT
             || parameters.customId == BLOCK_TALL_GRASS_LOWER
-            || parameters.customId == BLOCK_TALL_GRASS_UPPER;
+            || parameters.customId == BLOCK_TALL_GRASS_UPPER
+            || parameters.customId == BLOCK_WHEAT
+            || parameters.customId == BLOCK_POTATOES;
 
         if (isGrass) localNormal = vec3(0,1,0);
-    #endif
+//    #endif
 
 //    vec3 albedo = RGBToLinear(color.rgb);
     vec4 specularData = vec4(0.0, 0.04, 0.0, 0.0);

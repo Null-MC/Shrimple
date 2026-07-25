@@ -397,8 +397,8 @@ void main() {
 
             lmcoord = _pow3(lmcoord);
 
-            const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
-            vec3 blockLight = lmcoord.x * blockLightColor;
+//            const vec3 blockLightColor = pow(vec3(0.922, 0.871, 0.686), vec3(2.2));
+            vec3 blockLight = lmcoord.x * scene.blockLightColor;
 
             #if defined(LIGHTING_COLORED) && !defined(PHOTONICS_BLOCK_LIGHT_ENABLED)
 //                vec3 samplePos = GetFloodFillSamplePos(voxelPos, localGeoNormal, localTexNormal);

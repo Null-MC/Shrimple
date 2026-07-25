@@ -3,6 +3,8 @@ setup2			cloud shadow blur
 setup3			sky transmit LUT
 setup4			sky irradiance LUT
 
+begin1          update scene SSBO
+
 shadowcomp		floodfill propagation
 
 prepare1		fog/sky color [nether only]

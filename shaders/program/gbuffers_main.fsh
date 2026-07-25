@@ -362,7 +362,9 @@ void main() {
         #ifdef RENDER_TERRAIN
             bool isGrass = blockId == BLOCK_GRASS_SHORT
                 || blockId == BLOCK_TALL_GRASS_LOWER
-                || blockId == BLOCK_TALL_GRASS_UPPER;
+                || blockId == BLOCK_TALL_GRASS_UPPER
+                || blockId == BLOCK_WHEAT
+                || blockId == BLOCK_POTATOES;
 
             if (isGrass) localTexNormal = vec3(0,1,0);
         #endif
