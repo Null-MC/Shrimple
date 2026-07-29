@@ -60,8 +60,11 @@ vec3 transform_to_world(const in vec3 normal, const in vec3 local_dir) {
     return mat3(tangent, bitangent, normal) * local_dir;
 }
 
-void sample_indirect(inout vec3 indirect_color, vec3 sample_rt_pos, vec3 geo_normal, vec3 tex_normal, inout uint rnd_state,
+void sample_indirect(inout vec3 indirect_color, vec3 sample_rt_pos, vec3 normal, inout uint rnd_state,
     out vec3 first_hit, out vec3 first_normal) {
+
+    vec3 geo_normal = normal;
+    vec3 tex_normal = normal;
 
 //    vec3 trace_tangentDir = sample_cosine_weighted_hemisphere(rnd_state);
 //    vec3 trace_localDir = transform_to_world(tex_normal, trace_tangentDir);
