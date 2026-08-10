@@ -53,12 +53,12 @@ out VertexData {
 
 
 #ifdef RENDER_TERRAIN
-    #ifdef MATERIAL_PARALLAX_ENABLED
-        uniform usampler3D texVoxels;
-    #endif
-
     #ifdef WIND_ENABLED
         uniform usampler2D texBlockWaving;
+    #endif
+
+    #if defined(MATERIAL_PARALLAX_ENABLED) || defined(VOXEL_ENABLED)
+        uniform usampler3D texVoxels;
     #endif
 #endif
 
