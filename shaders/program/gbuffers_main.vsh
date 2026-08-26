@@ -45,8 +45,8 @@ out VertexData {
 
     #ifdef MATERIAL_PARALLAX_ENABLED
         vec3 tangentViewPos;
-        flat uint atlasTilePos;
-        flat uint atlasTileSize;
+        flat vec2 atlasTilePos;
+        flat vec2 atlasTileSize;
         flat uint wrapMask;
     #endif
 } vOut;
@@ -218,10 +218,11 @@ void main() {
     #endif
 
     #ifdef MATERIAL_PARALLAX_ENABLED
-        vec2 atlasTilePos, atlasTileSize;
-        GetAtlasBounds(vOut.texcoord, atlasTilePos, atlasTileSize);
-        vOut.atlasTilePos = packHalf2x16(atlasTilePos);
-        vOut.atlasTileSize = packHalf2x16(atlasTileSize);
+//        vec2 atlasTilePos, atlasTileSize;
+//        GetAtlasBounds(vOut.texcoord, atlasTilePos, atlasTileSize);
+//        vOut.atlasTilePos = packHalf2x16(atlasTilePos);
+//        vOut.atlasTileSize = packHalf2x16(atlasTileSize);
+        GetAtlasBounds(vOut.texcoord, vOut.atlasTilePos, vOut.atlasTileSize);
 
         mat3 matViewTBN = BuildTBN(viewNormal, viewTangent, at_tangent.w);
 

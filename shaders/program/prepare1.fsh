@@ -22,6 +22,7 @@ uniform vec2 viewSizeScaled;
 uniform float blindness;
 
 uniform int vxRenderDistance;
+uniform float dhFarPlane;
 
 #include "/lib/oklab.glsl"
 #include "/lib/fog.glsl"

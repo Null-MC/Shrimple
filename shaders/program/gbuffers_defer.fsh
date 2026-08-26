@@ -38,8 +38,8 @@ in VertexData {
 
     #ifdef MATERIAL_PARALLAX_ENABLED
         vec3 tangentViewPos;
-        flat uint atlasTilePos;
-        flat uint atlasTileSize;
+        flat vec2 atlasTilePos;
+        flat vec2 atlasTileSize;
         flat uint wrapMask;
     #endif
 } vIn;
@@ -122,8 +122,10 @@ void main() {
 
         ParallaxBounds bounds;
         if (!skipParallax && viewDist < MATERIAL_PARALLAX_MAX_DIST) {
-            bounds.atlasTilePos = unpackHalf2x16(vIn.atlasTilePos);
-            bounds.atlasTileSize = unpackHalf2x16(vIn.atlasTileSize);
+//            bounds.atlasTilePos = unpackHalf2x16(vIn.atlasTilePos);
+//            bounds.atlasTileSize = unpackHalf2x16(vIn.atlasTileSize);
+            bounds.atlasTilePos = vIn.atlasTilePos;
+            bounds.atlasTileSize = vIn.atlasTileSize;
             bounds.tanViewDir = tanViewDir;
             bounds.mip = mip;
 
